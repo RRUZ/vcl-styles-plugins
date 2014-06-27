@@ -87,7 +87,7 @@ procedure BitmapImageOnClick(Sender: TObject);
 var
   ErrorCode : Integer;
 begin
-  ShellExec('open', 'http://code.google.com/p/vcl-styles-utils/', '', '', SW_SHOWNORMAL, ewNoWait, ErrorCode);
+  ShellExec('open', 'http://code.google.com/p/vcl-styles-plugins/', '', '', SW_SHOWNORMAL, ewNoWait, ErrorCode);
 end;
 
 procedure CreateWizardPages;
