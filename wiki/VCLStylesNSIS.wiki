@@ -3,7 +3,7 @@
 
 = Introduction =
 
-https://dl.dropboxusercontent.com/u/12733424/Blog/NSIS%20VCL%20Styles/NSIS%20Images/Images/output_A6NOFn.gif
+https://theroadtodelphi.files.wordpress.com/2014/07/output_a6nofn.gif
 
 The _NSISVCLStyles_ plugin (dll) allow you skin the installers created by <a href="http://nsis.sourceforge.net/Main_Page">NSIS</a> (2.46 and 3.0). The size of the plugin is about 1.6 mb, but when is included (and compressed) in the script only add ~550 Kb to the final installer. 
 
@@ -12,9 +12,9 @@ The _NSISVCLStyles_ plugin (dll) allow you skin the installers created by <a hre
 
 The installer for the plugin includes *30+ skins* (VCL Styles)  and a set of samples NSIS scripts. To install just follow the installer instructions.
 
-https://dl.dropboxusercontent.com/u/12733424/Blog/NSIS%20VCL%20Styles/NSIS%20Images/Installer/1.png
+https://theroadtodelphi.files.wordpress.com/2014/07/12.png
 
-https://dl.dropboxusercontent.com/u/12733424/Blog/NSIS%20VCL%20Styles/NSIS%20Images/Installer/2.png
+https://theroadtodelphi.files.wordpress.com/2014/07/23.png
 
 =How apply a style to the installer=
 
