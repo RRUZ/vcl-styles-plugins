@@ -9,34 +9,25 @@
 
 The installer for the plugin includes 30+ VCL Styles, a set of wizard images and samples inno scripts. To install just follow the installer instructions.
 
-https://dl.dropboxusercontent.com/u/12733424/Blog/VCL%20Styles%20InnoSetup/VCL%20Styles%20Inno%20Images/Installer/1.png
+https://theroadtodelphi.files.wordpress.com/2014/07/1.png
 
-https://dl.dropboxusercontent.com/u/12733424/Blog/VCL%20Styles%20InnoSetup/VCL%20Styles%20Inno%20Images/Installer/2.png
+https://theroadtodelphi.files.wordpress.com/2014/07/21.png
 
-https://dl.dropboxusercontent.com/u/12733424/Blog/VCL%20Styles%20InnoSetup/VCL%20Styles%20Inno%20Images/Installer/3.png
+https://theroadtodelphi.files.wordpress.com/2014/07/3.png
 
-https://dl.dropboxusercontent.com/u/12733424/Blog/VCL%20Styles%20InnoSetup/VCL%20Styles%20Inno%20Images/Installer/4.png
+https://theroadtodelphi.files.wordpress.com/2014/07/41.png
 
-https://dl.dropboxusercontent.com/u/12733424/Blog/VCL%20Styles%20InnoSetup/VCL%20Styles%20Inno%20Images/Installer/5.png
-
+https://theroadtodelphi.files.wordpress.com/2014/07/5.png
 
 = Screenshots =
 
-https://dl.dropboxusercontent.com/u/12733424/Blog/VCL%20Styles%20InnoSetup/VCL%20Styles%20Inno%20Images/Sample/1.png
-
-https://dl.dropboxusercontent.com/u/12733424/Blog/VCL%20Styles%20InnoSetup/VCL%20Styles%20Inno%20Images/Sample/2.png
-
-https://dl.dropboxusercontent.com/u/12733424/Blog/VCL%20Styles%20InnoSetup/VCL%20Styles%20Inno%20Images/Sample/3.png
-
-https://dl.dropboxusercontent.com/u/12733424/Blog/VCL%20Styles%20InnoSetup/VCL%20Styles%20Inno%20Images/Sample/4.png
-
-https://dl.dropboxusercontent.com/u/12733424/Blog/VCL%20Styles%20InnoSetup/VCL%20Styles%20Inno%20Images/Sample/5.png
-
-https://dl.dropboxusercontent.com/u/12733424/Blog/VCL%20Styles%20InnoSetup/VCL%20Styles%20Inno%20Images/Sample/6.png
-
-https://dl.dropboxusercontent.com/u/12733424/Blog/VCL%20Styles%20InnoSetup/VCL%20Styles%20Inno%20Images/Sample/7.png
-
-
+https://theroadtodelphi.files.wordpress.com/2014/07/11.png
+https://theroadtodelphi.files.wordpress.com/2014/07/22.png
+https://theroadtodelphi.files.wordpress.com/2014/07/31.png
+https://theroadtodelphi.files.wordpress.com/2014/07/41.png
+https://theroadtodelphi.files.wordpress.com/2014/07/51.png
+https://theroadtodelphi.files.wordpress.com/2014/07/6.png
+https://theroadtodelphi.files.wordpress.com/2014/07/7.png
 
 = How to use it =
 
