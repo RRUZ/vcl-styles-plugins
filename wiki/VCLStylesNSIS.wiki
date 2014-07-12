@@ -62,25 +62,24 @@ FunctionEnd
 }}}
 
 
-https://dl.dropboxusercontent.com/u/12733424/Blog/NSIS%20VCL%20Styles/NSIS%20Images/NCArea/2014_02_05_20_39_27_nsDialogs_Welcome_Setup.png
+https://theroadtodelphi.files.wordpress.com/2014/07/2014_02_05_20_39_27_nsdialogs_welcome_setup.png
 
-https://dl.dropboxusercontent.com/u/12733424/Blog/NSIS%20VCL%20Styles/NSIS%20Images/NCArea/2014_02_05_17_17_06_nsDialogs_Welcome_Setup.png
-
+https://theroadtodelphi.files.wordpress.com/2014/07/2014_02_05_17_17_06_nsdialogs_welcome_setup.png
 
 =How disable the style in a control=
 
  
 These images show a installer using some label with custom colors
 
-https://dl.dropboxusercontent.com/u/12733424/Blog/NSIS%20VCL%20Styles/NSIS%20Images/NCArea/2014_02_05_18_21_50_nsDialogs_Welcome_Setup.png
+https://theroadtodelphi.files.wordpress.com/2014/07/2014_02_05_18_21_50_nsdialogs_welcome_setup.png
 
-https://dl.dropboxusercontent.com/u/12733424/Blog/NSIS%20VCL%20Styles/NSIS%20Images/NCArea/2014_02_05_20_43_01_nsDialogs_Welcome_Setup.png
+https://theroadtodelphi.files.wordpress.com/2014/07/2014_02_05_20_43_01_nsdialogs_welcome_setup.png
 
 If you apply a style the custom colors are not used
 
-https://dl.dropboxusercontent.com/u/12733424/Blog/NSIS%20VCL%20Styles/NSIS%20Images/NCArea/2014-02-05%2020_43_49-nsDialogs%20Welcome%20Setup.png
+https://theroadtodelphi.files.wordpress.com/2014/07/2014-02-05-20_43_49-nsdialogs-welcome-setup.png
 
-https://dl.dropboxusercontent.com/u/12733424/Blog/NSIS%20VCL%20Styles/NSIS%20Images/NCArea/2014-02-05%2020_44_19-nsDialogs%20Welcome%20Setup.png
+https://theroadtodelphi.files.wordpress.com/2014/07/2014-02-05-20_44_19-nsdialogs-welcome-setup.png
 
  The plugin allow disable the style in any control, only passing the handle to the _RemoveStyleControl_ function.
 
@@ -98,10 +97,9 @@ Try this sample
 	NSISVCLStyles::RemoveStyleControl $TEXT
 }}}
 
-https://dl.dropboxusercontent.com/u/12733424/Blog/NSIS%20VCL%20Styles/NSIS%20Images/NCArea/2014-02-05%2020_45_41-nsDialogs%20Welcome%20Setup.png
+https://theroadtodelphi.files.wordpress.com/2014/07/2014-02-05-20_45_41-nsdialogs-welcome-setup.png
 
-
-https://dl.dropboxusercontent.com/u/12733424/Blog/NSIS%20VCL%20Styles/NSIS%20Images/NCArea/2014-02-05%2020_45_56-nsDialogs%20Welcome%20Setup.png
+https://theroadtodelphi.files.wordpress.com/2014/07/2014-02-05-20_45_56-nsdialogs-welcome-setup.png
 
 = Installer =
 
