@@ -109,21 +109,21 @@
 			<VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Cfg_2_Win32)'!=''">
+			<VerInfo_Release>2</VerInfo_Release>
 			<VerInfo_MinorVer>2</VerInfo_MinorVer>
 			<DCC_IOChecking>false</DCC_IOChecking>
 			<DCC_MapFile>3</DCC_MapFile>
 			<DCC_AssertionsAtRuntime>false</DCC_AssertionsAtRuntime>
 			<DCC_ImportedDataReferences>false</DCC_ImportedDataReferences>
-			<VerInfo_Build>3</VerInfo_Build>
+			<VerInfo_Build>1</VerInfo_Build>
 			<VerInfo_MajorVer>1</VerInfo_MajorVer>
-			<VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=1.2.1.3;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
+			<VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=1.2.2.1;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
 		</PropertyGroup>
 		<ItemGroup>
 			<DelphiCompile Include="$(MainSource)">
 				<MainSource>MainSource</MainSource>
 			</DelphiCompile>
 			<DCCReference Include="..\Common\Vcl.Styles.Hooks.pas"/>
-			<DCCReference Include="..\Common\KOLDetours.pas"/>
 			<DCCReference Include="Vcl.Styles.InnoSetup.pas"/>
 			<DCCReference Include="..\Common\Vcl.Styles.Utils.SysControls.pas"/>
 			<DCCReference Include="..\Common\Vcl.Styles.Utils.SysStyleHook.pas"/>
@@ -133,6 +133,8 @@
 			<DCCReference Include="..\Common\Vcl.Styles.Utils.ScreenTips.pas"/>
 			<DCCReference Include="..\Common\Vcl.Styles.Utils.StdCtrls.pas"/>
 			<DCCReference Include="Vcl.Styles.InnoSetup.StyleHooks.pas"/>
+			<DCCReference Include="..\Common\delphi-detours-library\DDetours.pas"/>
+			<DCCReference Include="..\Common\delphi-detours-library\InstDecode.pas"/>
 			<BuildConfiguration Include="Release">
 				<Key>Cfg_2</Key>
 				<CfgParent>Base</CfgParent>
@@ -181,6 +183,7 @@
 						<Source Name="MainSource">VclStylesInno.dpr</Source>
 					</Source>
 					<Excluded_Packages>
+						<Excluded_Packages Name="$(BDSBIN)\fmidesigner160.bpl">FMI Form designer and property and component editors</Excluded_Packages>
 						<Excluded_Packages Name="C:\Users\Public\Documents\RAD Studio\9.0\Bpl\ChromeTabs_XE2_D.bpl">Chrome Tabs Design Time</Excluded_Packages>
 						<Excluded_Packages Name="$(BDSBIN)\bcboffice2k160.bpl">Embarcadero C++Builder Office 2000 Servers Package</Excluded_Packages>
 						<Excluded_Packages Name="$(BDSBIN)\bcbofficexp160.bpl">Embarcadero C++Builder Office XP Servers Package</Excluded_Packages>
@@ -281,11 +284,3 @@
 		<Import Condition="Exists('$(APPDATA)\Embarcadero\$(BDSAPPDATABASEDIR)\$(PRODUCTVERSION)\UserTools.proj')" Project="$(APPDATA)\Embarcadero\$(BDSAPPDATABASEDIR)\$(PRODUCTVERSION)\UserTools.proj"/>
 		<Import Condition="Exists('$(MSBuildProjectName).deployproj')" Project="$(MSBuildProjectName).deployproj"/>
 	</Project>
-
-<!-- EurekaLog First Line
-[Exception Log]
-EurekaLog Version=7001
-Activate=0
-DeleteMapAfterCompile=1
-Encrypt Password=""
-EurekaLog Last Line -->
