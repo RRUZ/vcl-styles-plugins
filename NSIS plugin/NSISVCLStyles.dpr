@@ -31,12 +31,10 @@ library NSISVCLStyles;
 
 {$SetPEFlags $2000}
 uses
-  //IOUTILS,
   System.SysUtils,
   WinApi.Windows,
   Vcl.Themes,
   Vcl.Styles,
-  //Vcl.Imaging.pngimage,
   Vcl.Styles.NSIS in 'Vcl.Styles.NSIS.pas',
   Vcl.Styles.Utils.SysControls in '..\Common\Vcl.Styles.Utils.SysControls.pas',
   Vcl.Styles.Utils.SysStyleHook in '..\Common\Vcl.Styles.Utils.SysStyleHook.pas',
@@ -45,9 +43,10 @@ uses
   Vcl.Styles.Utils.Menus in '..\Common\Vcl.Styles.Utils.Menus.pas',
   Vcl.Styles.Utils.ScreenTips in '..\Common\Vcl.Styles.Utils.ScreenTips.pas',
   Vcl.Styles.Utils.StdCtrls in '..\Common\Vcl.Styles.Utils.StdCtrls.pas',
-  //KOLDetours in '..\Common\KOLDetours.pas',
-  //Vcl.Styles.Hooks in '..\Common\Vcl.Styles.Hooks.pas',
-  nsis in 'nsis.pas';
+  Vcl.Styles.Hooks in '..\Common\Vcl.Styles.Hooks.pas',
+  nsis in 'nsis.pas',
+  DDetours in '..\Common\delphi-detours-library\DDetours.pas',
+  InstDecode in '..\Common\delphi-detours-library\InstDecode.pas';
 
 //NSIS Scripting Reference
   //http://nsis.sourceforge.net/Docs/Chapter4.html
