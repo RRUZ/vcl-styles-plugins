@@ -180,6 +180,8 @@ begin
     if (iPartId = TVP_TREEITEM) and (iStateId=TREIS_SELECTED) then
     begin
        LDetails := StyleServices.GetElementDetails(tgGradientCellSelected);
+       LStartColor:=GetSysColor(COLOR_HIGHLIGHT);
+       LEndColor  :=GetSysColor(COLOR_HIGHLIGHT);
 
        if StyleServices.GetElementColor(LDetails, ecGradientColor1, LColor) and (LColor <> clNone) then
          LStartColor := LColor;
@@ -315,6 +317,8 @@ begin
     if (iPartId = TVP_TREEITEM) and (iStateId=TREIS_SELECTED) then
     begin
        LDetails := StyleServices.GetElementDetails(tgGradientCellSelected);
+       LStartColor:=GetSysColor(COLOR_HIGHLIGHT);
+       LEndColor  :=GetSysColor(COLOR_HIGHLIGHT);
 
        if StyleServices.GetElementColor(LDetails, ecGradientColor1, LColor) and (LColor <> clNone) then
          LStartColor := LColor;
@@ -372,11 +376,11 @@ var
  pOrgPointer : Pointer;
 
 initialization
+ THThemesClasses.Button  :=TList.Create;
+ THThemesClasses.TreeView:=TList.Create;
 
  if StyleServices.Available then
  begin
-   THThemesClasses.Button  :=TList.Create;
-   THThemesClasses.TreeView:=TList.Create;
    ThemeLibrary := GetModuleHandle('uxtheme.dll');
 
    pOrgPointer     := GetProcAddress(GetModuleHandle('user32.dll'), 'GetSysColor');
@@ -402,12 +406,11 @@ initialization
    if Assigned(pOrgPointer) then
    @TrampolineGetThemeSysColor := InterceptCreate(pOrgPointer, @Detour_GetThemeSysColor);
 
-//   GetThemeColorOrgPointer     := GetProcAddress(ThemeLibrary, 'GetThemeColor');
+//   pOrgPointer     := GetProcAddress(ThemeLibrary, 'GetThemeColor');
 //   @TrampolineGetThemeColor    := InterceptCreate(GetThemeColorOrgPointer, @Detour_GetThemeColor);
  end;
 
 finalization
-
  if Assigned(TrampolineGetSysColor) then
   InterceptRemove(@TrampolineGetSysColor);
 
@@ -426,6 +429,6 @@ finalization
  if Assigned(TrampolineDrawThemeBackgroundEx) then
   InterceptRemove(@TrampolineDrawThemeBackgroundEx);
 
-   THThemesClasses.Button.Free;
-   THThemesClasses.TreeView.Free;
+  THThemesClasses.Button.Free;
+  THThemesClasses.TreeView.Free;
 end.
