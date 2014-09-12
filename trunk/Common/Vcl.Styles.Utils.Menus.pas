@@ -23,7 +23,7 @@ unit Vcl.Styles.Utils.Menus;
 interface
 
 {$DEFINE UseVCLStyleUtilsMenu}
-{$IF CompilerVersion >= 27}      // Use the XE6 menu syshooks by default
+{$IF CompilerVersion >= 27}
 {$UNDEF UseVCLStyleUtilsMenu}  // comment this line if you want to use the VCL Styles Utils Menus Hooks
 {$IFEND}
 
@@ -348,7 +348,8 @@ var
   LTextFormat: TTextFormat;
   DC: HDC;
   LSize: TSize;
-  MI: TMenuItem;
+  LMenuItem: TMenuItem;
+  LOwnerDrawState : TOwnerDrawState;
   ImageIndex: integer;
   LImageRect, R: TRect;
   LImageWidth: integer;
@@ -361,6 +362,8 @@ var
   SysItem: TSysPopupItem;
   sShortCut: String;
   Bmp: TBitmap;
+  LParentMenu : TMenu;
+
 
   procedure DrawSubMenu(const ItemRect: TRect);
   var
@@ -498,25 +501,45 @@ begin
     DrawSubMenu(ItemRect);
 
   LImageWidth := 0;
-  MI := SysItem.VCLMenuItems;
-  if MI <> nil then
-    MI := SysItem.VCLItem;
+  LMenuItem := SysItem.VCLMenuItems;
+  if LMenuItem <> nil then
+    LMenuItem := SysItem.VCLItem;
 
-  // if MI = nil then
-  // begin
-  // SysItem.VCLMenuItems;
-  // OutputDebugString(PChar('MI = nil'));
-  // end;
+  LParentMenu:=nil;
+  if (LMenuItem <> nil) then
+    LParentMenu:=LMenuItem.GetParentMenu;
+  if (LParentMenu<>nil) and (LParentMenu.OwnerDraw) and (@LMenuItem.OnDrawItem<>nil) then
+  begin
+    LMenuItem.OnDrawItem(LMenuItem, Canvas, ItemRect, (isHot in State));
+    exit;
+  end;
 
-  if MI <> nil then
+  if (LParentMenu<>nil) and (LParentMenu.OwnerDraw) and (LMenuItem <> nil) and (@LMenuItem.OnAdvancedDrawItem<>nil) then
+  begin
+    LOwnerDrawState := [];
+
+    if isHot in State then
+      Include(LOwnerDrawState , odSelected);
+    if isDisabled in State then
+     Include(LOwnerDrawState , odDisabled);
+    if isChecked in State then
+     Include(LOwnerDrawState , odChecked);
+    if isDefault in State then
+     Include(LOwnerDrawState , odDefault);
+
+    LMenuItem.OnAdvancedDrawItem(LMenuItem, Canvas, ItemRect, LOwnerDrawState);
+    exit;
+  end;
+
+  if LMenuItem <> nil then
   begin
     { Draw Vcl PopupMenu Bitmap }
-    ImageIndex := MI.ImageIndex;
-    with MI.GetParentMenu do
+    ImageIndex := LMenuItem.ImageIndex;
+    with LMenuItem.GetParentMenu do
     begin
-      if (ImageIndex < 0) and (MI.Bitmap <> nil) then
+      if (ImageIndex < 0) and (LMenuItem.Bitmap <> nil) then
       begin
-        Bmp := MI.Bitmap;
+        Bmp := LMenuItem.Bitmap;
         if (Bmp.Width = 16) and (Bmp.Height = 16) then
         begin
           LImageWidth := Bmp.Width;
@@ -549,7 +572,7 @@ begin
         end;
 
       end
-      else if (MI.GetParentMenu.Images <> nil) and (ImageIndex > -1) then
+      else if (LMenuItem.GetParentMenu.Images <> nil) and (ImageIndex > -1) then
       begin
         LImageWidth := Images.Width;
         DisplayCheckedGlyph := False;
@@ -677,11 +700,11 @@ begin
   DrawText(Canvas.Handle, LDetails, ItemText, LTextRect, LTextFormat);
 
   { Draw ShortCut Text . }
-  if MI <> nil then
+  if LMenuItem <> nil then
   begin
-    if MI.ShortCut <> 0 then
+    if LMenuItem.ShortCut <> 0 then
     begin
-      sShortCut := ShortCutToText(MI.ShortCut);
+      sShortCut := ShortCutToText(LMenuItem.ShortCut);
       LTextRect := ItemRect;
       if RightToLeft then
       begin
@@ -703,10 +726,13 @@ var
   Bmp: TBitmap;
 begin
   Bmp := TBitmap.Create;
-  Bmp.SetSize(SysControl.Width, SysControl.Height);
-  PaintBackground(Bmp.Canvas);
-  BitBlt(Canvas.Handle, ItemRect.Left, ItemRect.Top, ItemRect.Width, ItemRect.Height, Bmp.Canvas.Handle, ItemRect.Left, ItemRect.Top, SRCCOPY);
-  Bmp.Free;
+  try
+    Bmp.SetSize(SysControl.Width, SysControl.Height);
+    PaintBackground(Bmp.Canvas);
+    BitBlt(Canvas.Handle, ItemRect.Left, ItemRect.Top, ItemRect.Width, ItemRect.Height, Bmp.Canvas.Handle, ItemRect.Left, ItemRect.Top, SRCCOPY);
+  finally
+    Bmp.Free;
+  end;
 end;
 
 function TSysPopupStyleHook.GetItemsCount: integer;
@@ -723,11 +749,12 @@ function TSysPopupStyleHook.GetRightToLeft: Boolean;
 var
   info: TMenuItemInfo;
 begin
+  Result:=False;
   FillChar(info, sizeof(info), Char(0));
   info.cbSize := sizeof(TMenuItemInfo);
   info.fMask := MIIM_TYPE;
-  GetMenuItemInfo(FMenu, 0, True, info);
-  Result := ((info.fType and MFT_RIGHTORDER) = MFT_RIGHTORDER) or ((info.fType and MFT_RIGHTJUSTIFY) = MFT_RIGHTJUSTIFY);
+  if GetMenuItemInfo(FMenu, 0, True, info) then
+    Result := ((info.fType and MFT_RIGHTORDER) = MFT_RIGHTORDER) or ((info.fType and MFT_RIGHTJUSTIFY) = MFT_RIGHTJUSTIFY);
 end;
 
 function TSysPopupStyleHook.GetSysPopupItem(Index: integer): TSysPopupItem;
@@ -863,8 +890,12 @@ begin
     begin
       L := Length(SubMenuItemInfoArray);
       if L = 0 then
+      begin
         SetLength(SubMenuItemInfoArray, 1);
-      for i := 0 to L do
+        L:=1;
+      end;
+
+      for i := 0 to L-1 do
         { Avoid duplication }
         if SubMenuItemInfoArray[i].Menu <> GetMenuFromHandle(Handle) then
         begin
@@ -945,11 +976,12 @@ begin
     Use this function instead of Items[Index].Separator .
     ==> Fast access in WM_KEYDOWN .
   }
+  Result:=False;
   FillChar(info, sizeof(info), Char(0));
   info.cbSize := sizeof(TMenuItemInfo);
   info.fMask := MIIM_FTYPE;
-  GetMenuItemInfo(Menu, ItemIndex, True, info);
-  Result := (info.fType and MFT_SEPARATOR) = MFT_SEPARATOR;
+  if GetMenuItemInfo(Menu, ItemIndex, True, info) then
+    Result := (info.fType and MFT_SEPARATOR) = MFT_SEPARATOR;
 end;
 // ------------------------------------------------------------------------------
 
@@ -1154,13 +1186,16 @@ function TSysPopupStyleHook.TSysPopupItem.GetItemBitmap: HBITMAP;
 var
   info: TMenuItemInfo;
 begin
+  Result:=0;
   FillChar(info, sizeof(info), Char(0));
   info.cbSize := sizeof(TMenuItemInfo);
   info.fMask := MIIM_CHECKMARKS or MIIM_BITMAP;
-  GetMenuItemInfo(FMenu, FIndex, True, info);
-  Result := info.hbmpItem;
-  if Result = 0 then
-    Result := info.hbmpUnchecked;
+  if GetMenuItemInfo(FMenu, FIndex, True, info) then
+  begin
+    Result := info.hbmpItem;
+    if Result = 0 then
+      Result := info.hbmpUnchecked;
+  end;
 end;
 
 function TSysPopupStyleHook.TSysPopupItem.GetItemID: WORD;
@@ -1201,33 +1236,35 @@ begin
   info.cbSize := sizeof(MENUITEMINFO);
   info.fMask := MIIM_STRING or MIIM_FTYPE;
   info.dwTypeData := nil;
-  GetMenuItemInfo(FMenu, FIndex, True, info);
-  if not(info.fType and MFT_OWNERDRAW = MFT_OWNERDRAW) then
+  if GetMenuItemInfo(FMenu, FIndex, True, info) then
   begin
-    { The Size needed for the Buffer . }
-    StrSize := info.cch * 2 + 2;
-    GetMem(Buffer, StrSize);
-    try
-      info.dwTypeData := Buffer;
-      { inc cch to get the last char . }
-      inc(info.cch);
-      GetMenuItemInfo(FMenu, FIndex, True, info);
-      Result := String(Buffer);
-    finally
-      FreeMem(Buffer, StrSize);
+    if not(info.fType and MFT_OWNERDRAW = MFT_OWNERDRAW) then
+    begin
+      { The Size needed for the Buffer . }
+      StrSize := info.cch * 2 + 2;
+      GetMem(Buffer, StrSize);
+      try
+        info.dwTypeData := Buffer;
+        { inc cch to get the last char . }
+        inc(info.cch);
+        if GetMenuItemInfo(FMenu, FIndex, True, info) then
+          Result := String(Buffer);
+      finally
+        FreeMem(Buffer, StrSize);
+      end;
+      Exit;
+    end
+    else
+    begin
+      { if the item is owner draw then we need another way to get
+        the item text since , when setting an item to ownerdraw windows
+        will destroy the dwTypeData that hold the text . }
+      FillChar(info, sizeof(MENUITEMINFO), Char(0));
+      info.cbSize := sizeof(MENUITEMINFO);
+      info.fMask := MIIM_DATA;
+      if GetMenuItemInfo(FMenu, FIndex, True, info) then
+        Result := String(PChar(info.dwItemData));
     end;
-    Exit;
-  end
-  else
-  begin
-    { if the item is owner draw then we need another way to get
-      the item text since , when setting an item to ownerdraw windows
-      will destroy the dwTypeData that hold the text . }
-    FillChar(info, sizeof(MENUITEMINFO), Char(0));
-    info.cbSize := sizeof(MENUITEMINFO);
-    info.fMask := MIIM_DATA;
-    GetMenuItemInfo(FMenu, FIndex, True, info);
-    Result := String(PChar(info.dwItemData));
   end;
 end;
 
@@ -1385,45 +1422,49 @@ function TSysPopupStyleHook.TSysPopupItem.IsItemDisabled: Boolean;
 var
   info: TMenuItemInfo;
 begin
+  Result:=False;
   FillChar(info, sizeof(info), Char(0));
   info.cbSize := sizeof(TMenuItemInfo);
   info.fMask := MIIM_STATE;
-  GetMenuItemInfo(FMenu, FIndex, True, info);
-  Result := (info.fState and MFS_DISABLED = MFS_DISABLED) or (info.fState and MF_DISABLED = MF_DISABLED) or (info.fState and MF_GRAYED = MF_GRAYED);
+  if GetMenuItemInfo(FMenu, FIndex, True, info) then
+    Result := (info.fState and MFS_DISABLED = MFS_DISABLED) or (info.fState and MF_DISABLED = MF_DISABLED) or (info.fState and MF_GRAYED = MF_GRAYED);
 end;
 
 function TSysPopupStyleHook.TSysPopupItem.IsItemOwnerDraw: Boolean;
 var
   info: TMenuItemInfo;
 begin
+  Result:=False;
   FillChar(info, sizeof(MENUITEMINFO), Char(0));
   info.cbSize := sizeof(MENUITEMINFO);
   info.fMask := MIIM_FTYPE;
   info.dwTypeData := nil;
-  GetMenuItemInfo(FMenu, FIndex, True, info);
-  Result := (info.fType and MFT_OWNERDRAW = MFT_OWNERDRAW);
+  if GetMenuItemInfo(FMenu, FIndex, True, info) then
+    Result := (info.fType and MFT_OWNERDRAW = MFT_OWNERDRAW);
 end;
 
 function TSysPopupStyleHook.TSysPopupItem.IsItemRadioCheck: Boolean;
 var
   info: TMenuItemInfo;
 begin
+  Result:=False;
   FillChar(info, sizeof(info), Char(0));
   info.cbSize := sizeof(TMenuItemInfo);
   info.fMask := MIIM_FTYPE;
-  GetMenuItemInfo(FMenu, FIndex, True, info);
-  Result := (info.fType and MFT_RADIOCHECK) = MFT_RADIOCHECK;
+  if GetMenuItemInfo(FMenu, FIndex, True, info) then
+    Result := (info.fType and MFT_RADIOCHECK) = MFT_RADIOCHECK;
 end;
 
 function TSysPopupStyleHook.TSysPopupItem.IsItemChecked: Boolean;
 var
   info: TMenuItemInfo;
 begin
+  Result:=False;
   FillChar(info, sizeof(info), Char(0));
   info.cbSize := sizeof(TMenuItemInfo);
   info.fMask := MIIM_STATE;
-  GetMenuItemInfo(FMenu, FIndex, True, info);
-  Result := (info.fState and MFS_CHECKED) = MFS_CHECKED;
+  if GetMenuItemInfo(FMenu, FIndex, True, info) then
+    Result := (info.fState and MFS_CHECKED) = MFS_CHECKED;
 end;
 
 function TSysPopupStyleHook.TSysPopupItem.IsItemContainsSubMenu: Boolean;
@@ -1435,11 +1476,12 @@ function TSysPopupStyleHook.TSysPopupItem.IsItemDefault: Boolean;
 var
   info: TMenuItemInfo;
 begin
+  Result:=False;
   FillChar(info, sizeof(info), Char(0));
   info.cbSize := sizeof(TMenuItemInfo);
   info.fMask := MIIM_STATE;
-  GetMenuItemInfo(FMenu, FIndex, True, info);
-  Result := (info.fState and MFS_DEFAULT) = MFS_DEFAULT;
+  if GetMenuItemInfo(FMenu, FIndex, True, info) then
+    Result := (info.fState and MFS_DEFAULT) = MFS_DEFAULT;
 end;
 
 function TSysPopupStyleHook.TSysPopupItem.IsItemSeparator: Boolean;
@@ -1452,8 +1494,8 @@ begin
   Result := False;
   if (FIndex > -1) and (FIndex < GetMenuItemCount(FMenu) - 1) then
   begin
-    GetMenuItemInfo(FMenu, FIndex, True, info);
-    Result := (info.fType and MFT_SEPARATOR) = MFT_SEPARATOR;
+    if GetMenuItemInfo(FMenu, FIndex, True, info) then
+      Result := (info.fType and MFT_SEPARATOR) = MFT_SEPARATOR;
   end;
 end;
 
