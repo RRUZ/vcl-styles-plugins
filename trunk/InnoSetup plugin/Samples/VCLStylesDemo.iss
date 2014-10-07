@@ -7,8 +7,8 @@ DefaultDirName={pf}\The Road To Delphi\VCL Styles Inno Demo
 DefaultGroupName=The Road To Delphi
 Compression=lzma
 SolidCompression=true
-WizardImageFile=..\images\WizModernImage-IS_Green.bmp
-WizardSmallImageFile=..\images\WizModernSmallImage-IS_Green.bmp
+WizardImageFile=WizModernImage-IS.bmp
+WizardSmallImageFile=WizModernSmallImage-IS.bmp
 OutputDir=.\Output
 OutputBaseFilename=Setup
 VersionInfoVersion=1.0.0.0
@@ -18,6 +18,7 @@ VersionInfoTextVersion=1, 0, 0, 0
 InternalCompressLevel=max
 ;LicenseFile="ISPPExample1License.txt"
 [Files]
+;
 Source: ..\VclStylesinno.dll; DestDir: {app}; Flags: dontcopy
 ;Source: ..\Win32\Release\VclStylesinno.dll; DestDir: {app}; Flags: dontcopy
 Source: ..\Styles\Amakrits.vsf; DestDir: {app}; Flags: dontcopy
