@@ -71,6 +71,8 @@ type
   end;
 
   TWizardFormStyleHook = class(TSysDialogStyleHook)
+  private
+    procedure WMNCLButtonDown(var Message: TWMNCLButtonDown); message WM_NCLBUTTONDOWN;
   public
     constructor Create(AHandle: THandle); override;
   end;
@@ -172,6 +174,62 @@ begin
   HookedDirectly := True;
 end;
 
+
+procedure TWizardFormStyleHook.WMNCLButtonDown(var Message: TWMNCLButtonDown);
+var
+  P: TPoint;
+begin
+  Handled := False;
+  if (not StyleServicesEnabled) or (not OverridePaintNC) then
+    Exit;
+
+  if OverridePaintNC then
+  begin
+    if (Message.HitTest = HTCLOSE) or (Message.HitTest = HTMAXBUTTON) or (Message.HitTest = HTMINBUTTON) or (Message.HitTest = HTHELP) then
+    begin
+      PressedButton := Message.HitTest;
+      InvalidateNC;
+      SetRedraw(False);
+      Message.Result := CallDefaultProc(TMessage(Message));
+      SetRedraw(True);
+      PressedButton := 0;
+      HotButton := 0;
+      InvalidateNC;
+      GetCursorPos(P);
+      P := NormalizePoint(P);
+
+      case Message.HitTest of
+        HTCLOSE:
+          if CloseButtonRect.Contains(P) then
+              Close;
+        HTMAXBUTTON:
+          begin
+            if MaxButtonRect.Contains(P) then
+            begin
+              if WindowState = wsMaximized then
+                Restore
+              else
+                Maximize;
+            end;
+          end;
+        HTMINBUTTON:
+          if MinButtonRect.Contains(P) then
+            Minimize;
+        HTHELP:
+          if HelpButtonRect.Contains(P) then
+            Help;
+      end;
+    end
+    else
+    begin
+      inherited;
+      Handled := True;
+      Exit;
+    end;
+    Handled := True;
+  end;
+end;
+
 { TNewListBox }
 
 constructor TNewListBoxStyleHook.Create(AHandle: THandle);
@@ -187,5 +245,6 @@ begin
   inherited;
   HookedDirectly := True;
 end;
+
 
 end.

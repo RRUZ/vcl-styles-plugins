@@ -64,7 +64,6 @@ type
     FNCMouseDown: Boolean;
     FAllowScrolling: Boolean;
     FLstPos: Integer;
-    function NormalizePoint(const P: TPoint): TPoint;
     function GetDefaultScrollBarSize: TSize;
     procedure WMNCHitTest(var Message: TWMNCHitTest); message WM_NCHITTEST;
     procedure WMNCCalcSize(var Message: TWMNCCalcSize); message WM_NCCALCSIZE;
@@ -95,6 +94,7 @@ type
     function IsHorzScrollDisabled: Boolean;
     function IsVertScrollDisabled: Boolean;
   protected
+    function NormalizePoint(const P: TPoint): TPoint;
     procedure Scroll(const Kind: TScrollBarKind; const ScrollType: TSysScrollingType; Pos, Delta: Integer); virtual;
     procedure DoScroll(const Kind: TScrollBarKind; const ScrollType: TSysScrollingType; Pos, Delta: Integer);
     procedure DrawHorzScroll(DC: HDC); virtual;
@@ -188,6 +188,8 @@ type
     procedure Maximize; virtual;
     procedure Minimize; virtual;
     procedure Restore; virtual;
+    property  PressedButton: Integer read FPressedButton write FPressedButton;
+    property  HotButton: Integer read FHotButton write FHotButton;
   public
     constructor Create(AHandle: THandle); override;
     Destructor Destroy; override;
@@ -1161,7 +1163,6 @@ begin
       P := NormalizePoint(P);
 
       case Message.HitTest of
-
         HTCLOSE:
           if CloseButtonRect.Contains(P) then
             if Message.Result <> 0 then // only if the app doesn't processes this message
@@ -1259,18 +1260,26 @@ begin
 
     WM_DESTROY:
       begin
-        { In some situation ..we can not get the ParentHandle
-          after processing the default WM_DESTROY message .
-          => Save the parent before calling the default message .
+        { In some situations ..we can not get the ParentHandle
+          after processing the default WM_DESTROY message.
+          => Save the parent before calling the default message.
         }
+        SysControl.Destroyed:=True;
+        //OutputDebugString(PChar(Format('TSysDialogStyleHook $0x%x %s', [SysControl.Handle, WM_To_String(Message.Msg)])));
         LParentHandle := ParentHandle;
-        Message.Result := CallDefaultProc(Message);
+
+        if  (LParentHandle>0) and (TSysStyleManager.SysStyleHookList.ContainsKey(LParentHandle)) and  TSysStyleManager.SysStyleHookList.Items[ParentHandle].SysControl.Destroyed  then
+         Message.Result :=0
+        else
+         Message.Result := CallDefaultProc(Message);
+
         if LParentHandle > 0 then
         begin
           { When destroying the child window ..
             the parent window must be repainted . }
           RedrawWindow(LParentHandle, nil, 0, RDW_ERASE or RDW_FRAME or RDW_INTERNALPAINT or RDW_INVALIDATE);
         end;
+
         Handled := True;
       end;
   end;
@@ -2625,21 +2634,15 @@ initialization
 
 UseLatestCommonDialogs := False;
 
-if StyleServices.Available then
-begin
-  with TSysStyleManager do
+  if StyleServices.Available then
   begin
-    RegisterSysStyleHook('#32770', TSysDialogStyleHook);
-    RegisterSysStyleHook('ScrollBar', TSysScrollBarStyleHook);
+    TSysStyleManager.RegisterSysStyleHook('#32770', TSysDialogStyleHook);
+    TSysStyleManager.RegisterSysStyleHook('ScrollBar', TSysScrollBarStyleHook);
   end;
-end;
 
 finalization
 
-with TSysStyleManager do
-begin
-  UnRegisterSysStyleHook('#32770', TSysDialogStyleHook);
-  UnRegisterSysStyleHook('ScrollBar', TSysScrollBarStyleHook);
-end;
+  TSysStyleManager.UnRegisterSysStyleHook('#32770', TSysDialogStyleHook);
+  TSysStyleManager.UnRegisterSysStyleHook('ScrollBar', TSysScrollBarStyleHook);
 
 end.
