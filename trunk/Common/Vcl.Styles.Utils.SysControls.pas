@@ -695,9 +695,6 @@ begin
     sClassName := GetWindowClassName(wParam);
     sClassName := LowerCase(sClassName);
 
-  //  if SameText(sClassName, 'button') then
-      //OutputDebugString(PChar('Class '+sclassName+' '+IntToHex(wParam, 8)));
-
     Parent := CBTSturct.lpcs.hwndParent;
     Style := CBTSturct.lpcs.Style;
     ExStyle := CBTSturct.lpcs.dwExStyle;

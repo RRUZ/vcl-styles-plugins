@@ -556,9 +556,6 @@ end;
 
 destructor TSysStyleHook.Destroy;
 begin
-  // OutputDebugString(PChar('TSysStyleHook.Destroy Handle '+IntToHex(Handle, 8)));
-
-
   if FOrgWndProc <> 0 then
     FSysControl.WndProc := FOrgWndProc;
 
@@ -579,7 +576,6 @@ end;
 
 function TSysStyleHook.CallDefaultProc(var Msg: TMessage): LRESULT;
 begin
-  //OutputDebugString(PChar('TSysStyleHook.CallDefaultProc FOrgWndProc '+IntToHex(FOrgWndProc, 8)+' Handle '+IntToHex(Handle, 8)+' Msg '+WM_To_String(Msg.Msg)+' ClassName '+SysControl.ControlClassName));
   Result := CallWindowProc(Pointer(FOrgWndProc), Handle, Msg.Msg, Msg.wParam, Msg.lParam);
 end;
 
@@ -1161,6 +1157,8 @@ var
   ChildHandle: HWND;
   ItemRemoved : Boolean;
 begin
+
+
   case Message.Msg of
 
     CM_CONTROLHOOKEDDIRECTLY:
@@ -1316,7 +1314,6 @@ destructor TMouseTrackSysControlStyleHook.Destroy;
 begin
   if Assigned(FHotTrackTimer) then
     FreeAndNil(FHotTrackTimer);
-
   inherited;
 end;
 
@@ -1368,7 +1365,6 @@ begin
   TTimer(FHotTrackTimer).Interval := 100;
   TTimer(FHotTrackTimer).OnTimer := DoHotTrackTimer;
   TTimer(FHotTrackTimer).Enabled := True;
-
 end;
 
 procedure TMouseTrackSysControlStyleHook.StopHotTrackTimer;
