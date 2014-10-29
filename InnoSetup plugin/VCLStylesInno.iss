@@ -9,8 +9,8 @@ DefaultDirName={pf}\The Road To Delphi\VCL Styles Inno
 DefaultGroupName=The Road To Delphi
 Compression=lzma
 SolidCompression=true
-WizardImageFile=WizModernImage-IS.bmp
-WizardSmallImageFile=WizModernSmallImage-IS.bmp
+WizardImageFile=images\WizModernImage-IS_Green.bmp
+WizardSmallImageFile=images\WizModernSmallImage-IS_Green.bmp
 OutputDir=.\Output
 OutputBaseFilename=SetupVCLStylesInno
 VersionInfoVersion={#MyAppVersion}
@@ -55,22 +55,23 @@ Source: Styles\TurquoiseGray.vsf; DestDir: {app}\Styles\
 Source: Styles\YellowGraphite.vsf; DestDir: {app}\Styles\
 Source: Samples\CodeClasses.iss; DestDir: {app}\Samples\
 Source: Samples\VCLStylesDemo.iss; DestDir: {app}\Samples\
+Source: Samples\VCLStylesDemo_Uninstall.iss; DestDir: {app}\Samples\
 Source: Samples\Readme-German.txt; DestDir: {app}\Samples\
 Source: Samples\Components.iss; DestDir: {app}\Samples\
 Source: Samples\MyProg.chm; DestDir: {app}\Samples\
 Source: Samples\MyProg.exe; DestDir: {app}\Samples\
 Source: Samples\Readme.txt; DestDir: {app}\Samples\
 Source: Samples\Readme-Dutch.txt; DestDir: {app}\Samples\
-;Source: Images\WizModernImage-IS.bmp; DestDir: {app}\Images\
-;Source: Images\WizModernImage-IS_BW.bmp; DestDir: {app}\Images\
-;Source: Images\WizModernImage-IS_Green.bmp; DestDir: {app}\Images\
-;Source: Images\WizModernImage-IS_Orange.bmp; DestDir: {app}\Images\
-;Source: Images\WizModernImage-IS_Purple.bmp; DestDir: {app}\Images\
-;Source: Images\WizModernSmallImage-IS.bmp; DestDir: {app}\Images\
-;Source: Images\WizModernSmallImage-IS_BW.bmp; DestDir: {app}\Images\
-;Source: Images\WizModernSmallImage-IS_Green.bmp; DestDir: {app}\Images\
-;Source: Images\WizModernSmallImage-IS_Orange.bmp; DestDir: {app}\Images\
-;Source: Images\WizModernSmallImage-IS_Purple.bmp; DestDir: {app}\Images\
+Source: Images\WizModernImage-IS.bmp; DestDir: {app}\Images\
+Source: Images\WizModernImage-IS_BW.bmp; DestDir: {app}\Images\
+Source: Images\WizModernImage-IS_Green.bmp; DestDir: {app}\Images\
+Source: Images\WizModernImage-IS_Orange.bmp; DestDir: {app}\Images\
+Source: Images\WizModernImage-IS_Purple.bmp; DestDir: {app}\Images\
+Source: Images\WizModernSmallImage-IS.bmp; DestDir: {app}\Images\
+Source: Images\WizModernSmallImage-IS_BW.bmp; DestDir: {app}\Images\
+Source: Images\WizModernSmallImage-IS_Green.bmp; DestDir: {app}\Images\
+Source: Images\WizModernSmallImage-IS_Orange.bmp; DestDir: {app}\Images\
+Source: Images\WizModernSmallImage-IS_Purple.bmp; DestDir: {app}\Images\
 Source: ..\..\..\..\Program Files (x86)\Embarcadero\RAD Studio\9.0\bin\VclStyleDesigner.exe; DestDir: {app}
 Source: ..\..\..\..\Program Files (x86)\Embarcadero\RAD Studio\9.0\bin\VclStyleTest.exe; DestDir: {app}
 Source: background.bmp; Flags: dontcopy

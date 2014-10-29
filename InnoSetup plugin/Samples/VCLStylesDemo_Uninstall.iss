@@ -1,5 +1,3 @@
-#define VCLStylesSkinPath "{localappdata}\VCLStylesSkin"
-
 [Setup]
 AppName=VCL Styles Example
 AppVerName=VCL Styles Example v1.0
@@ -18,8 +16,11 @@ VersionInfoCompany=The Road To Delphi
 VersionInfoDescription=VCL Styles Setup
 VersionInfoTextVersion=1, 0, 0, 0
 InternalCompressLevel=max
+
+#define VCLStylesSkinPath "{localappdata}\VCLStylesSkin"
 [Files]
-Source: ..\Win32\Release\VclStylesinno.dll; DestDir: {#VCLStylesSkinPath}; Flags: uninsneveruninstall
+Source: ..\VclStylesinno.dll; DestDir: {#VCLStylesSkinPath}; Flags: uninsneveruninstall
+//Source: ..\Win32\Release\VclStylesinno.dll; DestDir: {#VCLStylesSkinPath}; Flags: uninsneveruninstall
 Source: ..\Styles\Amakrits.vsf; DestDir: {#VCLStylesSkinPath}; Flags: uninsneveruninstall
 
 
@@ -31,19 +32,15 @@ procedure LoadVCLStyle_UnInstall(VClStyleFile: String); external 'LoadVCLStyleW@
 procedure UnLoadVCLStyles; external 'UnLoadVCLStyles@files:VclStylesInno.dll stdcall setuponly';
 procedure UnLoadVCLStyles_UnInstall; external 'UnLoadVCLStyles@{#VCLStylesSkinPath}\VclStylesInno.dll stdcall uninstallonly';
 
-function ShowWindow(hWnd: HWND; nCmdShow: Integer): BOOL;
-  external 'ShowWindow@user32.dll stdcall';
-
 function InitializeSetup(): Boolean;
 begin
-	ExtractTemporaryFile('Amakrits.vsf');
-	LoadVCLStyle(ExpandConstant('{tmp}\Amakrits.vsf'));
-	Result := True;
+ ExtractTemporaryFile('Amakrits.vsf');
+ LoadVCLStyle(ExpandConstant('{tmp}\Amakrits.vsf'));
+ Result := True;
 end;
 
 procedure DeinitializeSetup();
 begin
-	//ShowWindow(StrToInt(ExpandConstant('{wizardhwnd}')), SW_HIDE);
 	UnLoadVCLStyles;
 end;
 
@@ -53,11 +50,7 @@ begin
   LoadVCLStyle_UnInstall(ExpandConstant('{#VCLStylesSkinPath}\Amakrits.vsf'));
 end;
 
-procedure DeinitializeUninstall;
+procedure DeinitializeUninstall();
 begin
-  //UnLoadVCLStyles_UnInstall;
-  //UnloadDLL(ExpandConstant('{#VCLStylesSkinPath}\VclStylesinno.dll'));
-  //DeleteFile(ExpandConstant('{#VCLStylesSkinPath}\VclStylesinno.dll'));
-  //DeleteFile(ExpandConstant('{#VCLStylesSkinPath}\Amakrits.vsf'));
-  //RemoveDir(ExpandConstant('{#VCLStylesSkinPath}'));
+  UnLoadVCLStyles_UnInstall;
 end;
