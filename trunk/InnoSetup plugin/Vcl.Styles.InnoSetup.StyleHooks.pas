@@ -28,6 +28,7 @@ interface
 uses
   Winapi.Windows,
   Winapi.Messages,
+  Winapi.RichEdit,
   System.Classes,
   System.SysUtils,
   Vcl.Styles,
@@ -43,12 +44,31 @@ uses
 
 type
   TRichEditViewerStyleHook = class(TSysScrollingStyleHook)
+  private
+    procedure EMSetBkgndColor(var Message: TMessage); message EM_SETBKGNDCOLOR;
+    procedure EMSetCharFormat(var Message: TMessage); message EM_SETCHARFORMAT;
   protected
     function GetBorderSize: TRect; override;
     procedure WndProc(var Message: TMessage); override;
   public
     constructor Create(AHandle: THandle); override;
     Destructor Destroy; override;
+  end;
+
+  TPanelComponentStyleHook = class(TSysScrollingStyleHook)
+  strict protected
+    procedure PaintBackground(Canvas: TCanvas); override;
+  public
+    constructor Create(AHandle: THandle); override;
+  end;
+
+  TLabelComponentStyleHook = class(TSysStyleHook)
+  strict protected
+    procedure PaintBackground(Canvas: TCanvas); override;
+    procedure WMPaint(var Message: TWMPaint); message WM_PAINT;
+    procedure WndProc(var Message: TMessage); override;
+  public
+    constructor Create(AHandle: THandle); override;
   end;
 
   TNewCheckListBoxStyleHook = class(TSysScrollingStyleHook)
@@ -89,6 +109,9 @@ type
 
 implementation
 
+uses
+ Vcl.Styles.Utils.SysControls;
+
 { TRichEditViewerStyleHook }
 
 constructor TRichEditViewerStyleHook.Create(AHandle: THandle);
@@ -102,17 +125,40 @@ end;
 
 destructor TRichEditViewerStyleHook.Destroy;
 begin
-
   inherited;
 end;
+
+procedure TRichEditViewerStyleHook.EMSetBkgndColor(var Message: TMessage);
+begin
+  Message.LParam := ColorToRGB(StyleServices.GetStyleColor(scEdit));
+  Handled := False;
+end;
+
+procedure TRichEditViewerStyleHook.EMSetCharFormat(var Message: TMessage);
+type
+  PCharFormat2 = ^TCharFormat2;
+const
+  TextColor: array[Boolean] of TStyleFont = (sfEditBoxTextDisabled, sfEditBoxTextNormal);
+  BkColor: array[Boolean] of TStyleColor = (scEditDisabled, scEdit);
+var
+  Format: PCharFormat2;
+begin
+  Format := PCharFormat2(Message.LParam);
+  if (Format.dwMask and CFM_COLOR = CFM_COLOR) then
+  begin
+    Format.crTextColor := ColorToRGB(StyleServices.GetStyleFontColor(TextColor[SysControl.Enabled]));
+    Format.crBackColor := ColorToRGB(StyleServices.GetStyleColor(BkColor[SysControl.Enabled]));
+    Format.dwEffects := Format.dwEffects and not CFE_AUTOCOLOR;
+  end;
+  Handled := False;
+end;
+
 
 function TRichEditViewerStyleHook.GetBorderSize: TRect;
 begin
   Result := inherited GetBorderSize;
   if (SysControl.HasBorder) then
-    begin
       Result := Rect(2, 2, 2, 2);
-    end;
 end;
 
 procedure TRichEditViewerStyleHook.WndProc(var Message: TMessage);
@@ -141,9 +187,7 @@ function TNewCheckListBoxStyleHook.GetBorderSize: TRect;
 begin
   Result := inherited GetBorderSize;
   if (SysControl.HasBorder) then
-    begin
       Result := Rect(2, 2, 2, 2);
-    end;
 end;
 
 procedure TNewCheckListBoxStyleHook.WndProc(var Message: TMessage);
@@ -246,5 +290,70 @@ begin
   HookedDirectly := True;
 end;
 
+
+{ TPanelComponentStyleHook }
+
+constructor TPanelComponentStyleHook.Create(AHandle: THandle);
+begin
+  inherited;
+  OverrideEraseBkgnd := True;
+  OverrideFont:=True;
+  HookedDirectly := True;
+end;
+
+procedure TPanelComponentStyleHook.PaintBackground(Canvas: TCanvas);
+begin
+  Canvas.Brush.Color := StyleServices.GetStyleColor(scPanel);
+  Canvas.FillRect(SysControl.ClientRect);
+end;
+
+{ TLabelComponentStyleHook }
+constructor TLabelComponentStyleHook.Create(AHandle: THandle);
+begin
+  inherited;
+  OverrideEraseBkgnd := True;
+  OverrideFont:=True;
+  //Addlog('TLabelComponentStyleHook.Create');
+  SetTextColor(GetWindowDC(Handle), ColorToRGB(clWhite));
+ // HookedDirectly := True;
+end;
+
+procedure TLabelComponentStyleHook.PaintBackground(Canvas: TCanvas);
+begin
+  Canvas.Brush.Color := StyleServices.GetStyleColor(scPanel);
+  Canvas.FillRect(SysControl.ClientRect);
+end;
+
+procedure TLabelComponentStyleHook.WMPaint(var Message: TWMPaint);
+begin
+    //SetTextColor(TWMPaint(Message).DC, ColorToRGB(clWhite));
+   //SetTextColor(TWMPaint(Message).DC, ColorToRGB(StyleServices.GetSystemColor(clWindowText)));
+   Message.Result := CallDefaultProc(TMessage(Message));
+   Handled := False;
+end;
+
+
+
+procedure TLabelComponentStyleHook.WndProc(var Message: TMessage);
+//var
+// LHDC : HDC;
+begin
+  //Addlog(WM_To_String(Message.Msg));
+  inherited;
+//  if Message.Msg=WM_SETFONT then
+//  begin
+//     //TWMSetFont(Message).
+//    //  Message.WParam
+//
+//   //UpdateColors;
+//     LHDC:=GetWindowDC(Handle);
+//     Addlog('Handle '+IntToHex(Handle, 8)+' HDC '+IntToHex(LHDC, 8));
+//
+//
+//     //Message.Result := CallDefaultProc(TMessage(Message));
+//     //SetTextColor(GetWindowDC(Handle), ColorToRGB(clWhite));
+//
+//  end;
+end;
 
 end.

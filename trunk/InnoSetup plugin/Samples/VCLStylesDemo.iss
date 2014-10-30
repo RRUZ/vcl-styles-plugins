@@ -20,7 +20,7 @@ InternalCompressLevel=max
 [Files]
 ;
 Source: ..\VclStylesinno.dll; DestDir: {app}; Flags: dontcopy
-;Source: ..\Win32\Release\VclStylesinno.dll; DestDir: {app}; Flags: dontcopy
+;Source: ..\Win32\Debug\VclStylesinno.dll; DestDir: {app}; Flags: dontcopy
 Source: ..\Styles\Amakrits.vsf; DestDir: {app}; Flags: dontcopy
 
 

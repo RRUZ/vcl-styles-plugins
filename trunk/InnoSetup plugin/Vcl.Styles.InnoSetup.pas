@@ -111,7 +111,7 @@ var
 {$IFDEF DEBUG}
 procedure Addlog(const msg : string);
 begin
-   TFile.AppendAllText('C:\Delphi\google-code\vcl-styles-utils\log.txt',Format('%s %s %s',[FormatDateTime('hh:nn:ss.zzz', Now),  msg, sLineBreak]));
+   TFile.AppendAllText('C:\Dephi\google-code\vcl-styles-plugins\InnoSetup plugin\Samples\log.txt',Format('%s %s %s',[FormatDateTime('hh:nn:ss.zzz', Now),  msg, sLineBreak]));
 end;
 {$ENDIF}
 
@@ -178,9 +178,7 @@ begin
   inherited;
 end;
 
-
-class function TThemedInnoControls.HookActionCallBackWndProc(nCode: Integer;
-  wParam: wParam; lParam: lParam): LRESULT;
+class function TThemedInnoControls.HookActionCallBackWndProc(nCode: Integer; wParam: wParam; lParam: lParam): LRESULT;
 var
   C: array [0 .. 256] of Char;
   sClassName : string;
@@ -204,7 +202,7 @@ begin
         sClassName:=ClassesList.Values[IntToStr(PCWPStruct(lParam)^.hwnd)]; //ClassesList[PCWPStruct(lParam)^.hwnd];
 
         {$IFDEF DEBUG}
-//        if (SameText(sClassName,'TNewMemo')) then
+//        if (SameText(sClassName,'LiteUI_Label')) then
 //        Addlog(sClassName+' '+WM_To_String(PCWPStruct(lParam)^.message)+
 //        ' WParam '+IntToHex(PCWPStruct(lParam)^.wParam, 8) +
 //        ' lParam '+IntToHex(PCWPStruct(lParam)^.lParam, 8) +
@@ -215,7 +213,6 @@ begin
 
         if SameText(sClassName,'TNewButton') then
         begin
-           //Addlog('TNewButton');
            if (PCWPStruct(lParam)^.message=WM_CREATE) and not (InnoSetupControlsList.ContainsKey(PCWPStruct(lParam)^.hwnd)) then
                InnoSetupControlsList.Add(PCWPStruct(lParam)^.hwnd, TNewButtonStyleHook.Create(PCWPStruct(lParam)^.hwnd));
         end
@@ -255,8 +252,7 @@ begin
         begin
            if (PCWPStruct(lParam)^.message=WM_NCCALCSIZE) and not (InnoSetupControlsList.ContainsKey(PCWPStruct(lParam)^.hwnd)) then
              begin
-             InnoSetupControlsList.Add(PCWPStruct(lParam)^.hwnd, TNewMemoStyleHook.Create(PCWPStruct(lParam)^.hwnd));
-
+              InnoSetupControlsList.Add(PCWPStruct(lParam)^.hwnd, TNewMemoStyleHook.Create(PCWPStruct(lParam)^.hwnd));
              end;
         end
         else
@@ -268,7 +264,7 @@ begin
         else
         if SameText(sClassName,'TNewCheckListBox') then
         begin
-           if (PCWPStruct(lParam)^.message=WM_CREATE) and not (InnoSetupControlsList.ContainsKey(PCWPStruct(lParam)^.hwnd)) then
+           if (PCWPStruct(lParam)^.message=WM_NCCALCSIZE) and not (InnoSetupControlsList.ContainsKey(PCWPStruct(lParam)^.hwnd)) then
                InnoSetupControlsList.Add(PCWPStruct(lParam)^.hwnd, TNewCheckListBoxStyleHook.Create(PCWPStruct(lParam)^.hwnd));
         end
         else
@@ -284,18 +280,30 @@ begin
 //               InnoSetupControlsList.Add(PCWPStruct(lParam)^.hwnd, TStaticTextWnd.Create(PCWPStruct(lParam)^.hwnd));
 //        end
 //        else
-        if (SameText(sClassName,'TNewProgressBar')) then
-        begin
-           if (PCWPStruct(lParam)^.message=WM_CREATE) and not (InnoSetupControlsList.ContainsKey(PCWPStruct(lParam)^.hwnd)) then
-               InnoSetupControlsList.Add(PCWPStruct(lParam)^.hwnd, TSysProgressBarStyleHook.Create(PCWPStruct(lParam)^.hwnd));
-        end
-        else
+//        if (SameText(sClassName,'TNewProgressBar')) then  The Vcl.Styles.Hooks unit is used to paint the scrollbar.
+//        begin
+//           if (PCWPStruct(lParam)^.message=WM_CREATE) and not (InnoSetupControlsList.ContainsKey(PCWPStruct(lParam)^.hwnd)) then
+//               InnoSetupControlsList.Add(PCWPStruct(lParam)^.hwnd, TSysProgressBarStyleHook.Create(PCWPStruct(lParam)^.hwnd));
+//        end
+//        else
         if (SameText(sClassName,'TStartMenuFolderTreeView')) or (SameText(sClassName,'TFolderTreeView'))  then
         begin
            if (PCWPStruct(lParam)^.message=WM_CREATE) and not (InnoSetupControlsList.ContainsKey(PCWPStruct(lParam)^.hwnd)) then
                InnoSetupControlsList.Add(PCWPStruct(lParam)^.hwnd, TFolderTreeViewStyleHook.Create(PCWPStruct(lParam)^.hwnd));
         end
         else
+//        if (SameText(sClassName,'LiteUI_Panel')) then
+//        begin
+//           if (PCWPStruct(lParam)^.message=WM_CREATE) and not (InnoSetupControlsList.ContainsKey(PCWPStruct(lParam)^.hwnd)) then
+//               InnoSetupControlsList.Add(PCWPStruct(lParam)^.hwnd, TPanelComponentStyleHook.Create(PCWPStruct(lParam)^.hwnd));
+//        end
+//        else
+//        if (SameText(sClassName,'LiteUI_Label')) then
+//        begin
+//           if (PCWPStruct(lParam)^.message=WM_NCCREATE) and not (InnoSetupControlsList.ContainsKey(PCWPStruct(lParam)^.hwnd)) then
+//               InnoSetupControlsList.Add(PCWPStruct(lParam)^.hwnd, TLabelComponentStyleHook.Create(PCWPStruct(lParam)^.hwnd));
+//        end
+//        else
 //        if (SameText(sClassName,'TNewNotebook')) then     //TNewNotebook is handled by the Getsyscolors hook
 //        begin
 //           if (PCWPStruct(lParam)^.message=WM_CREATE) and not (InnoSetupControlsList.ContainsKey(PCWPStruct(lParam)^.hwnd)) then
@@ -339,12 +347,14 @@ end;
 
 
 initialization
+
   ThemedInnoControls:=nil;
   if StyleServices.Available then
   begin
    ThemedInnoControls := TThemedInnoControls.Create;
    TSysStyleManager.HookVclControls:=True;
   end;
+
 finalization
    Done;
 end.

@@ -12,7 +12,7 @@ WizardSmallImageFile=..\images\WizModernSmallImage-IS_Orange.bmp
 [Files]
 Source: compiler:WizModernSmallImage.bmp; Flags: dontcopy
 Source: ..\VclStylesinno.dll; DestDir: {app}; Flags: dontcopy
-;Source: ..\Win32\Release\VclStylesinno.dll; DestDir: {app}; Flags: dontcopy
+;Source: ..\Win32\Debug\VclStylesinno.dll; DestDir: {app}; Flags: dontcopy
 Source: ..\Styles\{#VCLStyle}; DestDir: {app}; Flags: dontcopy
 [Code]
 
