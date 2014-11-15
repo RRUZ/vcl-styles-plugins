@@ -64,6 +64,9 @@ begin
   if StyleServices.IsSystemStyle or not TSysStyleManager.Enabled  then
     Result:= TrampolineGetSysColor(nIndex)
   else
+  if nIndex= COLOR_HOTLIGHT then
+    Result:= DWORD(StyleServices.GetSystemColor(clHighlight))
+  else
     Result:= DWORD(StyleServices.GetSystemColor(TColor(nIndex or Integer($FF000000))));
 end;
 
