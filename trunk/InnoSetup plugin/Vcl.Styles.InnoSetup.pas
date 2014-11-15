@@ -109,9 +109,18 @@ var
   ThemedInnoControls: TThemedInnoControls;
 
 {$IFDEF DEBUG}
+function GetTempDirectory: string;
+var
+  lpBuffer: array[0..MAX_PATH] of Char;
+begin
+  GetTempPath(MAX_PATH, @lpBuffer);
+  Result := StrPas(lpBuffer);
+end;
+
 procedure Addlog(const msg : string);
 begin
-   TFile.AppendAllText('C:\Dephi\google-code\vcl-styles-plugins\InnoSetup plugin\Samples\log.txt',Format('%s %s %s',[FormatDateTime('hh:nn:ss.zzz', Now),  msg, sLineBreak]));
+   //TFile.AppendAllText('C:\Dephi\google-code\vcl-styles-plugins\InnoSetup plugin\Samples\log.txt',Format('%s %s %s',[FormatDateTime('hh:nn:ss.zzz', Now),  msg, sLineBreak]));
+   TFile.AppendAllText(IncludeTrailingPathDelimiter(GetTempDirectory)+'VclStylesInno.txt',Format('%s %s %s',[FormatDateTime('hh:nn:ss.zzz', Now),  msg, sLineBreak]));
 end;
 {$ENDIF}
 
@@ -183,6 +192,7 @@ var
   C: array [0 .. 256] of Char;
   sClassName : string;
 begin
+  try
     Result := CallNextHookEx(FHook_WH_CALLWNDPROC, nCode, wParam, lParam);
     if (nCode < 0) then
      Exit;
@@ -280,7 +290,7 @@ begin
 //               InnoSetupControlsList.Add(PCWPStruct(lParam)^.hwnd, TStaticTextWnd.Create(PCWPStruct(lParam)^.hwnd));
 //        end
 //        else
-//        if (SameText(sClassName,'TNewProgressBar')) then  The Vcl.Styles.Hooks unit is used to paint the scrollbar.
+//        if (SameText(sClassName,'TNewProgressBar')) then  The Vcl.Styles.Hooks unit is used to paint the progressbar.
 //        begin
 //           if (PCWPStruct(lParam)^.message=WM_CREATE) and not (InnoSetupControlsList.ContainsKey(PCWPStruct(lParam)^.hwnd)) then
 //               InnoSetupControlsList.Add(PCWPStruct(lParam)^.hwnd, TSysProgressBarStyleHook.Create(PCWPStruct(lParam)^.hwnd));
@@ -323,6 +333,11 @@ begin
 //        end;
       end;
     end;
+  except
+    on e: Exception do
+     //Addlog(Format('%s Trace %s',[e.Message, e.StackTrace]));
+  end;
+
 end;
 
 procedure TThemedInnoControls.InstallHook;
@@ -347,7 +362,6 @@ end;
 
 
 initialization
-
   ThemedInnoControls:=nil;
   if StyleServices.Available then
   begin

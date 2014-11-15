@@ -24,18 +24,17 @@ unit Vcl.Styles.Utils.SysStyleHook;
 interface
 
 uses
-  Vcl.Styles,
-  Vcl.Themes,
-  Vcl.ExtCtrls,
+  System.Classes,
   System.Types,
+  System.SysUtils,
   Winapi.Windows,
   Winapi.Messages,
-  System.Classes,
-  UxTheme,
-  Vcl.Graphics,
-  System.SysUtils,
+  Winapi.UxTheme,
+  Winapi.CommCtrl,
+  Vcl.Themes,
+  Vcl.ExtCtrls,
   Vcl.Controls,
-  CommCtrl;
+  Vcl.Graphics;
 
 const
   CM_BASE = WM_USER + $113;
@@ -556,6 +555,9 @@ end;
 
 destructor TSysStyleHook.Destroy;
 begin
+  // OutputDebugString(PChar('TSysStyleHook.Destroy Handle '+IntToHex(Handle, 8)));
+
+
   if FOrgWndProc <> 0 then
     FSysControl.WndProc := FOrgWndProc;
 
@@ -576,6 +578,7 @@ end;
 
 function TSysStyleHook.CallDefaultProc(var Msg: TMessage): LRESULT;
 begin
+  //OutputDebugString(PChar('TSysStyleHook.CallDefaultProc FOrgWndProc '+IntToHex(FOrgWndProc, 8)+' Handle '+IntToHex(Handle, 8)+' Msg '+WM_To_String(Msg.Msg)+' ClassName '+SysControl.ControlClassName));
   Result := CallWindowProc(Pointer(FOrgWndProc), Handle, Msg.Msg, Msg.wParam, Msg.lParam);
 end;
 
@@ -737,11 +740,10 @@ end;
 
 procedure TSysStyleHook.SetColor(const Value: TColor);
 begin
-  if (Value <> FColor) or ((FBrush <> nil) and (Value <> FBrush.Color)) then
+  if (FBrush <> nil) and ((Value <> FColor) or (Value <> FBrush.Color)) then
   begin
     FColor := Value;
-    if Assigned(FBrush) then
-      FBrush.Color := Value;
+    FBrush.Color := Value;
   end;
 end;
 
@@ -1157,8 +1159,6 @@ var
   ChildHandle: HWND;
   ItemRemoved : Boolean;
 begin
-
-
   case Message.Msg of
 
     CM_CONTROLHOOKEDDIRECTLY:
@@ -1314,6 +1314,7 @@ destructor TMouseTrackSysControlStyleHook.Destroy;
 begin
   if Assigned(FHotTrackTimer) then
     FreeAndNil(FHotTrackTimer);
+
   inherited;
 end;
 
@@ -1365,6 +1366,7 @@ begin
   TTimer(FHotTrackTimer).Interval := 100;
   TTimer(FHotTrackTimer).OnTimer := DoHotTrackTimer;
   TTimer(FHotTrackTimer).Enabled := True;
+
 end;
 
 procedure TMouseTrackSysControlStyleHook.StopHotTrackTimer;
