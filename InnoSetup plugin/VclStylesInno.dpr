@@ -32,7 +32,9 @@ uses
   Vcl.Styles,
   WinApi.Windows,
   Vcl.Styles.Hooks in '..\Common\Vcl.Styles.Hooks.pas',
+  Vcl.Styles.UxTheme in '..\Common\Vcl.Styles.UxTheme.pas',
   Vcl.Styles.InnoSetup in 'Vcl.Styles.InnoSetup.pas',
+  Vcl.Styles.Utils.Graphics in '..\Common\Vcl.Styles.Utils.Graphics.pas',
   Vcl.Styles.Utils.SysControls in '..\Common\Vcl.Styles.Utils.SysControls.pas',
   Vcl.Styles.Utils.SysStyleHook in '..\Common\Vcl.Styles.Utils.SysStyleHook.pas',
   Vcl.Styles.Utils.ComCtrls in '..\Common\Vcl.Styles.Utils.ComCtrls.pas',
@@ -48,22 +50,32 @@ uses
 
  procedure LoadVCLStyleW(VClStyleFile: PChar); stdcall;
  begin
+  try
    if not StyleServices.Available then exit;
 
    if TStyleManager.IsValidStyle(VClStyleFile) then
      TStyleManager.SetStyle(TStyleManager.LoadFromFile(VClStyleFile))
    else
-   MessageBox(0, 'Error', PChar(Format('The Style File %s is not valid',[VCLStyleFile])), MB_OK);
+   MessageBox(0, PChar(Format('The Style File %s is not valid',[VCLStyleFile])), 'Error', MB_OK);
+  except
+    on e: Exception do
+   MessageBox(0, PChar(Format('%s Trace %s',[e.Message, e.StackTrace])), 'Error', MB_OK);
+  end;
  end;
 
  procedure LoadVCLStyleA(VCLStyleFile: PAnsiChar); stdcall;
  begin
+  try
    if not StyleServices.Available then exit;
 
    if TStyleManager.IsValidStyle(String(VCLStyleFile)) then
      TStyleManager.SetStyle(TStyleManager.LoadFromFile(String(VCLStyleFile)))
    else
    MessageBox(0, 'Error', PChar(Format('The Style File %s is not valid',[VCLStyleFile])), MB_OK);
+  except
+    on e: Exception do
+   MessageBox(0, PChar(Format('%s Trace %s',[e.Message, e.StackTrace])), 'Error', MB_OK);
+  end;
  end;
 
  procedure UnLoadVCLStyles; stdcall;
