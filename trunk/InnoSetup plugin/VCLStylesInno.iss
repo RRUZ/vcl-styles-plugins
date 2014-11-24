@@ -123,8 +123,8 @@ end;
 
 function InitializeSetup(): Boolean;
 begin
-	ExtractTemporaryFile('Amakrits.vsf');
-	LoadVCLStyle(ExpandConstant('{tmp}\Amakrits.vsf'));
+	ExtractTemporaryFile('Auric.vsf');
+	LoadVCLStyle(ExpandConstant('{tmp}\Auric.vsf'));
 	Result := True;
 end;
 

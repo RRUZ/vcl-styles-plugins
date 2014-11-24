@@ -24,7 +24,8 @@ unit Vcl.Styles.InnoSetup;
 
 interface
 
-Procedure  Done;
+procedure Addlog(const msg : string);
+Procedure Done;
 
 implementation
 
@@ -116,13 +117,14 @@ begin
   GetTempPath(MAX_PATH, @lpBuffer);
   Result := StrPas(lpBuffer);
 end;
+{$ENDIF}
 
 procedure Addlog(const msg : string);
 begin
-   //TFile.AppendAllText('C:\Dephi\google-code\vcl-styles-plugins\InnoSetup plugin\Samples\log.txt',Format('%s %s %s',[FormatDateTime('hh:nn:ss.zzz', Now),  msg, sLineBreak]));
+{$IFDEF DEBUG}
    TFile.AppendAllText(IncludeTrailingPathDelimiter(GetTempDirectory)+'VclStylesInno.txt',Format('%s %s %s',[FormatDateTime('hh:nn:ss.zzz', Now),  msg, sLineBreak]));
-end;
 {$ENDIF}
+end;
 
 {$IFNDEF USEGENERICS}
 
@@ -335,7 +337,7 @@ begin
     end;
   except
     on e: Exception do
-     //Addlog(Format('%s Trace %s',[e.Message, e.StackTrace]));
+     Addlog(Format('%s Trace %s',[e.Message, e.StackTrace]));
   end;
 
 end;
