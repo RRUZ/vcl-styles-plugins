@@ -56,7 +56,7 @@ uses
    if TStyleManager.IsValidStyle(VClStyleFile) then
      TStyleManager.SetStyle(TStyleManager.LoadFromFile(VClStyleFile))
    else
-   MessageBox(0, PChar(Format('The Style File %s is not valid',[VCLStyleFile])), 'Error', MB_OK);
+   Addlog(Format('The Style File %s is not valid',[VCLStyleFile]));
   except
     on e: Exception do
    MessageBox(0, PChar(Format('%s Trace %s',[e.Message, e.StackTrace])), 'Error', MB_OK);
@@ -71,10 +71,10 @@ uses
    if TStyleManager.IsValidStyle(String(VCLStyleFile)) then
      TStyleManager.SetStyle(TStyleManager.LoadFromFile(String(VCLStyleFile)))
    else
-   MessageBox(0, 'Error', PChar(Format('The Style File %s is not valid',[VCLStyleFile])), MB_OK);
+   Addlog(Format('The Style File %s is not valid',[VCLStyleFile]));
   except
     on e: Exception do
-   MessageBox(0, PChar(Format('%s Trace %s',[e.Message, e.StackTrace])), 'Error', MB_OK);
+   Addlog(Format('%s Trace %s',[e.Message, e.StackTrace]));
   end;
  end;
 
