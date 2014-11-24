@@ -59,7 +59,7 @@ uses
    Addlog(Format('The Style File %s is not valid',[VCLStyleFile]));
   except
     on e: Exception do
-   MessageBox(0, PChar(Format('%s Trace %s',[e.Message, e.StackTrace])), 'Error', MB_OK);
+     Addlog(Format('%s Trace %s',[e.Message, e.StackTrace]));
   end;
  end;
 
