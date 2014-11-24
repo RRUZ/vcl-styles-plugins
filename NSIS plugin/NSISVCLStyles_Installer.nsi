@@ -11,7 +11,7 @@
   InstallDir "$PROGRAMFILES\The Road To Delphi\NSISVCLStyles"
   InstallDirRegKey HKCU "Software\NSISVCLStyles" ""
   RequestExecutionLevel admin
-  !define _VERSION "1.0.1.2"
+  !define _VERSION "1.0.2.1"
   VIProductVersion "${_VERSION}"
   VIAddVersionKey  "ProductName" "VCL Styles for NSIS"
   VIAddVersionKey  "CompanyName" "The Road To Delphi"
@@ -170,12 +170,12 @@ SectionEnd
 
 Function .onInit
   InitPluginsDir
-  File /oname=$PLUGINSDIR\Amakrits.vsf "Styles\Amakrits.vsf"
-  NSISVCLStyles::LoadVCLStyle $PLUGINSDIR\Amakrits.vsf  
+  File /oname=$PLUGINSDIR\Auric.vsf "Styles\Auric.vsf"
+  NSISVCLStyles::LoadVCLStyle $PLUGINSDIR\Auric.vsf  
 FunctionEnd
 
 Function un.onInit
   InitPluginsDir
-  File /oname=$PLUGINSDIR\Amakrits.vsf "Styles\Amakrits.vsf"
-  NSISVCLStyles::LoadVCLStyle  $PLUGINSDIR\Amakrits.vsf
+  File /oname=$PLUGINSDIR\Auric.vsf "Styles\Auric.vsf"
+  NSISVCLStyles::LoadVCLStyle  $PLUGINSDIR\Auric.vsf
 FunctionEnd
