@@ -4,7 +4,7 @@ https://theroadtodelphi.files.wordpress.com/2014/12/output_qkrcra.gif
 
 = Introduction =
 
-VCL Styles for Inno Setup is a plugin (dll) that allows you to add skins to the installers created by  <a href="http://www.jrsoftware.org/isinfo.php">Inno setup</a>.
+VCL Styles for Inno Setup is a Free and Open Source plugin (dll) that allows you to add skins to the installers created by  <a href="http://www.jrsoftware.org/isinfo.php">Inno setup</a>.
 
 = Features  =
 
