@@ -10,6 +10,7 @@ uses
   Vcl.Menus,
   Vcl.Themes,
   Vcl.Graphics,
+  Vcl.Controls,
   Vcl.Styles.Utils.Forms;
 
 type

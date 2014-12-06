@@ -35,8 +35,6 @@ type
     procedure ShowAbout;
   end;
 
-
-
 var
   Npp: TVCLStylesNppPlugin;
 
@@ -143,13 +141,13 @@ begin
                NppControlsList.Add(PCWPStruct(lParam)^.hwnd, TSysStatusBarStyleHook.Create(PCWPStruct(lParam)^.hwnd));
         end
         else
-        if SameText(sClassName,'Scintilla') then
-        begin
-           if not TSysStyleManager.SysStyleHookList.ContainsKey(PCWPStruct(lParam)^.hwnd) then  // avoid double registration
-           if (PCWPStruct(lParam)^.message=WM_NCCALCSIZE) and not (NppControlsList.ContainsKey(PCWPStruct(lParam)^.hwnd)) then
-               NppControlsList.Add(PCWPStruct(lParam)^.hwnd, TScintillaStyleHook.Create(PCWPStruct(lParam)^.hwnd));
-        end
-        else
+//        if SameText(sClassName,'Scintilla') then
+//        begin
+//           if not TSysStyleManager.SysStyleHookList.ContainsKey(PCWPStruct(lParam)^.hwnd) then  // avoid double registration
+//           if (PCWPStruct(lParam)^.message=WM_NCCALCSIZE) and not (NppControlsList.ContainsKey(PCWPStruct(lParam)^.hwnd)) then
+//               NppControlsList.Add(PCWPStruct(lParam)^.hwnd, TScintillaStyleHook.Create(PCWPStruct(lParam)^.hwnd));
+//        end
+//        else
         if SameText(sClassName,'SysTabControl32') then
         begin
            if not TSysStyleManager.SysStyleHookList.ContainsKey(PCWPStruct(lParam)^.hwnd) then  // avoid double registration

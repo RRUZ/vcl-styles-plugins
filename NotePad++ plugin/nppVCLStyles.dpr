@@ -32,11 +32,14 @@ uses
   NppForms in 'lib\NppForms.pas' {NppForm},
   NppDockingForms in 'lib\NppDockingForms.pas' {NppDockingForm},
   uAbout in 'uAbout.pas',
+  DDetours in '..\Common\delphi-detours-library\DDetours.pas',
+  InstDecode in '..\Common\delphi-detours-library\InstDecode.pas',
   Vcl.Styles,
   Vcl.Themes,
   Vcl.Dialogs,
-  KOLDetours in '..\Common\KOLDetours.pas',
+  Vcl.Styles.UxTheme in '..\Common\Vcl.Styles.UxTheme.pas',
   Vcl.Styles.Hooks in '..\Common\Vcl.Styles.Hooks.pas',
+  Vcl.Styles.Utils.Graphics in '..\Common\Vcl.Styles.Utils.Graphics.pas',
   Vcl.Styles.Utils.ComCtrls in '..\Common\Vcl.Styles.Utils.ComCtrls.pas',
   Vcl.Styles.Utils.Forms in '..\Common\Vcl.Styles.Utils.Forms.pas',
   Vcl.Styles.Utils.Menus in '..\Common\Vcl.Styles.Utils.Menus.pas',
@@ -50,21 +53,20 @@ uses
 {$R *.res}
 
 //TODO
-//Scintilla or TabControl has artifacts on Npp init when not scrollbar is visible
-//Scintilla Flicker
-//Scintilla scrollbar events
-//track mouse events
+//Scintilla or TabControl has artifacts on Npp init when not scrollbar is visible OK
+//Scintilla Flicker  OK
+//Scintilla scrollbar events   OK
+//track mouse events       OK
 //tab close button
 //listbox not themed in preferences and style menu      OK
 //docked window (ex: character panel) is not themed
 //shortcut manager slow, maybe disable hooking this window and child controls
 
 //When Edit has ES_MULTILINE style use memo like style hook (ex: about window)
+//Switch to XE4  -  OK
 
 
-//Switch to XE5  -
-
-//Features
+//  Features
 //  Settings
 //  edit styles with EQ
 //  disable skin elements (menu, classes)
@@ -143,7 +145,7 @@ begin
   DllProc := @DLLEntryPoint;
   DLLEntryPoint(DLL_PROCESS_ATTACH);
 
-  VClStyleFile:='C:\Program Files (x86)\Notepad++\plugins\Amakrits.vsf';
+  VClStyleFile:='C:\Program Files (x86)\Notepad++\plugins\Auric.vsf';
    if not StyleServices.Available then exit;
 
    TSysStyleManager.OnBeforeHookingControl:=@BeforeNppHookingControl;
