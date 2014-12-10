@@ -25,15 +25,22 @@ unit Vcl.Styles.Npp;
 interface
 
 uses
+  uMisc,
   NppPlugin;
 
 type
   TVCLStylesNppPlugin = class(TNppPlugin)
+  private
+    FSettings: TSettings;
+    FSettingsFileName: string;
   public
     constructor Create;
+    destructor Destroy; override;
     procedure ShowSettings;
     procedure ShowAbout;
     function GetVCLStylesNppConfigPath : string;
+    property Settings : TSettings read FSettings write FSettings;
+    property SettingsFileName : string  read FSettingsFileName  write FSettingsFileName;
   end;
 
 var
@@ -46,6 +53,7 @@ implementation
 
 uses
   uAbout,
+  uSettings,
   DDetours,
   System.Generics.Collections,
   System.SysUtils,
@@ -68,8 +76,8 @@ uses
 type
   TThemedNppControls = class
   private
-  class var
-    FHook_WH_CALLWNDPROC: HHook;
+  class var ClassesList : TDictionary<HWND, string>;
+  class var  FHook_WH_CALLWNDPROC: HHook;
   protected
     class function HookActionCallBackWndProc(nCode: Integer; wParam: wParam;
       lParam: lParam): LRESULT; stdcall; static;
@@ -82,7 +90,6 @@ type
 
 var
   NppControlsList      : TObjectDictionary<HWND, TSysStyleHook>;
-  ClassesList          : TStrings; //use a  TStrings to avoid the use of generics
   ThemedNppControls    : TThemedNppControls;
 
 { TThemedSysControls }
@@ -92,7 +99,7 @@ begin
   FHook_WH_CALLWNDPROC := 0;
   InstallHook;
   NppControlsList := TObjectDictionary<HWND, TSysStyleHook>.Create([doOwnsValues]);
-  ClassesList := TStringList.Create;
+  ClassesList :=  TDictionary<HWND, string>.Create;
 end;
 
 destructor TThemedNppControls.Destroy;
@@ -115,17 +122,15 @@ begin
 
     if (StyleServices.Enabled) and not (StyleServices.IsSystemStyle) then
     begin
-
-      if ClassesList.IndexOfName(IntToStr(PCWPStruct(lParam)^.hwnd))=-1 then
+      if not ClassesList.ContainsKey(PCWPStruct(lParam)^.hwnd) then
       begin
         GetClassName(PCWPStruct(lParam)^.hwnd, C, 256);
-        //Addlog('GetClassName ' + C);
-        ClassesList.Add(Format('%d=%s',[PCWPStruct(lParam)^.hwnd, C]));
+        ClassesList.Add(PCWPStruct(lParam)^.hwnd, C);
       end;
 
-      if ClassesList.IndexOfName(IntToStr(PCWPStruct(lParam)^.hwnd))>=0 then
+      if ClassesList.ContainsKey(PCWPStruct(lParam)^.hwnd) then
       begin
-        sClassName:=ClassesList.Values[IntToStr(PCWPStruct(lParam)^.hwnd)]; //ClassesList[PCWPStruct(lParam)^.hwnd];
+        sClassName:=ClassesList[PCWPStruct(lParam)^.hwnd];
 
 
 //        if SameText(sClassName,'NotePad++') then
@@ -211,10 +216,24 @@ begin
   self.PluginName := 'VCL Styles for Notepad++';
   AddFuncItem('Settings', _FuncSettings);
   AddFuncItem('About', _FuncAbout);
+  FSettings:=TSettings.Create;
 end;
 
 procedure TVCLStylesNppPlugin.ShowSettings;
+var
+  LForm: TSettingsForm;
 begin
+  LForm := TSettingsForm.Create(self);
+  try
+    LForm.ShowModal;
+  finally
+    LForm.Free;
+  end;
+end;
+destructor TVCLStylesNppPlugin.Destroy;
+begin
+  FSettings.Free;
+  inherited;
 end;
 
 function TVCLStylesNppPlugin.GetVCLStylesNppConfigPath: string;
@@ -226,11 +245,14 @@ end;
 
 procedure TVCLStylesNppPlugin.ShowAbout;
 var
-  a: TAboutForm;
+  LForm: TAboutForm;
 begin
-  a := TAboutForm.Create(self);
-  a.ShowModal;
-  a.Free;
+  LForm := TAboutForm.Create(self);
+  try
+    LForm.ShowModal;
+  finally
+    LForm.Free;
+  end;
 end;
 
 const
