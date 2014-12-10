@@ -27,7 +27,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, NppForms, StdCtrls, Vcl.ExtCtrls;
+  Dialogs, NppForms, StdCtrls, Vcl.ExtCtrls, Vcl.Imaging.pngimage;
 
 type
   TAboutForm = class(TNppForm)
@@ -37,6 +37,9 @@ type
     Label3: TLabel;
     Bevel1: TBevel;
     Bevel2: TBevel;
+    Image2: TImage;
+    LabelVersion: TLabel;
+    procedure FormCreate(Sender: TObject);
   private
     { Private declarations }
   public
@@ -46,5 +49,14 @@ type
 implementation
 
 {$R *.dfm}
+
+uses
+  uMisc;
+
+procedure TAboutForm.FormCreate(Sender: TObject);
+begin
+  inherited;
+  LabelVersion.Caption    := Format('Version %s', [GetFileVersion(GetModuleName())]);
+end;
 
 end.

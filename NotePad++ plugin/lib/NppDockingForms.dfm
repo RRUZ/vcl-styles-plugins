@@ -1,8 +1,8 @@
 object NppDockingForm: TNppDockingForm
   Left = 244
   Top = 211
-  Width = 320
-  Height = 240
+  ClientHeight = 202
+  ClientWidth = 304
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText

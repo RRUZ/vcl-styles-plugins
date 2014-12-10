@@ -11,6 +11,7 @@ uses
   Vcl.Themes,
   Vcl.Graphics,
   Vcl.Controls,
+  Vcl.Styles.Utils.SysStyleHook,
   Vcl.Styles.Utils.Forms;
 
 type
@@ -19,7 +20,7 @@ type
     constructor Create(AHandle: THandle); override;
   end;
 
-  TScintillaStyleHook = class(TSysScrollingStyleHook)
+  TScintillaStyleHook = class(TMouseTrackSysControlStyleHook)
   strict private
     FBackColor: TColor;
   protected
@@ -58,6 +59,8 @@ begin
   OverridePaintNC := True;
   OverrideFont := False;
 {$IFEND}
+//  Invalidate;
+//  InvalidateNC;
 end;
 
 function TScintillaStyleHook.GetBorderSize: TRect;
@@ -107,7 +110,6 @@ begin
 //  else
 //     inherited;
 //  end;
-
   inherited;
 end;
 

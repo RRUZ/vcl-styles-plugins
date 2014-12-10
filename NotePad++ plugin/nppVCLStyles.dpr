@@ -31,7 +31,7 @@ uses
   SciSupport in 'lib\SciSupport.pas',
   NppForms in 'lib\NppForms.pas' {NppForm},
   NppDockingForms in 'lib\NppDockingForms.pas' {NppDockingForm},
-  uAbout in 'uAbout.pas',
+  uAbout in 'uAbout.pas' {AboutForm},
   DDetours in '..\Common\delphi-detours-library\DDetours.pas',
   InstDecode in '..\Common\delphi-detours-library\InstDecode.pas',
   Vcl.Styles,
@@ -48,48 +48,80 @@ uses
   Vcl.Styles.Utils.SysControls in '..\Common\Vcl.Styles.Utils.SysControls.pas',
   Vcl.Styles.Utils.SysStyleHook in '..\Common\Vcl.Styles.Utils.SysStyleHook.pas',
   Vcl.Styles.Npp in 'Vcl.Styles.Npp.pas',
-  Vcl.Styles.Npp.StyleHooks in 'Vcl.Styles.Npp.StyleHooks.pas';
+  Vcl.Styles.Npp.StyleHooks in 'Vcl.Styles.Npp.StyleHooks.pas',
+  uMisc in 'uMisc.pas';
 
 {$R *.res}
 
 //TODO
+// Add support for MenuBar
+// Hook dialogs  OK
+// fix Language - > Define your language option - flicker
+// fix Settings - > preferences- slow  first time
+// fix Settings - > short cut mapper - slow, no themed
+// Scintilla border
+
+// When Edit has ES_MULTILINE style use memo like style hook (ex: about window)
+
+
+// *************Features
+// Settings
+// edit styles with EQ
+// disable skin elements (menu, classes)
+// Add options to system menu (VCL Style selection, EQ, etc)
+// tab close button
+// shortcut manager slow, maybe disable hooking this window and child controls
+
+
 //Scintilla or TabControl has artifacts on Npp init when not scrollbar is visible OK
 //Scintilla Flicker  OK
 //Scintilla scrollbar events   OK
 //track mouse events       OK
-//tab close button
 //listbox not themed in preferences and style menu      OK
 //docked window (ex: character panel) is not themed
-//shortcut manager slow, maybe disable hooking this window and child controls
-
-//When Edit has ES_MULTILINE style use memo like style hook (ex: about window)
 //Switch to XE4  -  OK
 
 
-//  Features
-//  Settings
-//  edit styles with EQ
-//  disable skin elements (menu, classes)
-//  Add options to system menu (VCL Style selection, EQ, etc)
+//references
+//http://www.brotherstone.co.uk/octopress/blog/2012/08/20/top-10-hints-for-writing-a-notepad-plus-plus-plugin/
+
+
+function BeforeNppHookingControl(Info: PControlInfo): Boolean;
+begin
+  Exit(True);
+end;
+
 
 procedure DLLEntryPoint(dwReason: DWord);
 begin
   case dwReason of
-    DLL_PROCESS_ATTACH: ;
+    DLL_PROCESS_ATTACH: begin
+                          Npp := TVCLStylesNppPlugin.Create;
+                        end;
     DLL_PROCESS_DETACH:
                         begin
-                          TSysStyleManager.Enabled:=False;
-                          //TStyleManager.SetStyle('Windows');
                           if (Assigned(Npp)) then Npp.Destroy;
-                          //Release VCL Styles
-                          //Release Hooks - disable syscontrols
                         end;
   end;
 end;
 
 procedure setInfo(NppData: TNppData); cdecl; export;
+var
+  VClStyleFile : string;
 begin
   Npp.SetInfo(NppData);
+  //The VCL Style must be load here, because on this point the
+  //config path of npp can be retrieved and the npp controls are to shown yet.
+  if not StyleServices.Available then exit;
+  TSysStyleManager.OnBeforeHookingControl:=@BeforeNppHookingControl;
+  TSysStyleManager.RegisterSysStyleHook('NotePad++', TSysDialogStyleHook);
+  TSysStyleManager.UnRegisterSysStyleHook('Edit', TSysEditStyleHook);
+
+  VClStyleFile:=Npp.GetVCLStylesNppConfigPath+'Styles\Carbon.vsf';
+  if TStyleManager.IsValidStyle(VClStyleFile) then
+   TStyleManager.SetStyle(TStyleManager.LoadFromFile(VClStyleFile))
+  else
+   ShowMessage(Format('The Style File %s is not valid',[VClStyleFile]));
 end;
 
 function getName(): nppPchar; cdecl; export;
@@ -105,23 +137,36 @@ end;
 procedure beNotified(sn: PSCNotification); cdecl; export;
 begin
   Npp.BeNotified(sn);
+  if (sn^.nmhdr.code = NPPN_READY) then
+  begin
+
+  end
+  else
+  if (sn^.nmhdr.code = NPPN_SHUTDOWN) then
+  begin
+    TSysStyleManager.Enabled:=False;
+    //TStyleManager.SetStyle('Windows');
+    //Release VCL Styles
+    //Release Hooks - disable syscontrols
+  end;
 end;
 
 function messageProc(msg: Integer; _wParam: WPARAM; _lParam: LPARAM): LRESULT; cdecl; export;
-var xmsg:TMessage;
+var
+  LMessage:TMessage;
 begin
-  xmsg.Msg := msg;
-  xmsg.WParam := _wParam;
-  xmsg.LParam := _lParam;
-  xmsg.Result := 0;
-  Npp.MessageProc(xmsg);
-  Result := xmsg.Result;
+  LMessage.Msg := msg;
+  LMessage.WParam := _wParam;
+  LMessage.LParam := _lParam;
+  LMessage.Result := 0;
+  Npp.MessageProc(LMessage);
+  Exit(LMessage.Result);
 end;
 
 {$IFDEF NPPUNICODE}
 function isUnicode : Boolean; cdecl; export;
 begin
-  Result := true;
+  Exit(True);
 end;
 {$ENDIF}
 
@@ -132,28 +177,7 @@ exports
   isUnicode;
 {$ENDIF}
 
-
-function BeforeNppHookingControl(Info: PControlInfo): Boolean;
-begin
-  Exit(True);
-end;
-
-
-var
-  VClStyleFile : string;
 begin
   DllProc := @DLLEntryPoint;
   DLLEntryPoint(DLL_PROCESS_ATTACH);
-
-  VClStyleFile:='C:\Program Files (x86)\Notepad++\plugins\Auric.vsf';
-   if not StyleServices.Available then exit;
-
-   TSysStyleManager.OnBeforeHookingControl:=@BeforeNppHookingControl;
-   if TStyleManager.IsValidStyle(VClStyleFile) then
-     TStyleManager.SetStyle(TStyleManager.LoadFromFile(VClStyleFile))
-   else
-     ShowMessage(Format('The Style File %s is not valid',[VClStyleFile]));
-
-   TSysStyleManager.RegisterSysStyleHook('NotePad++', TSysDialogStyleHook);
-   TSysStyleManager.UnRegisterSysStyleHook('Edit', TSysEditStyleHook);
 end.

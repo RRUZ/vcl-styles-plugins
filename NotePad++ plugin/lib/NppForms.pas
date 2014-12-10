@@ -81,32 +81,15 @@ begin
 end;
 
 procedure TNppForm.RegisterForm();
-var
-  r: Integer;
 begin
-  r:=SendMessage(self.Npp.NppData.NppHandle, NPPM_MODELESSDIALOG, MODELESSDIALOGADD, self.Handle);
-{
-  if (r = 0) then
-  begin
-    ShowMessage('Failed reg of form '+form.Name);
-    exit;
-  end;
-}
+  SendMessage(self.Npp.NppData.NppHandle, NPPM_MODELESSDIALOG, MODELESSDIALOGADD, self.Handle);
 end;
 
 procedure TNppForm.UnregisterForm();
-var
-  r: Integer;
 begin
   if (not self.HandleAllocated) then exit;
-  r:=SendMessage(self.Npp.NppData.NppHandle, NPPM_MODELESSDIALOG, MODELESSDIALOGREMOVE, self.Handle);
-{
-  if (r = 0) then
-  begin
-    ShowMessage('Failed unreg form '+form.Name);
-    exit;
-  end;
-}
+  SendMessage(self.Npp.NppData.NppHandle, NPPM_MODELESSDIALOG, MODELESSDIALOGREMOVE, self.Handle);
+
 end;
 
 procedure TNppForm.DoClose(var Action: TCloseAction);

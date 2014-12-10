@@ -122,11 +122,8 @@ begin
 end;
 
 procedure TNppDockingForm.RegisterDockingForm(MaskStyle: Cardinal = DWS_DF_CONT_LEFT);
-var
-  r:Integer;
 begin
   self.HandleNeeded;
-  //self.Visible := true;
 
   FillChar(self.ToolbarData,sizeof(TToolbarData),0);
 
@@ -152,7 +149,7 @@ begin
   GetModuleFileNameW(HInstance, self.ToolbarData.ModuleName, 1000);
   StringToWideChar(ExtractFileName(self.ToolbarData.ModuleName), self.ToolbarData.ModuleName, 1000);
   StringToWideChar('', self.ToolbarData.AdditionalInfo, 1);
-  r:=SendMessageW(self.Npp.NppData.NppHandle, NPPM_DMMREGASDCKDLG, 0, Integer(@self.ToolbarData));
+  SendMessageW(self.Npp.NppData.NppHandle, NPPM_DMMREGASDCKDLG, 0, Integer(@self.ToolbarData));
 {$ELSE}
   StrCopy(self.ToolbarData.Title, PChar(self.Caption));
   GetModuleFileNameA(HInstance, self.ToolbarData.ModuleName, 1000);
