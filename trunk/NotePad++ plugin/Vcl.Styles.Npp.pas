@@ -33,6 +33,7 @@ type
     constructor Create;
     procedure ShowSettings;
     procedure ShowAbout;
+    function GetVCLStylesNppConfigPath : string;
   end;
 
 var
@@ -45,15 +46,18 @@ implementation
 
 uses
   uAbout,
-  Winapi.Windows,
-  Winapi.Messages,
+  DDetours,
   System.Generics.Collections,
   System.SysUtils,
   System.Classes,
   {$IFDEF DEBUG}
   System.IOUtils,
   {$ENDIF}
+  Winapi.Windows,
+  Winapi.Messages,
+  Winapi.CommDlg,
   Vcl.Themes,
+  Vcl.Dialogs,
   Vcl.Styles.Npp.StyleHooks,
   Vcl.Styles.Utils.SysStyleHook,
   Vcl.Styles.Utils.Forms,
@@ -76,13 +80,10 @@ type
     destructor Destroy; override;
   end;
 
-
 var
   NppControlsList      : TObjectDictionary<HWND, TSysStyleHook>;
   ClassesList          : TStrings; //use a  TStrings to avoid the use of generics
   ThemedNppControls    : TThemedNppControls;
-
-
 
 { TThemedSysControls }
 constructor TThemedNppControls.Create;
@@ -101,7 +102,6 @@ begin
   ClassesList.Free;
   inherited;
 end;
-
 
 class function TThemedNppControls.HookActionCallBackWndProc(nCode: Integer;
   wParam: wParam; lParam: lParam): LRESULT;
@@ -141,13 +141,13 @@ begin
                NppControlsList.Add(PCWPStruct(lParam)^.hwnd, TSysStatusBarStyleHook.Create(PCWPStruct(lParam)^.hwnd));
         end
         else
-//        if SameText(sClassName,'Scintilla') then
-//        begin
-//           if not TSysStyleManager.SysStyleHookList.ContainsKey(PCWPStruct(lParam)^.hwnd) then  // avoid double registration
-//           if (PCWPStruct(lParam)^.message=WM_NCCALCSIZE) and not (NppControlsList.ContainsKey(PCWPStruct(lParam)^.hwnd)) then
-//               NppControlsList.Add(PCWPStruct(lParam)^.hwnd, TScintillaStyleHook.Create(PCWPStruct(lParam)^.hwnd));
-//        end
-//        else
+        if SameText(sClassName,'Scintilla') then
+        begin
+           if not TSysStyleManager.SysStyleHookList.ContainsKey(PCWPStruct(lParam)^.hwnd) then  // avoid double registration
+           if (PCWPStruct(lParam)^.message=WM_NCCALCSIZE) and not (NppControlsList.ContainsKey(PCWPStruct(lParam)^.hwnd)) then
+               NppControlsList.Add(PCWPStruct(lParam)^.hwnd, TScintillaStyleHook.Create(PCWPStruct(lParam)^.hwnd));
+        end
+        else
         if SameText(sClassName,'SysTabControl32') then
         begin
            if not TSysStyleManager.SysStyleHookList.ContainsKey(PCWPStruct(lParam)^.hwnd) then  // avoid double registration
@@ -193,9 +193,6 @@ if Assigned(ThemedNppControls) then
   end;
 end;
 
-
-
-
 { TVCLStylesNppPlugin }
 
 procedure _FuncAbout; cdecl;
@@ -211,14 +208,20 @@ end;
 constructor TVCLStylesNppPlugin.Create;
 begin
   inherited;
-  self.PluginName := 'VCL Styles Npp';
+  self.PluginName := 'VCL Styles for Notepad++';
   AddFuncItem('Settings', _FuncSettings);
   AddFuncItem('About', _FuncAbout);
 end;
 
-
 procedure TVCLStylesNppPlugin.ShowSettings;
 begin
+end;
+
+function TVCLStylesNppPlugin.GetVCLStylesNppConfigPath: string;
+begin
+  Result:=IncludeTrailingPathDelimiter(self.GetPluginsConfigDir)+'VCLStylesNpp\';
+  if not DirectoryExists(Result) then
+   ForceDirectories(Result);
 end;
 
 procedure TVCLStylesNppPlugin.ShowAbout;
@@ -230,11 +233,43 @@ begin
   a.Free;
 end;
 
+const
+  commdlg32 = 'comdlg32.dll';
+
+var
+ TrampolineGetOpenFileName  : function (var OpenFile: TOpenFilename): Bool; stdcall;
+
+function DialogHook(Wnd: HWnd; Msg: UINT; WParam: WPARAM; LParam: LPARAM): UINT_PTR; stdcall;
+begin
+  Exit(0);
+end;
+
+function DetourGetOpenFileName(var OpenFile: TOpenFilename): Bool; stdcall;
+begin
+  if (OpenFile.Flags and  OFN_EXPLORER <> 0)  then
+  begin
+    OpenFile.lpfnHook := @DialogHook;
+    OpenFile.Flags    := OpenFile.Flags or OFN_ENABLEHOOK;
+  end;
+ Exit(TrampolineGetOpenFileName(OpenFile));
+end;
+
+procedure HookFileDialogs;
+begin
+  @TrampolineGetOpenFileName :=  InterceptCreate(commdlg32, 'GetOpenFileNameW', @DetourGetOpenFileName);
+end;
+
+procedure UnHookFileDialogs;
+begin
+  InterceptRemove(@TrampolineGetOpenFileName);
+end;
+
 initialization
-  Npp := TVCLStylesNppPlugin.Create;
   ThemedNppControls:=nil;
   if StyleServices.Available then
    ThemedNppControls := TThemedNppControls.Create;
+  HookFileDialogs;
 finalization
+   UnHookFileDialogs;
    Done;
 end.
