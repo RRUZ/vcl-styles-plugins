@@ -1,12 +1,12 @@
 inherited AboutForm: TAboutForm
   BorderStyle = bsDialog
   Caption = 'About - VCL Styles for Notepad++'
-  ClientHeight = 179
-  ClientWidth = 341
+  ClientHeight = 223
+  ClientWidth = 352
   Position = poOwnerFormCenter
   OnCreate = FormCreate
-  ExplicitWidth = 347
-  ExplicitHeight = 207
+  ExplicitWidth = 358
+  ExplicitHeight = 251
   PixelsPerInch = 96
   TextHeight = 13
   object Label1: TLabel
@@ -16,32 +16,18 @@ inherited AboutForm: TAboutForm
     Height = 13
     Caption = 'Copyright  Rodrigo Ruz V. 2014'
   end
-  object Label2: TLabel
-    Left = 8
-    Top = 75
-    Width = 178
-    Height = 13
-    Caption = 'http://theroadtodelphi.wordpress.com'
-  end
-  object Label3: TLabel
-    Left = 8
-    Top = 94
-    Width = 218
-    Height = 13
-    Caption = 'https://code.google.com/p/vcl-styles-plugins/'
-  end
   object Bevel1: TBevel
     Left = 8
     Top = 59
-    Width = 319
+    Width = 336
     Height = 10
     Shape = bsTopLine
   end
   object Bevel2: TBevel
     Left = 8
-    Top = 127
-    Width = 319
-    Height = 10
+    Top = 168
+    Width = 336
+    Height = 9
     Shape = bsTopLine
   end
   object Image2: TImage
@@ -221,12 +207,34 @@ inherited AboutForm: TAboutForm
     Caption = 'LabelVersion'
   end
   object Button1: TButton
-    Left = 252
-    Top = 135
+    Left = 269
+    Top = 191
     Width = 75
     Height = 25
     Caption = 'OK'
     ModalResult = 1
     TabOrder = 0
+  end
+  object LinkLabel1: TLinkLabel
+    Left = 8
+    Top = 75
+    Width = 282
+    Height = 17
+    Caption = 
+      '<a href="https://code.google.com/p/vcl-styles-plugins/">Project ' +
+      'Site https://code.google.com/p/vcl-styles-plugins/</a> '
+    TabOrder = 1
+    OnLinkClick = LinkLabel1LinkClick
+  end
+  object LinkLabel2: TLinkLabel
+    Left = 8
+    Top = 98
+    Width = 214
+    Height = 17
+    Caption = 
+      '<a href="http://theroadtodelphi.wordpress.com/">Blog http://ther' +
+      'oadtodelphi.wordpress.com/</a> '
+    TabOrder = 2
+    OnLinkClick = LinkLabel1LinkClick
   end
 end

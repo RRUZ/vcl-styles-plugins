@@ -33,13 +33,15 @@ type
   TAboutForm = class(TNppForm)
     Button1: TButton;
     Label1: TLabel;
-    Label2: TLabel;
-    Label3: TLabel;
     Bevel1: TBevel;
     Bevel2: TBevel;
     Image2: TImage;
     LabelVersion: TLabel;
+    LinkLabel1: TLinkLabel;
+    LinkLabel2: TLinkLabel;
     procedure FormCreate(Sender: TObject);
+    procedure LinkLabel1LinkClick(Sender: TObject; const Link: string;
+      LinkType: TSysLinkType);
   private
     { Private declarations }
   public
@@ -51,12 +53,19 @@ implementation
 {$R *.dfm}
 
 uses
+  ShellAPi,
   uMisc;
 
 procedure TAboutForm.FormCreate(Sender: TObject);
 begin
   inherited;
   LabelVersion.Caption    := Format('Version %s', [GetFileVersion(GetModuleName())]);
+end;
+
+procedure TAboutForm.LinkLabel1LinkClick(Sender: TObject; const Link: string;
+  LinkType: TSysLinkType);
+begin
+   ShellAPI.ShellExecute(0, 'Open', PChar(Link), nil, nil, SW_SHOWNORMAL);
 end;
 
 end.

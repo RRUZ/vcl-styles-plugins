@@ -35,41 +35,9 @@ uses
 type
   TSettings =class
   private
-    FSubMenuOpenCmdRAD: Boolean;
-    FShowInfoDProj: Boolean;
-    FSubMenuLazarus: Boolean;
-    FActivateLazarus : Boolean;
-    FSubMenuCommonTasks: Boolean;
-    FSubMenuMSBuild: Boolean;
-    FSubMenuMSBuildAnother: Boolean;
-    FSubMenuRunTouch: Boolean;
-    FSubMenuOpenDelphi: Boolean;
-    FSubMenuFormat: Boolean;
-    FSubMenuOpenVclStyle: Boolean;
-    FSubMenuOpenFMXStyle: Boolean;
-    FSubMenuCompileRC: Boolean;
-    FCheckForUpdates: Boolean;
-    FCheckSumExt, FOpenLazarusExt, FOpenDelphiExt, FCommonTaskExt : string;
+    FVclStyle: string;
   public
-    property SubMenuOpenCmdRAD : Boolean read FSubMenuOpenCmdRAD write FSubMenuOpenCmdRAD;
-    property SubMenuLazarus : Boolean read FSubMenuLazarus write FSubMenuLazarus;
-    property SubMenuCommonTasks : Boolean read FSubMenuCommonTasks write FSubMenuCommonTasks;
-    property ShowInfoDProj : Boolean read FShowInfoDProj write FShowInfoDProj;
-    property ActivateLazarus : Boolean read FActivateLazarus write FActivateLazarus;
-    property SubMenuMSBuild : Boolean read FSubMenuMSBuild write FSubMenuMSBuild;
-    property SubMenuMSBuildAnother : Boolean read FSubMenuMSBuildAnother write FSubMenuMSBuildAnother;
-    property SubMenuRunTouch : Boolean read FSubMenuRunTouch write FSubMenuRunTouch;
-    property SubMenuOpenDelphi : Boolean read FSubMenuOpenDelphi write FSubMenuOpenDelphi;
-    property SubMenuFormat : Boolean read FSubMenuFormat write FSubMenuFormat;
-    property SubMenuCompileRC : Boolean read FSubMenuCompileRC  write FSubMenuCompileRC;
-    property SubMenuOpenFMXStyle : Boolean read FSubMenuOpenFMXStyle write FSubMenuOpenFMXStyle;
-    property SubMenuOpenVclStyle : Boolean read FSubMenuOpenVclStyle write FSubMenuOpenVclStyle;
-
-    property CheckForUpdates     : Boolean read FCheckForUpdates write FCheckForUpdates;
-    property CommonTaskExt : string read FCommonTaskExt write FCommonTaskExt;
-    property OpenDelphiExt : string read FOpenDelphiExt write FOpenDelphiExt;
-    property OpenLazarusExt : string read FOpenLazarusExt write FOpenLazarusExt;
-    property CheckSumExt : string read FCheckSumExt write FCheckSumExt;
+    property VclStyle : string read FVclStyle write FVclStyle;
   end;
 
 
@@ -87,8 +55,8 @@ type
   function  GetModuleName: string;
   procedure GetAssocAppByExt(const FileName:string; var ExeName, FriendlyAppName : string);
 
-//  procedure ReadSettings(var Settings: TSettings);
-//  procedure WriteSettings(const Settings: TSettings);
+  procedure ReadSettings(Settings: TSettings;const FileName : string);
+  procedure WriteSettings(const Settings: TSettings;const FileName : string);
   function GetUNCNameEx(const lpLocalPath: string): string;
   function LocalPathToFileURL(const pszPath: string): string;
   function IsVistaOrLater : Boolean;
@@ -192,71 +160,71 @@ begin
 end;
 
 
-//
-//
-//procedure ReadSettings(var Settings: TSettings);
-//var
-//  iniFile: TIniFile;
-//  LCtx   : TRttiContext;
-//  LProp  : TRttiProperty;
-//  BooleanValue : Boolean;
-//  StringValue : string;
-//begin
-//  iniFile := TIniFile.Create(GetDelphiDevShellToolsFolder + 'Settings.ini');
-//  try
-//   LCtx:=TRttiContext.Create;
-//   try
-//    for LProp in LCtx.GetType(TypeInfo(TSettings)).GetProperties do
-//    if LProp.PropertyType.TypeKind=tkEnumeration then
-//    begin
-//      BooleanValue:= iniFile.ReadBool('Global', LProp.Name, True);
-//      LProp.SetValue(Settings, BooleanValue);
-//    end
-//    else
-//    if (LProp.PropertyType.TypeKind=tkString) or  (LProp.PropertyType.TypeKind=tkUString) then
-//    begin
-//      StringValue:= iniFile.ReadString('Global', LProp.Name, '');
-//      LProp.SetValue(Settings, StringValue);
-//    end;
-//   finally
-//     LCtx.Free;
-//   end;
-//  finally
-//    iniFile.Free;
-//  end;
-//end;
-//
-//procedure WriteSettings(const Settings: TSettings);
-//var
-//  iniFile: TIniFile;
-//  LCtx   : TRttiContext;
-//  LProp  : TRttiProperty;
-//  BooleanValue : Boolean;
-//  StringValue : string;
-//begin
-//  iniFile := TIniFile.Create(GetDelphiDevShellToolsFolder + 'Settings.ini');
-//  try
-//   LCtx:=TRttiContext.Create;
-//   try
-//    for LProp in LCtx.GetType(TypeInfo(TSettings)).GetProperties do
-//    if LProp.PropertyType.TypeKind=tkEnumeration then
-//    begin
-//       BooleanValue:= LProp.GetValue(Settings).AsBoolean;
-//       iniFile.WriteBool('Global', LProp.Name, BooleanValue);
-//    end
-//    else
-//    if (LProp.PropertyType.TypeKind=tkString) or  (LProp.PropertyType.TypeKind=tkUString) then
-//    begin
-//       StringValue:= LProp.GetValue(Settings).AsString;
-//       iniFile.WriteString('Global', LProp.Name, StringValue);
-//    end;
-//   finally
-//     LCtx.Free;
-//   end;
-//  finally
-//    iniFile.Free;
-//  end;
-//end;
+
+
+procedure ReadSettings(Settings: TSettings;const FileName : string);
+var
+  iniFile: TIniFile;
+  LCtx   : TRttiContext;
+  LProp  : TRttiProperty;
+  BooleanValue : Boolean;
+  StringValue : string;
+begin
+  iniFile := TIniFile.Create(FileName);
+  try
+   LCtx:=TRttiContext.Create;
+   try
+    for LProp in LCtx.GetType(TypeInfo(TSettings)).GetProperties do
+    if LProp.PropertyType.TypeKind=tkEnumeration then
+    begin
+      BooleanValue:= iniFile.ReadBool('Global', LProp.Name, True);
+      LProp.SetValue(Settings, BooleanValue);
+    end
+    else
+    if (LProp.PropertyType.TypeKind=tkString) or  (LProp.PropertyType.TypeKind=tkUString) then
+    begin
+      StringValue:= iniFile.ReadString('Global', LProp.Name, '');
+      LProp.SetValue(Settings, StringValue);
+    end;
+   finally
+     LCtx.Free;
+   end;
+  finally
+    iniFile.Free;
+  end;
+end;
+
+procedure WriteSettings(const Settings: TSettings;const FileName : string);
+var
+  iniFile: TIniFile;
+  LCtx   : TRttiContext;
+  LProp  : TRttiProperty;
+  BooleanValue : Boolean;
+  StringValue : string;
+begin
+  iniFile := TIniFile.Create(FileName);
+  try
+   LCtx:=TRttiContext.Create;
+   try
+    for LProp in LCtx.GetType(TypeInfo(TSettings)).GetProperties do
+    if LProp.PropertyType.TypeKind=tkEnumeration then
+    begin
+       BooleanValue:= LProp.GetValue(Settings).AsBoolean;
+       iniFile.WriteBool('Global', LProp.Name, BooleanValue);
+    end
+    else
+    if (LProp.PropertyType.TypeKind=tkString) or  (LProp.PropertyType.TypeKind=tkUString) then
+    begin
+       StringValue:= LProp.GetValue(Settings).AsString;
+       iniFile.WriteString('Global', LProp.Name, StringValue);
+    end;
+   finally
+     LCtx.Free;
+   end;
+  finally
+    iniFile.Free;
+  end;
+end;
 
 procedure GetAssocAppByExt(const FileName:string; var ExeName, FriendlyAppName : string);
 var

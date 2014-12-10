@@ -22,11 +22,12 @@
 library nppVCLStyles;
 
 uses
-  SysUtils,
-  Classes,
-  Types,
-  Windows,
-  Messages,
+  System.SysUtils,
+  System.Classes,
+  System.Types,
+  ioutils,
+  Winapi.Windows,
+  Winapi.Messages,
   nppplugin in 'lib\nppplugin.pas',
   SciSupport in 'lib\SciSupport.pas',
   NppForms in 'lib\NppForms.pas' {NppForm},
@@ -38,7 +39,7 @@ uses
   Vcl.Themes,
   Vcl.Dialogs,
   Vcl.Styles.UxTheme in '..\Common\Vcl.Styles.UxTheme.pas',
-  Vcl.Styles.Hooks in '..\Common\Vcl.Styles.Hooks.pas',
+  Vcl.Styles.Hooks in 'Vcl.Styles.Hooks.pas',   //Npp version
   Vcl.Styles.Utils.Graphics in '..\Common\Vcl.Styles.Utils.Graphics.pas',
   Vcl.Styles.Utils.ComCtrls in '..\Common\Vcl.Styles.Utils.ComCtrls.pas',
   Vcl.Styles.Utils.Forms in '..\Common\Vcl.Styles.Utils.Forms.pas',
@@ -49,28 +50,28 @@ uses
   Vcl.Styles.Utils.SysStyleHook in '..\Common\Vcl.Styles.Utils.SysStyleHook.pas',
   Vcl.Styles.Npp in 'Vcl.Styles.Npp.pas',
   Vcl.Styles.Npp.StyleHooks in 'Vcl.Styles.Npp.StyleHooks.pas',
-  uMisc in 'uMisc.pas';
+  uMisc in 'uMisc.pas',
+  Vcl.Styles.Ext in '..\Common\Vcl.Styles.Ext.pas';
 
 {$R *.res}
 
 //TODO
 // Add support for MenuBar
-// Hook dialogs  OK
-// fix Language - > Define your language option - flicker
+// fix Language - > Define your language option - flicker   //aislar y cambair a uxtheme
 // fix Settings - > preferences- slow  first time
-// fix Settings - > short cut mapper - slow, no themed
+// fix Settings - > short cut mapper - slow, no themed  ( maybe I must disable hooking this window and child controls)
 // Scintilla border
-
 // When Edit has ES_MULTILINE style use memo like style hook (ex: about window)
+// docked windows (ex: character panel) are not themed  (owner drawn button)
+// Hook dialogs  OK
 
 
 // *************Features
-// Settings
+// Settings   OK
 // edit styles with EQ
 // disable skin elements (menu, classes)
 // Add options to system menu (VCL Style selection, EQ, etc)
 // tab close button
-// shortcut manager slow, maybe disable hooking this window and child controls
 
 
 //Scintilla or TabControl has artifacts on Npp init when not scrollbar is visible OK
@@ -78,19 +79,16 @@ uses
 //Scintilla scrollbar events   OK
 //track mouse events       OK
 //listbox not themed in preferences and style menu      OK
-//docked window (ex: character panel) is not themed
 //Switch to XE4  -  OK
 
 
 //references
 //http://www.brotherstone.co.uk/octopress/blog/2012/08/20/top-10-hints-for-writing-a-notepad-plus-plus-plugin/
 
-
 function BeforeNppHookingControl(Info: PControlInfo): Boolean;
 begin
   Exit(True);
 end;
-
 
 procedure DLLEntryPoint(dwReason: DWord);
 begin
@@ -107,21 +105,27 @@ end;
 
 procedure setInfo(NppData: TNppData); cdecl; export;
 var
-  VClStyleFile : string;
+  s, VClStyleFile : string;
 begin
   Npp.SetInfo(NppData);
   //The VCL Style must be load here, because on this point the
   //config path of npp can be retrieved and the npp controls are to shown yet.
   if not StyleServices.Available then exit;
+  Npp.SettingsFileName := Npp.GetVCLStylesNppConfigPath+'VCLStylesNpp.ini';
+  ReadSettings(npp.Settings, Npp.SettingsFileName);
+
+  //register VCL Styles
+  for VClStyleFile in TDirectory.GetFiles(Npp.GetVCLStylesNppConfigPath+'Styles', '*.vsf') do
+   if TStyleManager.IsValidStyle(VClStyleFile) then
+     TStyleManager.LoadFromFile(VClStyleFile);
+
+  for s in TStyleManager.StyleNames do
+  if SameText(s, Npp.Settings.VclStyle)  then
+   TStyleManager.SetStyle(s);
+
   TSysStyleManager.OnBeforeHookingControl:=@BeforeNppHookingControl;
   TSysStyleManager.RegisterSysStyleHook('NotePad++', TSysDialogStyleHook);
   TSysStyleManager.UnRegisterSysStyleHook('Edit', TSysEditStyleHook);
-
-  VClStyleFile:=Npp.GetVCLStylesNppConfigPath+'Styles\Carbon.vsf';
-  if TStyleManager.IsValidStyle(VClStyleFile) then
-   TStyleManager.SetStyle(TStyleManager.LoadFromFile(VClStyleFile))
-  else
-   ShowMessage(Format('The Style File %s is not valid',[VClStyleFile]));
 end;
 
 function getName(): nppPchar; cdecl; export;
