@@ -29,7 +29,9 @@ VCL Styles for Inno Setup is a Free and Open Source plugin (dll) that allows you
 * Support for ANSI and Unicode versions of Inno setup.
 
 * Support for menus.
-* Support for shell dialogs (open/save file, select folder)
+
+* Support for shell dialogs (open/save file, select folder).
+
 * Includes 30+ VCL Styles (skins), a set of wizard images and samples inno scripts.
 
 https://theroadtodelphi.files.wordpress.com/2014/12/output_1n5chq.gif
