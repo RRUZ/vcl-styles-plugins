@@ -39,7 +39,7 @@ uses
   Vcl.Themes,
   Vcl.Dialogs,
   Vcl.Styles.UxTheme in '..\Common\Vcl.Styles.UxTheme.pas',
-  Vcl.Styles.Hooks in 'Vcl.Styles.Hooks.pas',   //Npp version
+  Vcl.Styles.Hooks in 'Vcl.Styles.Hooks.pas',
   Vcl.Styles.Utils.Graphics in '..\Common\Vcl.Styles.Utils.Graphics.pas',
   Vcl.Styles.Utils.ComCtrls in '..\Common\Vcl.Styles.Utils.ComCtrls.pas',
   Vcl.Styles.Utils.Forms in '..\Common\Vcl.Styles.Utils.Forms.pas',
@@ -51,7 +51,8 @@ uses
   Vcl.Styles.Npp in 'Vcl.Styles.Npp.pas',
   Vcl.Styles.Npp.StyleHooks in 'Vcl.Styles.Npp.StyleHooks.pas',
   uMisc in 'uMisc.pas',
-  Vcl.Styles.Ext in '..\Common\Vcl.Styles.Ext.pas';
+  Vcl.Styles.Ext in '..\Common\Vcl.Styles.Ext.pas',
+  uSettings in 'uSettings.pas' {SettingsForm};
 
 {$R *.res}
 
@@ -64,6 +65,8 @@ uses
 // When Edit has ES_MULTILINE style use memo like style hook (ex: about window)
 // docked windows (ex: character panel) are not themed  (owner drawn button)
 // Hook dialogs  OK
+// detect search init and end
+
 
 
 // *************Features
@@ -120,12 +123,13 @@ begin
      TStyleManager.LoadFromFile(VClStyleFile);
 
   for s in TStyleManager.StyleNames do
-  if SameText(s, Npp.Settings.VclStyle)  then
+  if (not SameText(s, 'Windows')) and SameText(s, Npp.Settings.VclStyle)  then
    TStyleManager.SetStyle(s);
 
   TSysStyleManager.OnBeforeHookingControl:=@BeforeNppHookingControl;
   TSysStyleManager.RegisterSysStyleHook('NotePad++', TSysDialogStyleHook);
   TSysStyleManager.UnRegisterSysStyleHook('Edit', TSysEditStyleHook);
+  //TSysStyleManager.UnRegisterSysStyleHook('Button', TSysButtonStyleHook); //handled via uxtheme
 end;
 
 function getName(): nppPchar; cdecl; export;

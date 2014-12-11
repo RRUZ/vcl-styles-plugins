@@ -34,6 +34,7 @@ inherited SettingsForm: TSettingsForm
     Width = 234
     Height = 21
     Style = csDropDownList
+    Sorted = True
     TabOrder = 1
     OnChange = ComboBoxVCLStyleChange
   end

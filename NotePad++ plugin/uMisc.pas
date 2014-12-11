@@ -1,8 +1,8 @@
 //**************************************************************************************************
 //
 // Unit uMisc
-// unit for the VCL Styles Utils
-// http://code.google.com/p/vcl-styles-utils/
+// unit for the VCL Styles for Notepad++
+// https://code.google.com/p/vcl-styles-plugins/
 //
 // The contents of this file are subject to the Mozilla Public License Version 1.1 (the "License");
 // you may not use this file except in compliance with the License. You may obtain a copy of the

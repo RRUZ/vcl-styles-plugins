@@ -1,3 +1,25 @@
+//**************************************************************************************************
+//
+// Unit Vcl.Styles.Npp.StyleHooks
+// unit for the VCL Styles for Notepad++
+// https://code.google.com/p/vcl-styles-plugins/
+//
+// The contents of this file are subject to the Mozilla Public License Version 1.1 (the "License");
+// you may not use this file except in compliance with the License. You may obtain a copy of the
+// License at http://www.mozilla.org/MPL/
+//
+// Software distributed under the License is distributed on an "AS IS" basis, WITHOUT WARRANTY OF
+// ANY KIND, either express or implied. See the License for the specific language governing rights
+// and limitations under the License.
+//
+// The Original Code is  Vcl.Styles.Npp.StyleHooks.pas.
+//
+// The Initial Developer of the Original Code is Rodrigo Ruz V.
+//
+// Portions created by Rodrigo Ruz V. are Copyright (C) 2014 Rodrigo Ruz V.
+// All Rights Reserved.
+//
+//**************************************************************************************************
 unit Vcl.Styles.Npp.StyleHooks;
 
 interface
@@ -47,7 +69,6 @@ begin
   OverridePaintNC:=False;
 end;
 
-
 { TScintillaStyleHook }
 
 constructor TScintillaStyleHook.Create(AHandle: THandle);
@@ -59,8 +80,6 @@ begin
   OverridePaintNC := True;
   OverrideFont := False;
 {$IFEND}
-//  Invalidate;
-//  InvalidateNC;
 end;
 
 function TScintillaStyleHook.GetBorderSize: TRect;
@@ -95,21 +114,10 @@ end;
 procedure TScintillaStyleHook.UpdateColors;
 begin
   inherited;
-
 end;
 
 procedure TScintillaStyleHook.WndProc(var Message: TMessage);
 begin
-  //Addlog(Format('TScintillaStyleHook $0x%x %s', [SysControl.Handle, WM_To_String(Message.Msg)]));
-//  case Message.Msg of
-//
-//    WM_SIZE : begin
-//               CallDefaultProc(Message);
-//               Invalidate;
-//              end;
-//  else
-//     inherited;
-//  end;
   inherited;
 end;
 
