@@ -1,8 +1,8 @@
 //**************************************************************************************************
 //
 // Unit uSettings
-// unit for the VCL Styles Utils
-// http://code.google.com/p/vcl-styles-utils/
+// unit for the VCL Styles for Notepad++
+// https://code.google.com/p/vcl-styles-plugins/
 //
 // The contents of this file are subject to the Mozilla Public License Version 1.1 (the "License");
 // you may not use this file except in compliance with the License. You may obtain a copy of the
@@ -20,6 +20,7 @@
 // All Rights Reserved.
 //
 //**************************************************************************************************
+
 
 unit uSettings;
 
@@ -75,7 +76,8 @@ end;
 procedure TSettingsForm.BtnOKClick(Sender: TObject);
 begin
   inherited;
-  if MessageBox(Handle, 'Do you want apply the changes?', 'Question', MB_YESNO + MB_ICONQUESTION) = IDYES then
+  if not SameText(ComboBoxVCLStyle.Text, TVCLStylesNppPlugin(Npp).Settings.VclStyle) then
+  if MessageBox(Handle, 'Do you want apply the changes?'+sLineBreak+'Note : You must restart Notepad++ to get better results', 'Question', MB_YESNO + MB_ICONQUESTION) = IDYES then
   begin
     TVCLStylesNppPlugin(Npp).Settings.VclStyle:=ComboBoxVCLStyle.Text;
     WriteSettings(TVCLStylesNppPlugin(Npp).Settings, TVCLStylesNppPlugin(Npp).SettingsFileName);
@@ -154,7 +156,6 @@ begin
     ComboBoxVCLStyle.Items.BeginUpdate;
     ComboBoxVCLStyle.Items.Clear;
     for Style in TStyleManager.StyleNames do
-     if not SameText(Style, 'Windows') then
       ComboBoxVCLStyle.Items.Add(Style);
   finally
     ComboBoxVCLStyle.Items.EndUpdate;

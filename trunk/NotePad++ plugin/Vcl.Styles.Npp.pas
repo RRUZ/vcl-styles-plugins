@@ -1,8 +1,8 @@
 //**************************************************************************************************
 //
 // Unit Vcl.Styles.Npp
-// unit for the VCL Styles Utils
-// http://code.google.com/p/vcl-styles-utils/
+// unit for the VCL Styles for Notepad++
+// https://code.google.com/p/vcl-styles-plugins/
 //
 // The contents of this file are subject to the Mozilla Public License Version 1.1 (the "License");
 // you may not use this file except in compliance with the License. You may obtain a copy of the
@@ -78,11 +78,14 @@ type
   private
   class var ClassesList : TDictionary<HWND, string>;
   class var  FHook_WH_CALLWNDPROC: HHook;
+  class var  FHook_WH_CBT: HHook;
   protected
-    class function HookActionCallBackWndProc(nCode: Integer; wParam: wParam;
-      lParam: lParam): LRESULT; stdcall; static;
-    procedure InstallHook;
-    procedure RemoveHook;
+    class function HookActionCallBackWndProc(nCode: Integer; wParam: wParam; lParam: lParam): LRESULT; stdcall; static;
+    class function HookActionCallBackCBT(nCode: Integer; wParam: wParam; lParam: lParam): LRESULT; stdcall; static;
+    procedure InstallHook_WH_CALLWNDPROC;
+    procedure RemoveHook_WH_CALLWNDPROC;
+    procedure InstallHook_WH_CBT;
+    procedure RemoveHook_WH_CBT;
   public
     constructor Create; overload;
     destructor Destroy; override;
@@ -97,24 +100,49 @@ constructor TThemedNppControls.Create;
 begin
   inherited;
   FHook_WH_CALLWNDPROC := 0;
-  InstallHook;
+  InstallHook_WH_CALLWNDPROC;
+  InstallHook_WH_CBT;
   NppControlsList := TObjectDictionary<HWND, TSysStyleHook>.Create([doOwnsValues]);
   ClassesList :=  TDictionary<HWND, string>.Create;
 end;
 
 destructor TThemedNppControls.Destroy;
 begin
-  RemoveHook;
+  RemoveHook_WH_CALLWNDPROC;
+  RemoveHook_WH_CBT;
   NppControlsList.Free;
   ClassesList.Free;
   inherited;
 end;
 
+class function TThemedNppControls.HookActionCallBackCBT(nCode: Integer; wParam: wParam; lParam: lParam): LRESULT;
+var
+ LHWND  : HWND;
+ LClassName : string;
+begin
+   if (StyleServices.Enabled) and not (StyleServices.IsSystemStyle) then
+   case nCode of
+     HCBT_ACTIVATE:
+     begin
+       LHWND := HWND(wParam);
+       if(LHWND>0) then
+       begin
+          LClassName:= GetWindowClassName(LHWND);
+          if (LClassName<>'') and  (not TSysStyleManager.SysStyleHookList.ContainsKey(LHWND)) and SameText(LClassName,'#32770')  then
+          begin
+            TSysStyleManager.AddControlDirectly(LHWND, LClassName);
+            InvalidateRect(LHWND, nil, False);
+          end;
+       end;
+     end;
+   end;
+  Result := CallNextHookEx(TThemedNppControls.FHook_WH_CBT, nCode, wParam, lParam);
+end;
+
 class function TThemedNppControls.HookActionCallBackWndProc(nCode: Integer;
   wParam: wParam; lParam: lParam): LRESULT;
 var
-  C: array [0 .. 256] of Char;
-  sClassName : string;
+  LClassName : string;
 begin
     Result := CallNextHookEx(FHook_WH_CALLWNDPROC, nCode, wParam, lParam);
     if (nCode < 0) then
@@ -124,13 +152,13 @@ begin
     begin
       if not ClassesList.ContainsKey(PCWPStruct(lParam)^.hwnd) then
       begin
-        GetClassName(PCWPStruct(lParam)^.hwnd, C, 256);
-        ClassesList.Add(PCWPStruct(lParam)^.hwnd, C);
+        LClassName:= GetWindowClassName(PCWPStruct(lParam)^.hwnd);
+        ClassesList.Add(PCWPStruct(lParam)^.hwnd, LClassName);
       end;
 
       if ClassesList.ContainsKey(PCWPStruct(lParam)^.hwnd) then
       begin
-        sClassName:=ClassesList[PCWPStruct(lParam)^.hwnd];
+        LClassName:=ClassesList[PCWPStruct(lParam)^.hwnd];
 
 
 //        if SameText(sClassName,'NotePad++') then
@@ -139,28 +167,28 @@ begin
 //               NppControlsList.Add(PCWPStruct(lParam)^.hwnd, TMainWndNppStyleHook.Create(PCWPStruct(lParam)^.hwnd));
 //        end
 //        else
-        if SameText(sClassName,'msctls_statusbar32') then
+        if SameText(LClassName,'msctls_statusbar32') then
         begin
            if not TSysStyleManager.SysStyleHookList.ContainsKey(PCWPStruct(lParam)^.hwnd) then  // avoid double registration
            if (PCWPStruct(lParam)^.message=WM_NCCALCSIZE) and not (NppControlsList.ContainsKey(PCWPStruct(lParam)^.hwnd)) then
                NppControlsList.Add(PCWPStruct(lParam)^.hwnd, TSysStatusBarStyleHook.Create(PCWPStruct(lParam)^.hwnd));
         end
         else
-        if SameText(sClassName,'Scintilla') then
+        if SameText(LClassName,'Scintilla') then
         begin
            if not TSysStyleManager.SysStyleHookList.ContainsKey(PCWPStruct(lParam)^.hwnd) then  // avoid double registration
            if (PCWPStruct(lParam)^.message=WM_NCCALCSIZE) and not (NppControlsList.ContainsKey(PCWPStruct(lParam)^.hwnd)) then
                NppControlsList.Add(PCWPStruct(lParam)^.hwnd, TScintillaStyleHook.Create(PCWPStruct(lParam)^.hwnd));
         end
         else
-        if SameText(sClassName,'SysTabControl32') then
+        if SameText(LClassName,'SysTabControl32') then
         begin
            if not TSysStyleManager.SysStyleHookList.ContainsKey(PCWPStruct(lParam)^.hwnd) then  // avoid double registration
            if (PCWPStruct(lParam)^.message=WM_NCCALCSIZE) and not (NppControlsList.ContainsKey(PCWPStruct(lParam)^.hwnd)) then
                NppControlsList.Add(PCWPStruct(lParam)^.hwnd, TSysTabControlStyleHook.Create(PCWPStruct(lParam)^.hwnd));
         end
         else
-        if SameText(sClassName,'Edit') then
+        if SameText(LClassName,'Edit') then
         begin
            if not TSysStyleManager.SysStyleHookList.ContainsKey(PCWPStruct(lParam)^.hwnd) then  // avoid double registration
            if (PCWPStruct(lParam)^.message=WM_NCCALCSIZE) and not (NppControlsList.ContainsKey(PCWPStruct(lParam)^.hwnd)) then
@@ -178,15 +206,26 @@ begin
     end;
 end;
 
-procedure TThemedNppControls.InstallHook;
+procedure TThemedNppControls.InstallHook_WH_CALLWNDPROC;
 begin
   FHook_WH_CALLWNDPROC := SetWindowsHookEx(WH_CALLWNDPROC, @TThemedNppControls.HookActionCallBackWndProc, 0, GetCurrentThreadId);
 end;
 
-procedure TThemedNppControls.RemoveHook;
+procedure TThemedNppControls.InstallHook_WH_CBT;
+begin
+   FHook_WH_CBT := SetWindowsHookEx(WH_CBT, @TThemedNppControls.HookActionCallBackCBT, 0, GetCurrentThreadId);
+end;
+
+procedure TThemedNppControls.RemoveHook_WH_CALLWNDPROC;
 begin
   if FHook_WH_CALLWNDPROC <> 0 then
     UnhookWindowsHookEx(FHook_WH_CALLWNDPROC);
+end;
+
+procedure TThemedNppControls.RemoveHook_WH_CBT;
+begin
+  if FHook_WH_CBT <> 0 then
+    UnhookWindowsHookEx(FHook_WH_CBT);
 end;
 
 Procedure  Done;

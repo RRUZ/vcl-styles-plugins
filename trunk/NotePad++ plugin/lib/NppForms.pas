@@ -30,13 +30,13 @@ type
   private
     { Private declarations }
   protected
+    Npp: TNppPlugin;
+    DefaultCloseAction: TCloseAction;
     procedure RegisterForm();
     procedure UnregisterForm();
     procedure DoClose(var Action: TCloseAction); override;
   public
     { Public declarations }
-    Npp: TNppPlugin;
-    DefaultCloseAction: TCloseAction;
     constructor Create(NppParent: TNppPlugin); overload;
     constructor Create(AOwner: TNppForm); overload;
     destructor Destroy; override;
