@@ -55,7 +55,9 @@ implementation
 {.$DEFINE USEGENERICS}   //-->Reduce the final exe/dll size
 
 uses
+  DDetours,
   Winapi.Windows,
+  Winapi.CommDlg,
   Winapi.Messages,
   {$IFDEF USEGENERICS}
   System.Generics.Collections,
@@ -363,14 +365,56 @@ if Assigned(ThemedInnoControls) then
 end;
 
 
+const
+  commdlg32 = 'comdlg32.dll';
+
+var
+ TrampolineGetOpenFileNameW  : function (var OpenFile: TOpenFilenameW): Bool; stdcall;
+ TrampolineGetOpenFileNameA  : function (var OpenFile: TOpenFilenameA): Bool; stdcall;
+
+function DialogHook(Wnd: HWnd; Msg: UINT; WParam: WPARAM; LParam: LPARAM): UINT_PTR; stdcall;
+begin
+  Exit(0);
+end;
+
+function DetourGetOpenFileNameW(var OpenFile: TOpenFilename): Bool; stdcall;
+begin
+ OpenFile.lpfnHook := @DialogHook;
+ OpenFile.Flags    := OpenFile.Flags or OFN_ENABLEHOOK or OFN_EXPLORER;
+ Exit(TrampolineGetOpenFileNameW(OpenFile));
+end;
+
+
+function DetourGetOpenFileNameA(var OpenFile: TOpenFilenameA): Bool; stdcall;
+begin
+ OpenFile.lpfnHook := @DialogHook;
+ OpenFile.Flags    := OpenFile.Flags or OFN_ENABLEHOOK or OFN_EXPLORER;
+ Exit(TrampolineGetOpenFileNameA(OpenFile));
+end;
+
+
+procedure HookFileDialogs;
+begin
+  @TrampolineGetOpenFileNameW :=  InterceptCreate(commdlg32, 'GetOpenFileNameW', @DetourGetOpenFileNameW);
+  @TrampolineGetOpenFileNameA :=  InterceptCreate(commdlg32, 'GetOpenFileNameA', @DetourGetOpenFileNameA);
+end;
+
+procedure UnHookFileDialogs;
+begin
+  InterceptRemove(@TrampolineGetOpenFileNameW);
+  InterceptRemove(@TrampolineGetOpenFileNameA);
+end;
+
 initialization
   ThemedInnoControls:=nil;
   if StyleServices.Available then
   begin
    ThemedInnoControls := TThemedInnoControls.Create;
    TSysStyleManager.HookVclControls:=True;
+   HookFileDialogs;
   end;
 
 finalization
    Done;
+    UnHookFileDialogs;
 end.

@@ -1,4 +1,4 @@
-#define VCLStyle "Amakrits.vsf"
+#define VCLStyle "Auric.vsf"
 [Setup]
 AppName=My Program
 AppVersion=1.5
@@ -12,7 +12,7 @@ WizardSmallImageFile=..\images\WizModernSmallImage-IS_Orange.bmp
 [Files]
 Source: compiler:WizModernSmallImage.bmp; Flags: dontcopy
 Source: ..\VclStylesinno.dll; DestDir: {app}; Flags: dontcopy
-;Source: ..\Win32\Debug\VclStylesinno.dll; DestDir: {app}; Flags: dontcopy
+;Source: ..\Win32\Release\VclStylesinno.dll; DestDir: {app}; Flags: dontcopy
 Source: ..\Styles\{#VCLStyle}; DestDir: {app}; Flags: dontcopy
 [Code]
 
@@ -35,9 +35,22 @@ end;
 
 
 procedure ButtonOnClick(Sender: TObject);
+var
+  Filename: String;
+begin
+  // Set the initial filename
+  Filename := '';
+  if GetOpenFileName('', Filename, '',
+     'Text Documents (*.txt)|*.txt|All Files|*.*', 'txt') then
+  begin
+    MsgBox(Filename, mbInformation, mb_Ok);
+  end;
+end;
+{
 begin
   MsgBox('You clicked the button!', mbInformation, mb_Ok);
 end;
+}
 
 procedure BitmapImageOnClick(Sender: TObject);
 begin
@@ -121,7 +134,7 @@ begin
   Button := TNewButton.Create(Page);
   Button.Width := ScaleX(75);
   Button.Height := ScaleY(23);
-  Button.Caption := 'TNewButton';
+  Button.Caption := 'Open File';
   Button.OnClick := @ButtonOnClick;
   Button.Parent := Page.Surface;
 
