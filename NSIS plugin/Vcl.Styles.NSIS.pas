@@ -117,7 +117,9 @@ var
 implementation
 
 uses
-  IOUTILS,
+  //IOutils,
+  DDetours,
+  Winapi.CommDlg,
   Vcl.Styles.Utils.SysControls;
 
 type
@@ -144,8 +146,7 @@ var
 //
 procedure Addlog(const Msg: string);
 begin
-  TFile.AppendAllText('C:\Test\log.txt',
-    Format('%s %s %s', [FormatDateTime('hh:nn:ss.zzz', Now), Msg, sLineBreak]));
+  //TFile.AppendAllText('C:\Test\log.txt', Format('%s %s %s', [FormatDateTime('hh:nn:ss.zzz', Now), Msg, sLineBreak]));
 end;
 
 { TTransparentStaticNSIS }
@@ -493,7 +494,6 @@ end;
 class function TThemedNSISControls.HookActionCallBackWndProc(nCode: Integer;
   wParam: wParam; lParam: lParam): LRESULT;
 var
-  C: array [0 .. 256] of Char;
   sClassName : string;
 begin
     Result := CallNextHookEx(FHook_WH_CALLWNDPROC, nCode, wParam, lParam);
@@ -512,9 +512,9 @@ begin
 
       if ClassesList.IndexOfName(IntToStr(PCWPStruct(lParam)^.hwnd))=-1 then
       begin
-        GetClassName(PCWPStruct(lParam)^.hwnd, C, 256);
+        sClassName:=GetWindowClassName(PCWPStruct(lParam)^.hwnd);
         //Addlog('GetClassName ' + C);
-        ClassesList.Add(Format('%d=%s',[PCWPStruct(lParam)^.hwnd, C]));
+        ClassesList.Add(Format('%d=%s',[PCWPStruct(lParam)^.hwnd, sClassName]));
       end;
 
       if ClassesList.IndexOfName(IntToStr(PCWPStruct(lParam)^.hwnd))>=0 then
@@ -551,9 +551,76 @@ if Assigned(ThemedNSISControls) then
   end;
 end;
 
+const
+  commdlg32 = 'comdlg32.dll';
+
+var
+ TrampolineGetOpenFileNameW  : function (var OpenFile: TOpenFilenameW): Bool; stdcall;
+ TrampolineGetOpenFileNameA  : function (var OpenFile: TOpenFilenameA): Bool; stdcall;
+ TrampolineGetSaveFileNameW  : function (var OpenFile: TOpenFilenameW): Bool; stdcall;
+ TrampolineGetSaveFileNameA  : function (var OpenFile: TOpenFilenameA): Bool; stdcall;
+
+function DialogHook(Wnd: HWnd; Msg: UINT; WParam: WPARAM; LParam: LPARAM): UINT_PTR; stdcall;
+begin
+  Exit(0);
+end;
+
+function DetourGetOpenFileNameW(var OpenFile: TOpenFilename): Bool; stdcall;
+begin
+ //Addlog('DetourGetOpenFileNameW');
+ OpenFile.lpfnHook := @DialogHook;
+ OpenFile.Flags    := OpenFile.Flags or OFN_ENABLEHOOK or OFN_EXPLORER;
+ Exit(TrampolineGetOpenFileNameW(OpenFile));
+end;
+
+
+function DetourGetOpenFileNameA(var OpenFile: TOpenFilenameA): Bool; stdcall;
+begin
+ //Addlog('DetourGetOpenFileNameA');
+ OpenFile.lpfnHook := @DialogHook;
+ OpenFile.Flags    := OpenFile.Flags or OFN_ENABLEHOOK or OFN_EXPLORER;
+ Exit(TrampolineGetOpenFileNameA(OpenFile));
+end;
+
+
+function DetourGetSaveFileNameW(var OpenFile: TOpenFilename): Bool; stdcall;
+begin
+ //Addlog('DetourGetSaveFileNameW');
+ OpenFile.lpfnHook := @DialogHook;
+ OpenFile.Flags    := OpenFile.Flags or OFN_ENABLEHOOK or OFN_EXPLORER;
+ Exit(TrampolineGetSaveFileNameW(OpenFile));
+end;
+
+
+function DetourGetSaveFileNameA(var OpenFile: TOpenFilenameA): Bool; stdcall;
+begin
+ //Addlog('DetourGetSaveFileNameA');
+ OpenFile.lpfnHook := @DialogHook;
+ OpenFile.Flags    := OpenFile.Flags or OFN_ENABLEHOOK or OFN_EXPLORER;
+ Exit(TrampolineGetSaveFileNameA(OpenFile));
+end;
+
+
+procedure HookFileDialogs;
+begin
+  //Addlog('HookFileDialogs');
+  @TrampolineGetOpenFileNameW :=  InterceptCreate(commdlg32, 'GetOpenFileNameW', @DetourGetOpenFileNameW, True);
+  @TrampolineGetOpenFileNameA :=  InterceptCreate(commdlg32, 'GetOpenFileNameA', @DetourGetOpenFileNameA, True);
+  @TrampolineGetSaveFileNameW :=  InterceptCreate(commdlg32, 'GetSaveFileNameW', @DetourGetSaveFileNameW, True);
+  @TrampolineGetSaveFileNameA :=  InterceptCreate(commdlg32, 'GetSaveFileNameA', @DetourGetSaveFileNameA, True);
+end;
+
+procedure UnHookFileDialogs;
+begin
+  //Addlog('UnHookFileDialogs');
+  InterceptRemove(@TrampolineGetOpenFileNameW);
+  InterceptRemove(@TrampolineGetOpenFileNameA);
+  InterceptRemove(@TrampolineGetSaveFileNameW);
+  InterceptRemove(@TrampolineGetSaveFileNameA);
+end;
 
 initialization
-
+  HookFileDialogs;
   NSIS_IgnoredControls := TList<HWND>.Create;
   TSysStyleManager.OnBeforeHookingControl := @BeforeNSISHookingControl;
   TSysStyleManager.OnHookNotification := @HookNotificationNSIS;
@@ -563,6 +630,7 @@ initialization
    ThemedNSISControls := TThemedNSISControls.Create;
 
 finalization
+   UnHookFileDialogs;
    Done;
    NSIS_IgnoredControls.Free;
 
