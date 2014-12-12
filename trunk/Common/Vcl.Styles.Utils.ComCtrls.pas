@@ -1415,6 +1415,7 @@ begin
               FImages.DrawingStyle := Vcl.ImgList.TDrawingStyle.dsNormal
             else
               FImages.DrawingStyle := Vcl.ImgList.TDrawingStyle.dsSelected;
+
             FImages.Draw(Bmp.Canvas, ImgRect.Left, ImgRect.Top, LImageIndex);
           end;
 
