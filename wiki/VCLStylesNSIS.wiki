@@ -103,4 +103,4 @@ https://theroadtodelphi.files.wordpress.com/2014/07/2014-02-05-20_45_56-nsdialog
 
 = Installer =
 
- Download the installer of the plugin from <a href="http://goo.gl/Ab55qH">here</a>. The current version of the plugin is 1.0.2.1  release Date 20141123
+ Download the installer of the plugin from <a href="http://goo.gl/Ab55qH">here</a>. The current version of the plugin is 1.0.3.5   release Date 20141212
