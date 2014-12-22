@@ -18,10 +18,9 @@ VersionInfoTextVersion=1, 0, 0, 0
 InternalCompressLevel=max
 ;LicenseFile="ISPPExample1License.txt"
 [Files]
-;
 Source: ..\VclStylesinno.dll; DestDir: {app}; Flags: dontcopy
 ;Source: ..\Win32\Debug\VclStylesinno.dll; DestDir: {app}; Flags: dontcopy
-Source: ..\Styles\Amakrits.vsf; DestDir: {app}; Flags: dontcopy
+Source: ..\Styles\Auric.vsf; DestDir: {app}; Flags: dontcopy
 
 
 [Code]
@@ -32,8 +31,8 @@ procedure UnLoadVCLStyles; external 'UnLoadVCLStyles@files:VclStylesInno.dll std
 
 function InitializeSetup(): Boolean;
 begin
-	ExtractTemporaryFile('Amakrits.vsf');
-	LoadVCLStyle(ExpandConstant('{tmp}\Amakrits.vsf'));
+	ExtractTemporaryFile('Auric.vsf');
+	LoadVCLStyle(ExpandConstant('{tmp}\Auric.vsf'));
 	Result := True;
 end;
 

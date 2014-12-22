@@ -78,13 +78,15 @@ uses
 type
   TThemedInnoControls = class
   private
-  class var
-    FHook_WH_CALLWNDPROC: HHook;
+  class var  FHook_WH_CALLWNDPROC: HHook;
+  class var  FHook_WH_CBT: HHook;
   protected
-    class function HookActionCallBackWndProc(nCode: Integer; wParam: wParam;
-      lParam: lParam): LRESULT; stdcall; static;
+    class function HookActionCallBackWndProc(nCode: Integer; wParam: wParam; lParam: lParam): LRESULT; stdcall; static;
+    class function HookActionCallBackCBT(nCode: Integer; wParam: wParam; lParam: lParam): LRESULT; stdcall; static;
     procedure InstallHook;
     procedure RemoveHook;
+    procedure InstallHook_WH_CBT;
+    procedure RemoveHook_WH_CBT;
   public
     constructor Create; overload;
     destructor Destroy; override;
@@ -175,6 +177,7 @@ begin
   inherited;
   FHook_WH_CALLWNDPROC := 0;
   InstallHook;
+  InstallHook_WH_CBT;
   {$IFDEF USEGENERICS}
   InnoSetupControlsList := TObjectDictionary<HWND, TSysStyleHook>.Create([doOwnsValues]);
   {$ELSE}
@@ -186,10 +189,37 @@ end;
 destructor TThemedInnoControls.Destroy;
 begin
   RemoveHook;
+  RemoveHook_WH_CBT;
   InnoSetupControlsList.Free;
   ClassesList.Free;
   inherited;
 end;
+
+class function TThemedInnoControls.HookActionCallBackCBT(nCode: Integer; wParam: wParam; lParam: lParam): LRESULT;
+var
+ LHWND  : HWND;
+ LClassName : string;
+begin
+   if (StyleServices.Enabled) and not (StyleServices.IsSystemStyle) then
+   case nCode of
+     HCBT_ACTIVATE:
+     begin
+       Addlog('HookActionCallBackCBT');
+       LHWND := HWND(wParam);
+       if(LHWND>0) then
+       begin
+          LClassName:= GetWindowClassName(LHWND);
+          if (LClassName<>'') and  (not TSysStyleManager.SysStyleHookList.ContainsKey(LHWND)) {and SameText(LClassName,'#32770')}  then
+          begin
+            TSysStyleManager.AddControlDirectly(LHWND, LClassName);
+            InvalidateRect(LHWND, nil, False);
+          end;
+       end;
+     end;
+   end;
+  Result := CallNextHookEx(TThemedInnoControls.FHook_WH_CBT, nCode, wParam, lParam);
+end;
+
 
 class function TThemedInnoControls.HookActionCallBackWndProc(nCode: Integer; wParam: wParam; lParam: lParam): LRESULT;
 var
@@ -232,7 +262,8 @@ begin
         end
         else
 
-        if SameText(sClassName,'TWizardForm') or SameText(sClassName,'TSetupForm') or SameText(sClassName,'TSelectFolderForm') or SameText(sClassName,'TSelectLanguageForm')  then
+        if SameText(sClassName,'TWizardForm') or SameText(sClassName,'TSetupForm') or SameText(sClassName,'TSelectFolderForm') or SameText(sClassName,'TSelectLanguageForm')
+         or SameText(sClassName,'TUninstallProgressForm')  then
         begin
            if (PCWPStruct(lParam)^.message=WM_NCCALCSIZE) and not (InnoSetupControlsList.ContainsKey(PCWPStruct(lParam)^.hwnd)) then
                InnoSetupControlsList.Add(PCWPStruct(lParam)^.hwnd, TWizardFormStyleHook.Create(PCWPStruct(lParam)^.hwnd));
@@ -349,10 +380,21 @@ begin
   FHook_WH_CALLWNDPROC := SetWindowsHookEx(WH_CALLWNDPROC, @TThemedInnoControls.HookActionCallBackWndProc, 0, GetCurrentThreadId);
 end;
 
+procedure TThemedInnoControls.InstallHook_WH_CBT;
+begin
+   FHook_WH_CBT := SetWindowsHookEx(WH_CBT, @TThemedInnoControls.HookActionCallBackCBT, 0, GetCurrentThreadId);
+end;
+
 procedure TThemedInnoControls.RemoveHook;
 begin
   if FHook_WH_CALLWNDPROC <> 0 then
     UnhookWindowsHookEx(FHook_WH_CALLWNDPROC);
+end;
+
+procedure TThemedInnoControls.RemoveHook_WH_CBT;
+begin
+  if FHook_WH_CBT <> 0 then
+    UnhookWindowsHookEx(FHook_WH_CBT);
 end;
 
 Procedure  Done;
@@ -416,5 +458,5 @@ initialization
 
 finalization
    Done;
-    UnHookFileDialogs;
+   UnHookFileDialogs;
 end.
