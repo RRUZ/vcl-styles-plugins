@@ -20,8 +20,8 @@ InternalCompressLevel=max
 #define VCLStylesSkinPath "{localappdata}\VCLStylesSkin"
 [Files]
 Source: ..\VclStylesinno.dll; DestDir: {#VCLStylesSkinPath}; Flags: uninsneveruninstall
-//Source: ..\Win32\Release\VclStylesinno.dll; DestDir: {#VCLStylesSkinPath}; Flags: uninsneveruninstall
-Source: ..\Styles\Amakrits.vsf; DestDir: {#VCLStylesSkinPath}; Flags: uninsneveruninstall
+;Source: ..\Win32\Debug\VclStylesinno.dll; DestDir: {#VCLStylesSkinPath}; Flags: uninsneveruninstall
+Source: ..\Styles\Auric.vsf; DestDir: {#VCLStylesSkinPath}; Flags: uninsneveruninstall
 
 
 [Code]
@@ -34,8 +34,8 @@ procedure UnLoadVCLStyles_UnInstall; external 'UnLoadVCLStyles@{#VCLStylesSkinPa
 
 function InitializeSetup(): Boolean;
 begin
- ExtractTemporaryFile('Amakrits.vsf');
- LoadVCLStyle(ExpandConstant('{tmp}\Amakrits.vsf'));
+ ExtractTemporaryFile('Auric.vsf');
+ LoadVCLStyle(ExpandConstant('{tmp}\Auric.vsf'));
  Result := True;
 end;
 
@@ -47,7 +47,8 @@ end;
 function InitializeUninstall: Boolean;
 begin
   Result := True;
-  LoadVCLStyle_UnInstall(ExpandConstant('{#VCLStylesSkinPath}\Amakrits.vsf'));
+  MsgBox('Hello.', mbInformation, MB_OK);
+  LoadVCLStyle_UnInstall(ExpandConstant('{#VCLStylesSkinPath}\Auric.vsf'));
 end;
 
 procedure DeinitializeUninstall();
