@@ -1,4 +1,4 @@
-#define VCLStyle "Auric.vsf"
+#define VCLStyle "Amakrits.vsf"
 [Setup]
 AppName=My Program
 AppVersion=1.5

@@ -125,6 +125,7 @@ type
     function GetBorderSize: TRect; override;
     procedure WndProc(var Message: TMessage); override;
     procedure UpdateColors; override;
+    procedure PaintBackground(Canvas: TCanvas); override;
   public
     constructor Create(AHandle: THandle); override;
     Destructor Destroy; override;
@@ -380,6 +381,7 @@ begin
   OverridePaintNC := True;
   OverrideFont := False;
 {$IFEND}
+  OverrideEraseBkgnd:=True;
 end;
 
 destructor TSysListBoxStyleHook.Destroy;
@@ -395,12 +397,18 @@ begin
   begin
     Result := Rect(2, 2, 2, 2);
   end;
-  if SysControl.ControlClassName = 'ComboLBox' then
+  if SameText(SysControl.ControlClassName, 'ComboLBox') then
   begin
     if SysControl.Parent.Style and CBS_SIMPLE = CBS_SIMPLE then
       Exit;
     Result := Rect(0, 0, 0, 0);
   end;
+end;
+
+procedure TSysListBoxStyleHook.PaintBackground(Canvas: TCanvas);
+begin
+  inherited;
+
 end;
 
 procedure TSysListBoxStyleHook.UpdateColors;

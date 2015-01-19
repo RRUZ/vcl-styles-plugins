@@ -814,7 +814,7 @@ procedure TSysStyleHook.Invalidate;
 begin
   if FOverridePaintNC then
     InvalidateNC;
-InvalidateRect(Handle, nil, False);
+  InvalidateRect(Handle, nil, False);
 end;
 
 procedure TSysStyleHook.InvalidateNC;
