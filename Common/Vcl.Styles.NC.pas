@@ -25,13 +25,13 @@ unit Vcl.Styles.NC;
 interface
 
 uses
-  System.Types,
   System.Classes,
   System.Generics.Collections,
+  Vcl.ImgList,
+  System.Types,
   System.UITypes,
   Winapi.Windows,
   Winapi.Messages,
-  Vcl.ImgList,
   Vcl.Graphics,
   Vcl.Themes,
   Vcl.Controls,
@@ -860,7 +860,8 @@ var
 begin
   if Form.BorderStyle = bsNone then
   begin
-    MainMenuBarHookPaint(Canvas);    Exit;
+    MainMenuBarHookPaint(Canvas);
+    Exit;
   end;
 
 //  if NCControls<>nil then
