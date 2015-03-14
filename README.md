@@ -7,7 +7,7 @@ The VCL Styles Plugins is a collection of plugins for skining third party instal
 ![innosetup](https://theroadtodelphi.files.wordpress.com/2014/12/output_qkrcra.gif)
 
 
-  This plugin (dll) allow skin the installers created by <a href="http://www.jrsoftware.org/isinfo.php">Inno Setup</a>. for more info check this <a href="http://code.google.com/p/vcl-styles-plugins/wiki/VCLStylesInnoSetup">page</a>.
+  This plugin (dll) allow skin the installers created by <a href="http://www.jrsoftware.org/isinfo.php">Inno Setup</a>. for more info check this [page](https://github.com/RRUZ/vcl-styles-plugins/wiki/Inno-Setup).
 
 ### VCL Styles for NSIS
 
