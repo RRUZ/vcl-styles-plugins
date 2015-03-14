@@ -14,4 +14,4 @@ The VCL Styles Plugins is a collection of plugins for skining third party instal
 ![NSIS](https://theroadtodelphi.files.wordpress.com/2014/07/output_a6nofn.gif)
 
 
-   This plugin (dll) allow skin the installers created by <a href="http://nsis.sourceforge.net/Main_Page">NSIS</a>. for more info check this <a href="http://code.google.com/p/vcl-styles-plugins/wiki/VCLStylesNSIS">page</a>.
+   This plugin (dll) allow skin the installers created by <a href="http://nsis.sourceforge.net/Main_Page">NSIS</a>. for more info check this [[page|NSIS]].
