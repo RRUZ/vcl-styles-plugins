@@ -4,14 +4,14 @@ The VCL Styles Plugins is a collection of plugins for skining third party instal
 
 ### VCL Styles for Inno Setup
 
-![https://github.com/RRUZ/vcl-styles-plugins/wiki/Inno-Setup](https://theroadtodelphi.files.wordpress.com/2014/12/output_qkrcra.gif)
+![](https://theroadtodelphi.files.wordpress.com/2014/12/output_qkrcra.gif)
 
 
   This plugin (dll) allow skin the installers created by <a href="http://www.jrsoftware.org/isinfo.php">Inno Setup</a>. for more info check this [page](https://github.com/RRUZ/vcl-styles-plugins/wiki/Inno-Setup).
 
 ### VCL Styles for NSIS
 
-![NSIS](https://theroadtodelphi.files.wordpress.com/2014/07/output_a6nofn.gif)
+![](https://theroadtodelphi.files.wordpress.com/2014/07/output_a6nofn.gif)
 
 
    This plugin (dll) allow skin the installers created by <a href="http://nsis.sourceforge.net/Main_Page">NSIS</a>. for more info check this [page](https://github.com/RRUZ/vcl-styles-plugins/wiki/NSIS).
