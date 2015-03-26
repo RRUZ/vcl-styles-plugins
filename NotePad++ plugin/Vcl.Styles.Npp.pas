@@ -124,16 +124,16 @@ begin
    case nCode of
      HCBT_ACTIVATE:
      begin
-       LHWND := HWND(wParam);
-       if(LHWND>0) then
-       begin
-          LClassName:= GetWindowClassName(LHWND);
-          if (LClassName<>'') and  (not TSysStyleManager.SysStyleHookList.ContainsKey(LHWND)) and SameText(LClassName,'#32770')  then
-          begin
-            TSysStyleManager.AddControlDirectly(LHWND, LClassName);
-            InvalidateRect(LHWND, nil, False);
-          end;
-       end;
+//       LHWND := HWND(wParam);
+//       if(LHWND>0) then
+//       begin
+//          LClassName:= GetWindowClassName(LHWND);
+//          if (LClassName<>'') and  (not TSysStyleManager.SysStyleHookList.ContainsKey(LHWND)) and (SameText(LClassName,'#32770') {or SameText(LClassName, 'Notepad++')})  then
+//          begin
+//            TSysStyleManager.AddControlDirectly(LHWND, LClassName);
+//            InvalidateRect(LHWND, nil, False);
+//          end;
+//       end;
      end;
    end;
   Result := CallNextHookEx(TThemedNppControls.FHook_WH_CBT, nCode, wParam, lParam);
@@ -161,7 +161,7 @@ begin
         LClassName:=ClassesList[PCWPStruct(lParam)^.hwnd];
 
 
-//        if SameText(sClassName,'NotePad++') then
+//        if SameText(LClassName,'Notepad++') then
 //        begin
 //           if (PCWPStruct(lParam)^.message=WM_NCCALCSIZE) and not (NppControlsList.ContainsKey(PCWPStruct(lParam)^.hwnd)) then
 //               NppControlsList.Add(PCWPStruct(lParam)^.hwnd, TMainWndNppStyleHook.Create(PCWPStruct(lParam)^.hwnd));

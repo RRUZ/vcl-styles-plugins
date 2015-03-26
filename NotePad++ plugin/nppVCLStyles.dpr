@@ -52,21 +52,22 @@ uses
   Vcl.Styles.Npp.StyleHooks in 'Vcl.Styles.Npp.StyleHooks.pas',
   uMisc in 'uMisc.pas',
   Vcl.Styles.Ext in '..\Common\Vcl.Styles.Ext.pas',
-  uSettings in 'uSettings.pas' {SettingsForm};
+  uSettings in 'uSettings.pas' {SettingsForm},
+  CPUID in '..\Common\delphi-detours-library\CPUID.pas';
 
 {$R *.res}
 
 //TODO
-// Add support for MenuBar
-// fix Language - > Define your language option - flicker   //aislar y cambair a uxtheme
+// fix Language - > Define your language option - flicker   //aislar y cambiar a uxtheme
 // fix Settings - > preferences- slow  first time
 // fix Settings - > short cut mapper - slow, no themed  ( maybe I must disable hooking this window and child controls)
 // Scintilla border
 // When Edit has ES_MULTILINE style use memo like style hook (ex: about window)
 // docked windows (ex: character panel) are not themed  (owner drawn button)
-// Hook dialogs  OK
 // detect search init and end
-
+                   tformstyledialog
+// Add support for MenuBar
+// Hook dialogs  OK
 
 
 // *************Features
@@ -127,9 +128,10 @@ begin
    TStyleManager.SetStyle(s);
 
   TSysStyleManager.OnBeforeHookingControl:=@BeforeNppHookingControl;
-  TSysStyleManager.RegisterSysStyleHook('NotePad++', TSysDialogStyleHook);
+  TSysStyleManager.RegisterSysStyleHook('Notepad++', TSysDialogStyleHook);
   TSysStyleManager.UnRegisterSysStyleHook('Edit', TSysEditStyleHook);
   //TSysStyleManager.UnRegisterSysStyleHook('Button', TSysButtonStyleHook); //handled via uxtheme
+  TSysStyleManager.UnRegisterSysStyleHook('ScrollBar', TSysScrollBarStyleHook);
 end;
 
 function getName(): nppPchar; cdecl; export;
