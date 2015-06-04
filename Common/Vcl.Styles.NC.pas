@@ -2,7 +2,7 @@
 //
 // Unit Vcl.Styles.NC
 // unit for the VCL Styles Utils
-// http://code.google.com/p/vcl-styles-utils/
+// https://github.com/RRUZ/vcl-styles-utils/
 //
 // The contents of this file are subject to the Mozilla Public License Version 1.1 (the "License");
 // you may not use this file except in compliance with the License. You may obtain a copy of the
@@ -15,7 +15,7 @@
 // The Original Code is Vcl.Styles.NC.pas.
 //
 // The Initial Developer of the Original Code is Rodrigo Ruz V.
-// Portions created by Rodrigo Ruz V. are Copyright (C) 2014 Rodrigo Ruz V.
+// Portions created by Rodrigo Ruz V. are Copyright (C) 2014-2015 Rodrigo Ruz V.
 // All Rights Reserved.
 //
 //**************************************************************************************************
@@ -37,6 +37,7 @@ uses
   Vcl.Controls,
   Vcl.Menus,
   Vcl.StdCtrls,
+  Vcl.GraphUtil,
   Vcl.Forms;
 
 type
@@ -45,26 +46,33 @@ type
 
   TNCControls    = class(TComponent)
   private
-    FList: TListNCButtons;
+    FButtons: TListNCButtons;
     FStyleServices  : TCustomStyleServices;
     FVisible: Boolean;
     FForm : TCustomForm;
     FShowSystemMenu: Boolean;
+    FFormBorderSize: TRect;
+    FActiveTabButtonIndex : Integer;
     function GetStyleServices: TCustomStyleServices;
     procedure SetStyleServices(const Value: TCustomStyleServices);
     procedure SetVisible(const Value: Boolean);
+    function GetButton(index: Integer): TNCButton;
+    function GetCount: Integer;
+    property FormBorderSize : TRect read FFormBorderSize write FFormBorderSize;
   public
-    property List : TListNCButtons read FList;
+    property Buttons[index : Integer] : TNCButton read GetButton; default;
+    property ButtonsCount  : Integer read GetCount;
     property StyleServices : TCustomStyleServices read GetStyleServices write SetStyleServices;
     property Visible : Boolean read FVisible write SetVisible;
     property ShowSystemMenu : Boolean read FShowSystemMenu write FShowSystemMenu;
+    function Add(AButton : TNCButton) : Integer;
     constructor Create(AOwner: TComponent);override;
     destructor Destroy; override;
   end;
 
   TNCButton  = class(TControl)
   public type
-    TNCButtonStyle = (nsPushButton, nsTranparent, nsSplitButton, nsSplitTrans);
+    TNCButtonStyle = (nsPushButton, nsTranparent, nsSplitButton, nsSplitTrans, nsAlpha, nsGradient, nsTab);
     TNCImageStyle  = (isNormal, isGray, isGrayHot);
   private
     FDropDown : Boolean;
@@ -82,6 +90,13 @@ type
     FOnClick: TNotifyEvent;
     FNCControls  :  TNCControls;
     FHintWindow : THintWindow;
+    FAlphaColor: TColor;
+    FAlphaHotColor: TColor;
+    FFontColor: TColor;
+    FHotFontColor: TColor;
+    FStartColor: TColor;
+    FEndColor: TColor;
+    FDirection: TGradientDirection;
     procedure DrawButton(ACanvas: TCanvas; AMouseInControl, Pressed: Boolean);
     procedure SetStyle(const Value: TNCButtonStyle);
     procedure SetDisabledImageIndex(const Value: TImageIndex);
@@ -96,6 +111,8 @@ type
     procedure SetImageStyle(const Value: TNCImageStyle);
     procedure ShowHintWindow(X, Y : Integer);
     procedure HideHintWindow;
+    function GetTabIndex: Integer;
+    property TabIndex : Integer read GetTabIndex;
   public
     property Style: TNCButtonStyle read FStyle write SetStyle;
     property ImageStyle: TNCImageStyle read FImageStyle write SetImageStyle;
@@ -110,6 +127,19 @@ type
     property NCControls: TNCControls read FNCControls;
     property OnDropDownClick: TNotifyEvent read FOnDropDownClick write FOnDropDownClick;
     property OnClick: TNotifyEvent read FOnClick write FOnClick;
+
+    property AlphaColor : TColor read FAlphaColor write FAlphaColor;
+    property AlphaHotColor : TColor read FAlphaHotColor write FAlphaHotColor;
+
+    property FontColor : TColor read FFontColor write FFontColor;
+    property HotFontColor : TColor read FHotFontColor write FHotFontColor;
+
+    property StartColor : TColor read FStartColor write FStartColor;
+    property EndColor : TColor read FEndColor write FEndColor;
+    property Direction : TGradientDirection read FDirection write FDirection;
+
+
+
     constructor Create(AOwner: TComponent);  reintroduce; virtual;
     destructor Destroy; override;
   published
@@ -156,14 +186,17 @@ type
 implementation
 
 uses
+ DDetours,
  Winapi.CommCtrl,
  System.SysUtils,
  Winapi.UxTheme,
+ Vcl.Styles.Utils.Graphics,
  Vcl.Styles.FormStyleHooks;
 
 type
   THintWindowClass = class(THintWindow);
   TCustomFormClass = class(TCustomForm);
+  TFormStyleHookClass = class(TFormStyleHook);
   TStyleHookList = TList<TStyleHookClass>;
 
   TStyleHookDictionary = TDictionary<TClass, TStyleHookList>;
@@ -171,6 +204,12 @@ type
   public
     class function GetRegisteredStyleHooks : TStyleHookDictionary;
   end;
+
+
+var
+  Trampoline_TFormStyleHook_GetBorderSize : function (Self : TFormStyleHook) : TRect;
+  Trampoline_TFormStyleHook_GetRegion     : function (Self : TFormStyleHook) : HRgn;
+
 
 
 class function TCustomStyleEngineHelper.GetRegisteredStyleHooks: TStyleHookDictionary;
@@ -198,27 +237,42 @@ begin
 end;
 
 { TNCControls }
+function TNCControls.Add(AButton : TNCButton) : Integer;
+begin
+ Result := FButtons.Add(AButton);
+end;
 
 constructor TNCControls.Create(AOwner: TComponent);
 begin
   if not (AOwner is TCustomForm) then Raise EAbort.Create('TNCControls only must be created in forms');
   inherited Create(AOwner);
   FForm  := TCustomForm(AOwner);
-  FList  :=TListNCButtons.Create(True);
+  FButtons  :=TListNCButtons.Create(True);
   FStyleServices:=nil;
   FVisible:=True;
   FShowSystemMenu:=True;
   if not IsStyleHookRegistered(AOwner.ClassType, TFormStyleNCControls) then
     TStyleManager.Engine.RegisterStyleHook(AOwner.ClassType, TFormStyleNCControls);
   FForm.Perform(CM_RECREATEWND, 0, 0);
+  FActiveTabButtonIndex := 0;
 end;
 
 destructor TNCControls.Destroy;
 begin
-  FList.Free;
+  FButtons.Free;
   inherited;
 end;
 
+
+function TNCControls.GetButton(index: Integer): TNCButton;
+begin
+  Result:=FButtons[Index];
+end;
+
+function TNCControls.GetCount: Integer;
+begin
+ Result := FButtons.Count;
+end;
 
 function TNCControls.GetStyleServices: TCustomStyleServices;
 begin
@@ -230,7 +284,13 @@ end;
 procedure TNCControls.SetStyleServices(const Value: TCustomStyleServices);
 begin
  if Value<>FStyleServices then
+ begin
    FStyleServices:= Value;
+   if IsWindowVisible(TCustomFormClass(FForm).Handle) then
+     PostMessage(TCustomFormClass(FForm).Handle, CM_CUSTOMSTYLECHANGED, 0, 0)
+   else
+     SendMessage(TCustomFormClass(FForm).Handle, CM_CUSTOMSTYLECHANGED, 0, 0);
+ end;
 end;
 
 procedure TNCControls.SetVisible(const Value: Boolean);
@@ -267,6 +327,8 @@ begin
   FOnDropDownClick   :=nil;
   FOnClick           :=nil;
   FHintWindow        :=THintWindow.Create(Self);
+  FAlphaColor        :=FNCControls.StyleServices.GetSystemColor(clBtnFace);
+  FDirection := TGradientDirection.gdHorizontal;
 end;
 
 destructor TNCButton.Destroy;
@@ -301,6 +363,21 @@ begin
   end;
 end;
 
+function TNCButton.GetTabIndex: Integer;
+var
+  i : Integer;
+begin
+  Result:=-1;
+  for i := 0 to NCControls.ButtonsCount-1 do
+  begin
+   if NCControls[i].Style=nsTab then
+    Inc(Result);
+
+   if NCControls[i] = Self then
+     Break;
+  end;
+end;
+
 procedure DoDrawGrayImage(hdcDst: HDC; himl: HIMAGELIST; ImageIndex, X, Y: Integer);
 var
   pimldp: TImageListDrawParams;
@@ -325,7 +402,7 @@ var
   X, Y, I, ImgIndex: Integer;
   BCaption: String;
   LStyleServices : TCustomStyleServices;
-  ThemeTextColor : TColor;
+  LColor, ThemeTextColor : TColor;
 begin
   LStyleServices:=NCControls.StyleServices;
   BCaption := Text;
@@ -355,8 +432,63 @@ begin
     Details := LStyleServices.GetElementDetails(tbPushButtonNormal);
 
   DrawRect := BoundsRect;//ClientRect;
+  if FStyle=nsTab then
+    DrawRect.Height := NCControls.FormBorderSize.Top- DrawRect.Top;
 
-  if Enabled and ((FStyle=nsTranparent) or (FStyle=nsSplitTrans)) and AMouseInControl then
+  if FStyle=nsAlpha then
+  begin
+    //LColor := StyleServices.GetSystemColor(clHighlight);
+
+    if AMouseInControl then
+      AlphaBlendFillCanvas(ACanvas, FAlphaHotColor, DrawRect, 96)
+    else
+      //GradientFillCanvas(ACanvas, FColor, clBlue, DrawRect, TGradientDirection.gdHorizontal);
+      AlphaBlendFillCanvas(ACanvas, FAlphaColor, DrawRect, 96);
+
+    if AMouseInControl then
+     ACanvas.Pen.Color:=FAlphaHotColor
+    else
+     ACanvas.Pen.Color:=FAlphaColor;
+
+    ACanvas.Brush.Style:=bsClear;
+    LRect:=DrawRect;
+    ACanvas.Rectangle(LRect.Left, LRect.Top, LRect.Left +  LRect.Width,  LRect.Top + LRect.Height);
+  end
+  else
+  if FStyle=nsGradient then
+  begin
+    if AMouseInControl then
+      GradientFillCanvas(ACanvas, FEndColor, FStartColor, DrawRect, FDirection)
+    else
+      GradientFillCanvas(ACanvas, FStartColor, FEndColor, DrawRect, FDirection);
+
+    if AMouseInControl then
+     ACanvas.Pen.Color:=FEndColor
+    else
+     ACanvas.Pen.Color:=FStartColor;
+
+    ACanvas.Brush.Style:=bsClear;
+    LRect:=DrawRect;
+    ACanvas.Rectangle(LRect.Left, LRect.Top, LRect.Left +  LRect.Width,  LRect.Top + LRect.Height);
+  end
+  else
+  if FStyle=nsTab then
+  begin
+//    if AMouseInControl then
+//      Details := LStyleServices.GetElementDetails(ttTabItemHot)
+//    else
+    if Pressed or (NCControls.FActiveTabButtonIndex= TabIndex) then
+      Details := LStyleServices.GetElementDetails(ttTabItemSelected)
+    else
+    if not Enabled then
+      Details := LStyleServices.GetElementDetails(ttTabItemDisabled)
+    else
+     Details := LStyleServices.GetElementDetails(ttTabItemNormal);
+
+    LStyleServices.DrawElement(ACanvas.Handle, Details, DrawRect);
+  end
+  else
+  if Enabled and (FStyle in [nsTranparent, nsSplitTrans]) and AMouseInControl then
   begin
     Details := LStyleServices.GetElementDetails(tmMenuBarItemHot);
     LStyleServices.DrawElement(ACanvas.Handle, Details, DrawRect);
@@ -425,7 +557,7 @@ begin
 
       if (FStyle=nsSplitTrans) and (not AMouseInControl)  then
        //use font color of the caption
-       StyleServices.GetElementColor(StyleServices.GetElementDetails(twCaptionActive), ecTextColor, ThemeTextColor)
+       LStyleServices.GetElementColor(LStyleServices.GetElementDetails(twCaptionActive), ecTextColor, ThemeTextColor)
       else
        ThemeTextColor:=clNone;
        DrawControlText(ACanvas, Details, Text, DrawRect, DT_VCENTER or DT_CENTER, ThemeTextColor);
@@ -477,11 +609,20 @@ begin
     end
     else
     begin
+      if FStyle=nsAlpha then
+      begin
+        if AMouseInControl then
+          ThemeTextColor := FHotFontColor
+        else
+          ThemeTextColor := FFontColor;
+      end
+      else
       if (FStyle=nsTranparent) and (not AMouseInControl)  then
        //use font color of the caption
-       StyleServices.GetElementColor(StyleServices.GetElementDetails(twCaptionActive), ecTextColor, ThemeTextColor)
+       LStyleServices.GetElementColor(LStyleServices.GetElementDetails(twCaptionActive), ecTextColor, ThemeTextColor)
       else
        ThemeTextColor:=clNone;
+
       DrawControlText(ACanvas, Details, BCaption, DrawRect, DT_VCENTER or DT_CENTER or DT_WORDBREAK, ThemeTextColor);
     end;
 end;
@@ -542,7 +683,8 @@ begin
   if THintWindowClass(FHintWindow).WindowHandle=0 then
   begin
     FHintWindow.Visible := False;
-    FHintWindow.Color   := StyleServices.GetSystemColor(clInfoBk);
+    FHintWindow.Color       := NCControls.StyleServices.GetSystemColor(clInfoBk);
+    FHintWindow.Font.Color  := NCControls.StyleServices.GetSystemColor(clInfoText);
     FHintWindow.Caption := Hint;
     FHintWindow.ParentWindow := Application.Handle;
     FHintWindow.Left:=NCControls.FForm.Left + BoundsRect.Left;
@@ -578,8 +720,8 @@ var
 begin
  Result:=-1;
   if (NCControls<>nil) then
-   for i:=0 to FNCControls.List.Count-1 do
-     if FNCControls.List[i].Visible and PtInRect(FNCControls.List[i].BoundsRect, P)  then
+   for i:=0 to FNCControls.ButtonsCount-1 do
+     if FNCControls[i].Visible and PtInRect(FNCControls[i].BoundsRect, P)  then
       Exit(i);
 end;
 
@@ -651,15 +793,15 @@ end;
 
 procedure TFormStyleNCControls.PaintNCControls(Canvas: TCanvas; ARect : TRect);
 var
-  i : Integer;
+  LCurrent : Integer;
   LNCButton : TNCButton;
 begin
-  if (NCControls<>nil) and (NCControls.List.Count>0) and (NCControls.Visible) then
-   for i:=0 to NCControls.List.Count-1 do
+  if (NCControls<>nil) and (NCControls.ButtonsCount>0) and (NCControls.Visible) then
+   for LCurrent:=0 to NCControls.ButtonsCount-1 do
    begin
-    LNCButton:=NCControls.List[i];
+    LNCButton:=NCControls.Buttons[LCurrent];
     if LNCButton.Visible and (LNCButton.BoundsRect.Right<= ARect.Right) then
-     LNCButton.DrawButton(Canvas, FHotNCBtnIndex=i, FPressedNCBtnIndex=i);
+     LNCButton.DrawButton(Canvas, FHotNCBtnIndex=LCurrent, FPressedNCBtnIndex=LCurrent);
    end;
 end;
 
@@ -716,6 +858,7 @@ end;
 procedure TFormStyleNCControls.WMNCLButtonDown(var Message: TWMNCHitMessage);
 var
  P : TPoint;
+ i : integer;
 begin
   inherited;
   {$IF CompilerVersion>23}
@@ -732,6 +875,16 @@ begin
     if ((Message.HitTest = HTTOP) or (Message.HitTest = HTCAPTION)) and PointInButton(P) then
     begin
       FPressedNCBtnIndex := GetButtonIndex(P);
+
+      //process click on buttton  with the nstab style
+      if (FPressedNCBtnIndex>=0)  and (FNCControls<>nil) and (FNCControls[FPressedNCBtnIndex].Style=nsTab) then
+      begin
+        FNCControls.FActiveTabButtonIndex:=-1;
+        For i:=0 to FPressedNCBtnIndex do
+         if FNCControls[i].Style=nsTab then
+          Inc(FNCControls.FActiveTabButtonIndex);
+      end;
+
       InvalidateNC;
       Message.Result := 0;
       Message.Msg := WM_NULL;
@@ -777,11 +930,11 @@ begin
         LRect:=Rect(0, 0, 0, 0);
         if (NCControls<>nil) then
         begin
-         LRect:=NCControls.List[i].BoundsRect;
+         LRect:=NCControls.Buttons[i].BoundsRect;
          LRect.Left:=LRect.Right-15;
         end;
 
-        LNCButtton:= NCControls.List[i];
+        LNCButtton:= NCControls.Buttons[i];
         if (LNCButtton.Enabled) and Assigned(LNCButtton.FOnDropDownClick) and (LNCButtton.Style in [nsSplitButton, nsSplitTrans]) and PtInRect(LRect, P) then
           LNCButtton.FOnDropDownClick(LNCButtton)
         else
@@ -824,21 +977,21 @@ begin
       begin
         FHotNCBtnIndex := GetButtonIndex(P);
 
-        for I := 0 to NCControls.List.Count-1 do
-          if (FHotNCBtnIndex<>I) and NCControls.List[I].ShowHint then
-              NCControls.List[I].HideHintWindow();
+        for I := 0 to NCControls.ButtonsCount-1 do
+          if (FHotNCBtnIndex<>I) and NCControls.Buttons[I].ShowHint then
+              NCControls.Buttons[I].HideHintWindow();
 
-        if NCControls.List[FHotNCBtnIndex].ShowHint then
-          NCControls.List[FHotNCBtnIndex].ShowHintWindow(Message.XCursor, Message.YCursor);
+        if NCControls.Buttons[FHotNCBtnIndex].ShowHint then
+          NCControls.Buttons[FHotNCBtnIndex].ShowHintWindow(Message.XCursor, Message.YCursor);
 
         InvalidateNC;
       end;
     end
     else if FHotNCBtnIndex <> -1 then
     begin
-      for I := 0 to NCControls.List.Count-1 do
-        if NCControls.List[I].ShowHint then
-            NCControls.List[I].HideHintWindow();
+      for I := 0 to NCControls.ButtonsCount-1 do
+        if NCControls.Buttons[I].ShowHint then
+            NCControls.Buttons[I].HideHintWindow();
 
       FHotNCBtnIndex := -1;
       InvalidateNC;
@@ -860,13 +1013,12 @@ var
 begin
   if Form.BorderStyle = bsNone then
   begin
-    MainMenuBarHookPaint(Canvas);
-    Exit;
+    MainMenuBarHookPaint(Canvas);    Exit;
   end;
 
-//  if NCControls<>nil then
-//    LStyleServices:=NCControls.StyleServices
-//  else
+  if NCControls<>nil then
+    LStyleServices:=NCControls.StyleServices
+  else
     LStyleServices:=StyleServices;
 
   _FCloseButtonRect := Rect(0, 0, 0, 0);
@@ -879,7 +1031,8 @@ begin
   if not LStyleServices.Available then
     Exit;
   R := _GetBorderSize;
-
+  if NCControls<>nil then
+    NCControls.FormBorderSize := R;
 
   if (Form.BorderStyle <> bsToolWindow) and
      (Form.BorderStyle <> bsSizeToolWin) then
@@ -1067,8 +1220,8 @@ begin
   end;
 
   R2:=TextRect;
-  if (NCControls<>nil) and  (NCControls.List.Count>0) and (NCControls.Visible) then
-   Inc(TextRect.Left, NCControls.List[NCControls.List.Count-1].BoundsRect.Right - NCControls.List[0].BoundsRect.Left + 10);
+  if (NCControls<>nil) and  (NCControls.ButtonsCount>0) and (NCControls.Visible) then
+   Inc(TextRect.Left, NCControls.Buttons[NCControls.ButtonsCount-1].BoundsRect.Right - NCControls.Buttons[0].BoundsRect.Left + 10);
 
   //text
   TextFormat := [tfLeft, tfSingleLine, tfVerticalCenter];
@@ -1078,8 +1231,8 @@ begin
   LText := Text;
   LStyleServices.DrawText(CaptionBuffer.Canvas.Handle, CaptionDetails, LText, TextRect, TextFormat);
 
-  if (NCControls<>nil) and (NCControls.List.Count>0) and (NCControls.Visible) then
-   Dec(TextRect.Left, NCControls.List[NCControls.List.Count-1].BoundsRect.Right - NCControls.List[0].BoundsRect.Left + 10);
+  if (NCControls<>nil) and (NCControls.ButtonsCount>0) and (NCControls.Visible) then
+   Dec(TextRect.Left, NCControls.Buttons[NCControls.ButtonsCount-1].BoundsRect.Right - NCControls.Buttons[0].BoundsRect.Left + 10);
 
 
   _FCaptionRect := TextRect;
@@ -1157,5 +1310,107 @@ begin
   if DrawRect.Bottom - DrawRect.Top > 0 then
     LStyleServices.DrawElement(Canvas.Handle, Details, DrawRect);
 end;
+
+
+function Detour_TFormStyleHook_GetBorderSize (Self : TFormStyleHook) : TRect;
+var
+  Size: TSize;
+  Details: TThemedElementDetails;
+  Detail: TThemedWindow;
+  LStylesServices : TCustomStyleServices;
+  LForm : TCustomForm;
+begin
+  if (Self is TFormStyleNCControls)  and (TFormStyleNCControls(Self).NCControls<>nil) then
+  begin
+      LStylesServices:= TFormStyleNCControls(Self).NCControls.StyleServices;
+      LForm := TFormStyleHookClass(Self)._Form;
+      Result := Rect(0, 0, 0, 0);
+      if LForm.BorderStyle = bsNone then Exit;
+
+      if not LStylesServices.Available then Exit;
+      {caption height}
+      if (LForm.BorderStyle <> bsToolWindow) and
+         (LForm.BorderStyle <> bsSizeToolWin) then
+        Detail := twCaptionActive
+      else
+        Detail := twSmallCaptionActive;
+      Details := LStylesServices.GetElementDetails(Detail);
+      LStylesServices.GetElementSize(0, Details, esActual, Size);
+      Result.Top := Size.cy;
+      {left border width}
+      if (LForm.BorderStyle <> bsToolWindow) and
+         (LForm.BorderStyle <> bsSizeToolWin) then
+        Detail := twFrameLeftActive
+      else
+        Detail := twSmallFrameLeftActive;
+      Details := LStylesServices.GetElementDetails(Detail);
+      LStylesServices.GetElementSize(0, Details, esActual, Size);
+      Result.Left := Size.cx;
+      {right border width}
+      if (LForm.BorderStyle <> bsToolWindow) and
+         (LForm.BorderStyle <> bsSizeToolWin) then
+        Detail := twFrameRightActive
+      else
+        Detail := twSmallFrameRightActive;
+      Details := LStylesServices.GetElementDetails(Detail);
+      LStylesServices.GetElementSize(0, Details, esActual, Size);
+      Result.Right := Size.cx;
+      {bottom border height}
+      if (LForm.BorderStyle <> bsToolWindow) and
+         (LForm.BorderStyle <> bsSizeToolWin) then
+        Detail := twFrameBottomActive
+      else
+        Detail := twSmallFrameBottomActive;
+      Details := LStylesServices.GetElementDetails(Detail);
+      LStylesServices.GetElementSize(0, Details, esActual, Size);
+      Result.Bottom := Size.cy;
+  end
+  else
+   Exit(Trampoline_TFormStyleHook_GetBorderSize(Self));
+end;
+
+
+function Detour_TFormStyleHook_GetRegion(Self : TFormStyleHook): HRgn;
+var
+  R: TRect;
+  Details: TThemedElementDetails;
+  Detail: TThemedWindow;
+  LStylesServices : TCustomStyleServices;
+  LForm : TCustomForm;
+begin
+  if (Self is TFormStyleNCControls) and (TFormStyleNCControls(Self).NCControls<>nil) then
+  begin
+    LStylesServices:= TFormStyleNCControls(Self).NCControls.StyleServices;
+    LForm := TFormStyleHookClass(Self)._Form;
+    Result := 0;
+    if not LStylesServices.Available then
+      Exit;
+
+    R := Rect(0, 0, TFormStyleHookClass(Self)._FWidth, TFormStyleHookClass(Self)._FHeight);
+    if (LForm.BorderStyle <> bsToolWindow) and
+       (LForm.BorderStyle <> bsSizeToolWin) then
+      Detail := twCaptionActive
+    else
+      Detail := twSmallCaptionActive;
+    Details := LStylesServices.GetElementDetails(Detail);
+    LStylesServices.GetElementRegion(Details, R, Result);
+  end
+  else
+     Exit(Trampoline_TFormStyleHook_GetRegion(Self));
+end;
+
+
+initialization
+ {$IFDEF CPUX86}
+ Trampoline_TFormStyleHook_GetBorderSize  := InterceptCreate(TFormStyleHookClass(nil)._GetBorderSizeAddr, @Detour_TFormStyleHook_GetBorderSize);
+ {$ENDIF}
+
+ Trampoline_TFormStyleHook_GetRegion      := InterceptCreate(TFormStyleHookClass(nil)._GetRegionAddr, @Detour_TFormStyleHook_GetRegion);
+
+finalization
+ {$IFDEF CPUX86}
+ InterceptRemove(@Trampoline_TFormStyleHook_GetBorderSize);
+ {$ENDIF}
+ InterceptRemove(@Trampoline_TFormStyleHook_GetRegion);
 
 end.

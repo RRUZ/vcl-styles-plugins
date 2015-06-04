@@ -65,7 +65,7 @@ uses
 // When Edit has ES_MULTILINE style use memo like style hook (ex: about window)
 // docked windows (ex: character panel) are not themed  (owner drawn button)
 // detect search init and end
-                   tformstyledialog
+
 // Add support for MenuBar
 // Hook dialogs  OK
 
@@ -118,7 +118,10 @@ begin
   Npp.SettingsFileName := Npp.GetVCLStylesNppConfigPath+'VCLStylesNpp.ini';
   ReadSettings(npp.Settings, Npp.SettingsFileName);
 
+
+  //ShowMessage(Npp.GetVCLStylesNppConfigPath+'Styles');
   //register VCL Styles
+  //C:\Users\RRUZ\AppData\Roaming\Notepad++\plugins\Config\VCLStylesNpp\Styles
   for VClStyleFile in TDirectory.GetFiles(Npp.GetVCLStylesNppConfigPath+'Styles', '*.vsf') do
    if TStyleManager.IsValidStyle(VClStyleFile) then
      TStyleManager.LoadFromFile(VClStyleFile);

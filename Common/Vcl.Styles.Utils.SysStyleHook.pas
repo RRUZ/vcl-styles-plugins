@@ -2,7 +2,7 @@
 //
 // Unit Vcl.Styles.SysStyleHook
 // unit for the VCL Styles Utils
-// http://code.google.com/p/vcl-styles-utils/
+// https://github.com/RRUZ/vcl-styles-utils/
 //
 // The contents of this file are subject to the Mozilla Public License Version 1.1 (the "License");
 // you may not use this file except in compliance with the License. You may obtain a copy of the
@@ -15,7 +15,7 @@
 // The Original Code is uSysStyleHook.pas.
 //
 // Portions created by Mahdi Safsafi [SMP3]   e-mail SMP@LIVE.FR
-// Portions created by Rodrigo Ruz V. are Copyright (C) 2013-2014 Rodrigo Ruz V.
+// Portions created by Rodrigo Ruz V. are Copyright (C) 2013-2015 Rodrigo Ruz V.
 // All Rights Reserved.
 //
 // **************************************************************************************************
@@ -555,9 +555,6 @@ end;
 
 destructor TSysStyleHook.Destroy;
 begin
-  // OutputDebugString(PChar('TSysStyleHook.Destroy Handle '+IntToHex(Handle, 8)));
-
-
   if FOrgWndProc <> 0 then
     FSysControl.WndProc := FOrgWndProc;
 
@@ -578,7 +575,6 @@ end;
 
 function TSysStyleHook.CallDefaultProc(var Msg: TMessage): LRESULT;
 begin
-  //OutputDebugString(PChar('TSysStyleHook.CallDefaultProc FOrgWndProc '+IntToHex(FOrgWndProc, 8)+' Handle '+IntToHex(Handle, 8)+' Msg '+WM_To_String(Msg.Msg)+' ClassName '+SysControl.ControlClassName));
   Result := CallWindowProc(Pointer(FOrgWndProc), Handle, Msg.Msg, Msg.wParam, Msg.lParam);
 end;
 
@@ -843,19 +839,17 @@ var
   BorderSize: TRect;
 begin
   BorderSize := GetBorderSize;
-  with Control do
-  begin
-    ExStyle := GetWindowLong(Handle, GWL_EXSTYLE);
-    if (ExStyle and WS_EX_CLIENTEDGE) <> 0 then
+    Control.ExStyle := GetWindowLong(Handle, GWL_EXSTYLE);
+    if (Control.ExStyle and WS_EX_CLIENTEDGE) <> 0 then
     begin
-      GetWindowRect(Handle, DrawRect);
+      GetWindowRect(Control.Handle, DrawRect);
       OffsetRect(DrawRect, -DrawRect.Left, -DrawRect.Top);
-      DC := GetWindowDC(Handle);
+      DC := GetWindowDC(Control.Handle);
       try
         EmptyRect := DrawRect;
         if EraseLRCorner then
         begin
-          AStyle := GetWindowLong(Handle, GWL_STYLE);
+          AStyle := GetWindowLong(Control.Handle, GWL_STYLE);
           if ((AStyle and WS_HSCROLL) <> 0) and ((AStyle and WS_VSCROLL) <> 0) then
           begin
             W := GetSystemMetrics(SM_CXVSCROLL);
@@ -874,10 +868,9 @@ begin
         Details := StyleServices.GetElementDetails(teEditTextNormal);
         StyleServices.DrawElement(DC, Details, DrawRect);
       finally
-        ReleaseDC(Handle, DC);
+        ReleaseDC(Control.Handle, DC);
       end;
     end;
-  end;
 end;
 
 function TSysStyleHook.PaintControls(AControl: HWND; DC: HDC): Boolean;

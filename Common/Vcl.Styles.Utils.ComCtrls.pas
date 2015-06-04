@@ -1,8 +1,8 @@
-// **************************************************************************************************
+//**************************************************************************************************
 //
 // Unit Vcl.Styles.Utils.ComCtrls
 // unit for the VCL Styles Utils
-// http://code.google.com/p/vcl-styles-utils/
+// https://github.com/RRUZ/vcl-styles-utils/
 //
 // The contents of this file are subject to the Mozilla Public License Version 1.1 (the "License");
 // you may not use this file except in compliance with the License. You may obtain a copy of the
@@ -14,10 +14,10 @@
 //
 //
 // Portions created by Mahdi Safsafi [SMP3]   e-mail SMP@LIVE.FR
-// Portions created by Rodrigo Ruz V. are Copyright (C) 2013-2014 Rodrigo Ruz V.
+// Portions created by Rodrigo Ruz V. are Copyright (C) 2013-2015 Rodrigo Ruz V.
 // All Rights Reserved.
 //
-// ************************************************************************************************
+//************************************************************************************************
 unit Vcl.Styles.Utils.ComCtrls;
 
 interface
@@ -317,45 +317,6 @@ type
     constructor Create(AHandle: THandle); override;
     destructor Destroy; override;
   end;
-
-
-  TDirectUIHWNDStyleHook = class(TMouseTrackSysControlStyleHook)
-  protected
-    procedure Paint(Canvas: TCanvas); override;
-    procedure PaintNC(Canvas: TCanvas); override;
-    procedure PaintBackground(Canvas: TCanvas); override;
-    procedure UpdateColors; override;
-    procedure WndProc(var Message: TMessage); override;
-  public
-    constructor Create(AHandle: THandle); override;
-    Destructor Destroy; override;
-  end;
-
-
-  TCtrlNotifySinkStyleHook = class(TMouseTrackSysControlStyleHook)
-  protected
-    procedure Paint(Canvas: TCanvas); override;
-    procedure PaintNC(Canvas: TCanvas); override;
-    procedure PaintBackground(Canvas: TCanvas); override;
-    procedure UpdateColors; override;
-    procedure WndProc(var Message: TMessage); override;
-  public
-    constructor Create(AHandle: THandle); override;
-    Destructor Destroy; override;
-  end;
-
-  TTravelBandStyleHook = class(TMouseTrackSysControlStyleHook)
-  protected
-    procedure Paint(Canvas: TCanvas); override;
-    procedure PaintNC(Canvas: TCanvas); override;
-    procedure PaintBackground(Canvas: TCanvas); override;
-    procedure UpdateColors; override;
-    procedure WndProc(var Message: TMessage); override;
-  public
-    constructor Create(AHandle: THandle); override;
-    Destructor Destroy; override;
-  end;
-
 
   TSysLinkStyleHook = class(TSysStaticStyleHook)
   private
@@ -777,14 +738,15 @@ end;
 
 { TSysTreeViewStyleHook }
 
+
 constructor TSysTreeViewStyleHook.Create(AHandle: THandle);
 begin
   inherited;
 {$IF CompilerVersion > 23}
-  StyleElements := [seFont, seBorder];
+  StyleElements := [seFont{, seBorder}];  //Allow to the Vcl.Styles.Hook handle the NC and scroll paint
 {$ELSE}
   OverrideFont := True;
-  OverridePaintNC := True;
+  OverridePaintNC := False; //Allow to the Vcl.Styles.Hook handle the NC and scroll paint
 {$IFEND}
   OverrideEraseBkgnd := True;
 end;
@@ -804,6 +766,7 @@ begin
       skTracking:
         begin
           LstPos := Pos;
+          //OutputDebugString(PChar(Format('sbVertical Pos %d Delta %d AllowScrolling %s', [Pos, Delta, BooltoStr(AllowScrolling, True)])));
           AllowScrolling := True;
           SendMessage(Handle, WM_VSCROLL, MakeWParam(SB_THUMBTRACK, Pos), 0);
           AllowScrolling := False;
@@ -822,6 +785,7 @@ begin
       skTracking:
         begin
           LstPos := Pos;
+          //OutputDebugString(PChar(Format('sbHorizontal Pos %d Delta %d AllowScrolling %s', [Pos, Delta, BooltoStr(AllowScrolling, True)])));
           AllowScrolling := True;
           SendMessage(Handle, WM_HSCROLL, MakeWParam(SB_THUMBTRACK, Pos), 0);
           AllowScrolling := False;
@@ -906,11 +870,10 @@ end;
 
 function TSysTabControlStyleHook.GetDisplayRect: TRect;
 begin
-  Result := Rect(0, 0, 0, 0);
+  //Result := Rect(0, 0, 0, 0);
   Result := SysControl.ClientRect;
   SendMessage(Handle, TCM_ADJUSTRECT, 0, IntPtr(@Result));
   inc(Result.Top, 2);
-
 end;
 
 function TSysTabControlStyleHook.GetImages: TCustomImageList;
@@ -2661,101 +2624,7 @@ begin
   inherited;
 end;
 
-{ TDirectUIHWNDStyleHook }
-{
-Debug Output: TDirectUIHWNDStyleHook WM_NCPAINT Process ThemedSysControls.exe (3940)
-Debug Output: TDirectUIHWNDStyleHook WM_ERASEBKGND Process ThemedSysControls.exe (3940)
-Debug Output: TDirectUIHWNDStyleHook WM_PAINT Process ThemedSysControls.exe (3940)
-}
-constructor TDirectUIHWNDStyleHook.Create(AHandle: THandle);
-begin
-  inherited;
 
-{$IF CompilerVersion > 23}
-  StyleElements := [ seBorder, seClient];
-{$ELSE}
-  OverridePaint := True;
-  OverrideEraseBkgnd := True;
-  OverridePaintNC := True;
-{$IFEND}
-  UpdateColors;
-end;
-
-destructor TDirectUIHWNDStyleHook.Destroy;
-begin
-  inherited;
-end;
-
-procedure TDirectUIHWNDStyleHook.Paint(Canvas: TCanvas);
-begin
-end;
-
-procedure TDirectUIHWNDStyleHook.PaintBackground(Canvas: TCanvas);
-begin
- inherited;
-end;
-
-procedure TDirectUIHWNDStyleHook.PaintNC(Canvas: TCanvas);
-begin
-  inherited;
-end;
-
-procedure TDirectUIHWNDStyleHook.UpdateColors;
-begin
- inherited;
-end;
-
-procedure TDirectUIHWNDStyleHook.WndProc(var Message: TMessage);
-begin
-  //OutputDebugString(PChar('TDirectUIHWNDStyleHook '+WM_To_String(Message.Msg)));
-  inherited;
-end;
-
-{ TCtrlNotifySinkStyleHook }
-
-constructor TCtrlNotifySinkStyleHook.Create(AHandle: THandle);
-begin
-  inherited;
-
-{$IF CompilerVersion > 23}
-  StyleElements := [ seBorder, seClient];
-{$ELSE}
-  OverridePaint := True;
-  //OverrideEraseBkgnd := True;
-  //OverridePaintNC := True;
-{$IFEND}
-  UpdateColors;
-end;
-
-destructor TCtrlNotifySinkStyleHook.Destroy;
-begin
-  inherited;
-end;
-
-procedure TCtrlNotifySinkStyleHook.Paint(Canvas: TCanvas);
-begin
-end;
-
-procedure TCtrlNotifySinkStyleHook.PaintBackground(Canvas: TCanvas);
-begin
-end;
-
-
-procedure TCtrlNotifySinkStyleHook.PaintNC(Canvas: TCanvas);
-begin
-  //inherited;
-end;
-
-procedure TCtrlNotifySinkStyleHook.UpdateColors;
-begin
-  //inherited;
-end;
-
-procedure TCtrlNotifySinkStyleHook.WndProc(var Message: TMessage);
-begin
-  //OutputDebugString(PChar('TCtrlNotifySinkStyleHook '+WM_To_String(Message.Msg)));
-  inherited;
-end;
 
 { TSysLinkStyleHook }
 {
@@ -2890,59 +2759,6 @@ begin
   end;
 end;
 
-{ TTravelBandStyleHook }
-
-constructor TTravelBandStyleHook.Create(AHandle: THandle);
-begin
-  inherited;
-  {$IF CompilerVersion > 23}
-  StyleElements := [ seBorder, seClient];
-  {$ELSE}
-  OverridePaint := True;
-  OverrideEraseBkgnd := True;
-  OverridePaintNC := True;
-  {$IFEND}
-  UpdateColors;
-end;
-
-destructor TTravelBandStyleHook.Destroy;
-begin
-
-  inherited;
-end;
-
-procedure TTravelBandStyleHook.Paint(Canvas: TCanvas);
-begin
-  inherited;
-//  Canvas.Brush.Color := Color;
-//  Canvas.FillRect(SysControl.ClientRect);
-
-end;
-
-procedure TTravelBandStyleHook.PaintBackground(Canvas: TCanvas);
-begin
-  inherited;
-
-end;
-
-procedure TTravelBandStyleHook.PaintNC(Canvas: TCanvas);
-begin
-  inherited;
-
-end;
-
-procedure TTravelBandStyleHook.UpdateColors;
-begin
-  inherited;
-
-end;
-
-procedure TTravelBandStyleHook.WndProc(var Message: TMessage);
-begin
-  inherited;
-
-end;
-
 initialization
 
 if StyleServices.Available then
@@ -2966,12 +2782,6 @@ begin
     RegisterSysStyleHook('msctls_statusbar32', TSysStatusBarStyleHook);
     RegisterSysStyleHook('msctls_trackbar32', TSysTrackBarStyleHook);
     RegisterSysStyleHook('msctls_updown32', TSysUpDownStyleHook);
-
-    //RegisterSysStyleHook('SHELLDLL_DefView', TSysListViewStyleHook);
-    //RegisterSysStyleHook('TravelBand', TTravelBandStyleHook);
-//    RegisterSysStyleHook('DirectUIHWND', TDirectUIHWNDStyleHook);
-//    RegisterSysStyleHook('ctrlnotifysink', TCtrlNotifySinkStyleHook);
-//    RegisterSysStyleHook('syslink', TSysLinkStyleHook);
   end;
 end;
 
@@ -2996,12 +2806,6 @@ begin
   UnRegisterSysStyleHook('msctls_statusbar32', TSysStatusBarStyleHook);
   UnRegisterSysStyleHook('msctls_trackbar32', TSysTrackBarStyleHook);
   UnRegisterSysStyleHook('msctls_updown32', TSysUpDownStyleHook);
-
-  //UnRegisterSysStyleHook('SHELLDLL_DefView', TSysListViewStyleHook);
-  //UnRegisterSysStyleHook('TravelBand', TTravelBandStyleHook);
-//  UnRegisterSysStyleHook('DirectUIHWND', TDirectUIHWNDStyleHook);
-//  UnRegisterSysStyleHook('ctrlnotifysink', TCtrlNotifySinkStyleHook);
-//  UnRegisterSysStyleHook('syslink', TSysLinkStyleHook);
 end;
 
 end.

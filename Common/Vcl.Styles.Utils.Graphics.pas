@@ -2,7 +2,7 @@
 //
 // Unit Vcl.Styles.Utils.Graphics
 // unit for the VCL Styles Utils
-// http://code.google.com/p/vcl-styles-utils/
+// https://github.com/RRUZ/vcl-styles-utils/
 //
 // The contents of this file are subject to the Mozilla Public License Version 1.1 (the "License");
 // you may not use this file except in compliance with the License. You may obtain a copy of the
@@ -15,7 +15,7 @@
 // The Original Code is Vcl.Styles.Utils.Graphics.pas.
 //
 // The Initial Developer of the Original Code is Rodrigo Ruz V.
-// Portions created by Rodrigo Ruz V. are Copyright (C) 2012-2014 Rodrigo Ruz V.
+// Portions created by Rodrigo Ruz V. are Copyright (C) 2012-2015 Rodrigo Ruz V.
 // All Rights Reserved.
 //
 //**************************************************************************************************
@@ -134,7 +134,7 @@ Type
   TBitmapFilter=class(TColorFilter)
   private
    //FColorValue   : Integer;
-   UseBitmap: Boolean;
+   FUseBitmap: Boolean;
    FSourceBitmap : TBitmap;
   public
    constructor Create(AColorValue:Integer);
@@ -243,7 +243,8 @@ Type
   const AStartColor, AEndColor: TColor; const ARect: TRect;
   const Direction: TGradientDirection; Radius : Integer);
 
-  procedure AlphaBlendFillCanvas(const ACanvas: TCanvas;  const AColor : TColor;const ARect: TRect; SourceConstantAlpha : Byte);
+  procedure AlphaBlendFillCanvas(const ACanvas: TCanvas;  const AColor : TColor;const ARect: TRect; SourceConstantAlpha : Byte); overload;
+  procedure AlphaBlendFillCanvas(const DC: HDC;  const AColor : TColor;const ARect: TRect; SourceConstantAlpha : Byte); overload;
 
 implementation
 
@@ -292,8 +293,12 @@ begin
   end;
 end;
 
-
 procedure AlphaBlendFillCanvas(const ACanvas: TCanvas;  const AColor : TColor;const ARect: TRect; SourceConstantAlpha : Byte);
+begin
+  AlphaBlendFillCanvas(ACanvas.Handle, AColor, ARect, SourceConstantAlpha);
+end;
+
+procedure AlphaBlendFillCanvas(const DC: HDC;  const AColor : TColor;const ARect: TRect; SourceConstantAlpha : Byte); overload;
 var
  LBuffer   : TBitmap;
  LBlendFunc: TBlendFunction;
@@ -309,7 +314,7 @@ begin
     LBlendFunc.BlendFlags := 0;
     LBlendFunc.SourceConstantAlpha := SourceConstantAlpha;
     LBlendFunc.AlphaFormat := 0;
-    AlphaBlend(ACanvas.Handle, ARect.Left, ARect.Top, LBuffer.Width, LBuffer.Height, LBuffer.Canvas.Handle, 0, 0, LBuffer.Width, LBuffer.Height, LBlendFunc);
+    AlphaBlend(DC, ARect.Left, ARect.Top, LBuffer.Width, LBuffer.Height, LBuffer.Canvas.Handle, 0, 0, LBuffer.Width, LBuffer.Height, LBlendFunc);
   finally
     LBuffer.Free;
   end;
@@ -1390,7 +1395,7 @@ end;
 
 procedure TBitmap32BlendBurn.ProcessBitmap(ABitMap: TBitmap);
 begin
-  if UseBitmap then
+  if FUseBitmap then
   begin
     if ABitMap.PixelFormat=pf32bit then
      _ProcessBitmap32(FSourceBitmap , ABitMap , _BlendBurn)
@@ -1415,7 +1420,7 @@ end;
 
 procedure TBitmap32BlendMultiply.ProcessBitmap(ABitMap: TBitmap);
 begin
-  if UseBitmap then
+  if FUseBitmap then
   begin
     if ABitMap.PixelFormat=pf32bit then
      _ProcessBitmap32(FSourceBitmap , ABitMap , _BlendMultiply)
@@ -1440,7 +1445,7 @@ end;
 
 procedure TBitmap32BlendAdditive.ProcessBitmap(ABitMap: TBitmap);
 begin
-  if UseBitmap then
+  if FUseBitmap then
   begin
     if ABitMap.PixelFormat=pf32bit then
      _ProcessBitmap32(FSourceBitmap , ABitMap , _BlendAdditive)
@@ -1465,7 +1470,7 @@ end;
 
 procedure TBitmap32BlendDodge.ProcessBitmap(ABitMap: TBitmap);
 begin
-  if UseBitmap then
+  if FUseBitmap then
   begin
     if ABitMap.PixelFormat=pf32bit then
      _ProcessBitmap32(FSourceBitmap , ABitMap , _BlendDodge)
@@ -1490,7 +1495,7 @@ end;
 
 procedure TBitmap32BlendOverlay.ProcessBitmap(ABitMap: TBitmap);
 begin
-  if UseBitmap then
+  if FUseBitmap then
   begin
     if ABitMap.PixelFormat=pf32bit then
      _ProcessBitmap32(FSourceBitmap , ABitMap , _BlendOverlay)
@@ -1515,7 +1520,7 @@ end;
 
 procedure TBitmap32BlendLighten.ProcessBitmap(ABitMap: TBitmap);
 begin
-  if UseBitmap then
+  if FUseBitmap then
   begin
     if ABitMap.PixelFormat=pf32bit then
      _ProcessBitmap32(FSourceBitmap , ABitMap , _BlendLighten)
@@ -1541,7 +1546,7 @@ end;
 
 procedure TBitmap32BlendDarken.ProcessBitmap(ABitMap: TBitmap);
 begin
-  if UseBitmap then
+  if FUseBitmap then
   begin
     if ABitMap.PixelFormat=pf32bit then
      _ProcessBitmap32(FSourceBitmap , ABitMap , _BlendDarken)
@@ -1566,7 +1571,7 @@ end;
 
 procedure TBitmap32BlendScreen.ProcessBitmap(ABitMap: TBitmap);
 begin
-  if UseBitmap then
+  if FUseBitmap then
   begin
     if ABitMap.PixelFormat=pf32bit then
      _ProcessBitmap32(FSourceBitmap , ABitMap , _BlendScreen)
@@ -1591,7 +1596,7 @@ end;
 
 procedure TBitmap32BlendDifference.ProcessBitmap(ABitMap: TBitmap);
 begin
-  if UseBitmap then
+  if FUseBitmap then
   begin
     if ABitMap.PixelFormat=pf32bit then
      _ProcessBitmap32(FSourceBitmap , ABitMap , _BlendDifference)
@@ -1618,13 +1623,13 @@ constructor TBitmapFilter.CreateBitMap(ASourceBitmap: TBitmap);
 begin
   inherited Create (clNone);
   FSourceBitmap:=ASourceBitmap;
-  UseBitmap:=True;
+  FUseBitmap:=True;
 end;
 
 constructor TBitmapFilter.Create(AColorValue: Integer);
 begin
   inherited Create(AColorValue);
-  UseBitmap:=False;
+  FUseBitmap:=False;
   FSourceBitmap:=nil;
 end;
 

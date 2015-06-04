@@ -2,7 +2,7 @@
 //
 // Unit Vcl.Styles.UxTheme
 // unit for the VCL Styles Utils
-// http://code.google.com/p/vcl-styles-utils/
+// https://github.com/RRUZ/vcl-styles-utils/
 //
 // The contents of this file are subject to the Mozilla Public License Version 1.1 (the "License");
 // you may not use this file except in compliance with the License. You may obtain a copy of the
@@ -15,7 +15,7 @@
 // The Original Code is Vcl.Styles.UxTheme.pas.
 //
 // The Initial Developer of the Original Code is Rodrigo Ruz V.
-// Portions created by Rodrigo Ruz V. are Copyright (C) 2013-2014 Rodrigo Ruz V.
+// Portions created by Rodrigo Ruz V. are Copyright (C) 2013-2015 Rodrigo Ruz V.
 // All Rights Reserved.
 //
 //**************************************************************************************************
@@ -38,6 +38,7 @@ implementation
 {$DEFINE HOOK_EDIT}
 {$DEFINE HOOK_Rebar}
 {.$DEFINE HOOK_Menu}
+{.$DEFINE HOOK_PopMenu}
 
 uses
   DDetours,
@@ -257,6 +258,8 @@ begin
 end;
 
 
+
+
 function Detour_UxTheme_DrawThemeMain(hTheme: HTHEME; hdc: HDC; iPartId, iStateId: Integer;  const pRect: TRect; Foo: Pointer; Trampoline : TDrawThemeBackground): HRESULT; stdcall;
 var
   LBuffer   : TBitmap;
@@ -316,7 +319,82 @@ begin
     VCLStylesLock.Leave;
   end;
 
+   {$IFDEF HOOK_PopMenu}
+   if  SameText(LThemeClass, VSCLASS_MENU) then
+   begin
+      case iPartId of
 
+         MENU_POPUPBORDERS       :
+                                 begin
+                                    LDetails:=StyleServices.GetElementDetails(tmPopupBorders);
+                                    SaveIndex := SaveDC(hdc);
+                                    try
+                                      StyleServices.DrawElement(hdc, LDetails, pRect, nil);
+                                    finally
+                                      RestoreDC(hdc, SaveIndex);
+                                    end;
+                                    Exit(S_OK);
+                                 end;
+
+
+         MENU_POPUPGUTTER       :
+                                 begin
+                                    LDetails:=StyleServices.GetElementDetails(tmPopupGutter);
+                                    SaveIndex := SaveDC(hdc);
+                                    try
+                                      StyleServices.DrawElement(hdc, LDetails, pRect, nil);
+                                    finally
+                                      RestoreDC(hdc, SaveIndex);
+                                    end;
+                                    Exit(S_OK);
+                                 end;
+
+         MENU_POPUPBACKGROUND :
+                                 begin
+                                    LDetails:=StyleServices.GetElementDetails(tmPopupBackground);
+                                    SaveIndex := SaveDC(hdc);
+                                    try
+                                      StyleServices.DrawElement(hdc, LDetails, pRect, nil);
+                                    finally
+                                      RestoreDC(hdc, SaveIndex);
+                                    end;
+
+
+                                    //OutputDebugString2(Format('Detour_UxTheme_DrawThemeMain class %s hTheme %d iPartId %d iStateId %d pRect.Le/ft %d pRect.Top %d pRect.Width %d pRect.Height %d',
+                                    //[THThemesClasses.Items[hTheme],hTheme, iPartId, iStateId, pRect.Left, pRect.Top, pRect.Width, pRect.Height]));
+                                    Exit(S_OK);
+                                 end;
+
+
+         MENU_POPUPITEM      :
+                                 begin
+                                    case iStateId of
+                                      MPI_NORMAL         : LDetails:=StyleServices.GetElementDetails(tmPopupItemNormal);
+                                      MPI_HOT            : LDetails:=StyleServices.GetElementDetails(tmPopupItemHot);
+                                      //MBI_PUSHED         : LDetails:=StyleServices.GetElementDetails(tmMenuBarItemPushed);
+                                      MPI_DISABLED       : LDetails:=StyleServices.GetElementDetails(tmPopupItemDisabled);
+                                      MPI_DISABLEDHOT    : LDetails:=StyleServices.GetElementDetails(tmPopupItemHot);
+                                      //MPI_DISABLEDPUSHED : LDetails:=StyleServices.GetElementDetails(tmMenuBarItemDisabledPushed);
+                                    end;
+
+                                    SaveIndex := SaveDC(hdc);
+                                    try
+                                     StyleServices.DrawElement(hdc, LDetails, pRect, nil);
+                                    finally
+                                      RestoreDC(hdc, SaveIndex);
+                                    end;
+                                    Exit(S_OK);
+                                 end;
+       else
+       begin
+          //OutputDebugString(PChar(Format('Detour_UxTheme_DrawThemeMain class %s hTheme %d iPartId %d iStateId %d', [THThemesClasses.Items[hTheme],hTheme, iPartId, iStateId])));
+          //OutputDebugString2(Format('Detour_UxTheme_DrawThemeMain class %s hTheme %d iPartId %d iStateId %d', [THThemesClasses.Items[hTheme],hTheme, iPartId, iStateId]));
+          Exit(Trampoline(hTheme, hdc, iPartId, iStateId, pRect, Foo));
+       end;
+      end;
+   end
+   else
+   {$ENDIF}
    {$IFDEF HOOK_Menu}
    if  SameText(LThemeClass, VSCLASS_MENU) then
    begin
@@ -332,25 +410,6 @@ begin
 
                                     SaveIndex := SaveDC(hdc);
                                     try
-
-//                                      if iStateId=MB_ACTIVE then
-//                                      begin
-//                                       LBuffer:=TBitmap.Create;
-//                                       try
-//                                         LSize.cx:=pRect.Width;
-//                                         LSize.cy:=pRect.Height;
-//                                         LRect := Rect(0, 0, LSize.Width, LSize.Height);
-//                                         LBuffer.SetSize(LRect.Width, LRect.Height);
-//                                         StyleServices.DrawElement(LBuffer.Canvas.Handle, LDetails, LRect);
-//                                         //LBuffer.SaveToFile('C:\Program Files (x86)\Notepad++\plugins\bar.bmp');
-//                                         //OutputDebugString2(Format('GetPixel(LBuffer.Canvas.Handle, 1, 1) %d  GetPixel(hdc, 1, 1) %d', [GetPixel(LBuffer.Canvas.Handle, 1, 1), GetPixel(hdc, 1, 1)]));
-//                                         if GetPixel(LBuffer.Canvas.Handle, 0, 0)<> GetPixel(hdc, pRect.Left, pRect.Top) then
-//                                           BitBlt(hdc, pRect.Left, pRect.Top, LRect.Width, LRect.Height, LBuffer.Canvas.Handle, 0, 0, SRCCOPY);
-//                                       finally
-//                                         LBuffer.Free;
-//                                       end;
-//                                      end
-                                      //else
                                       StyleServices.DrawElement(hdc, LDetails, pRect, nil);
                                     finally
                                       RestoreDC(hdc, SaveIndex);
@@ -1589,7 +1648,7 @@ begin
             end
         else
          begin
-          OutputDebugString(PChar(Format('Detour_UxTheme_DrawThemeBackgroundEx  class %s hTheme %d iPartId %d iStateId %d', [THThemesClasses.Items[hTheme],hTheme, iPartId, iStateId])));
+          //OutputDebugString(PChar(Format('Detour_UxTheme_DrawThemeBackgroundEx  class %s hTheme %d iPartId %d iStateId %d', [THThemesClasses.Items[hTheme],hTheme, iPartId, iStateId])));
           Exit(Trampoline(hTheme, hdc, iPartId, iStateId, pRect, Foo));
          end;
         end;
@@ -1820,6 +1879,18 @@ begin
     end;
 end;
 
+
+procedure _DrawControlText(Canvas: TCanvas; const S: string; var R: TRect; Flags: Cardinal; ThemeTextColor: TColor);
+var
+  TextFormat: TTextFormatFlags;
+begin
+  //Canvas.Font := TWinControlClass(Control).Font;
+  Canvas.Font.Color := ThemeTextColor;
+  TextFormat := TTextFormatFlags(Flags);
+   DrawText(Canvas.Handle, S,  Length(S), R, TTextFormatFlags(TextFormat));
+end;
+
+
 function Detour_UxTheme_DrawThemeText(hTheme: HTHEME; hdc: HDC; iPartId, iStateId: Integer;  pszText: LPCWSTR; iCharCount: Integer; dwTextFlags, dwTextFlags2: DWORD; const pRect: TRect): HRESULT; stdcall;
 var
   LThemeClass : string;
@@ -1841,8 +1912,8 @@ begin
 
      LThemeClass:=THThemesClasses.Items[hTheme];
      ExtractStrings([';'], [], PChar(LThemeClass), LThemeClasses);
-     // OutputDebugString(PChar(Format('Detour_UxTheme_DrawThemeText hTheme %d iPartId %d iStateId %d  text %s', [hTheme, iPartId, iStateId, pszText])));
-     //OutputDebugString2(Format('Detour_UxTheme_DrawThemeText hTheme %d class %s iPartId %d iStateId %d  text %s', [hTheme, LThemeClass, iPartId, iStateId, pszText]));
+     //OutputDebugString(PChar(Format('Detour_UxTheme_DrawThemeText hTheme %d iPartId %d iStateId %d  text %s %s', [hTheme, iPartId, iStateId, pszText, LThemeClass])));
+     OutputDebugString(PChar(Format('Detour_UxTheme_DrawThemeText hTheme %d class %s iPartId %d iStateId %d  text %s', [hTheme, LThemeClass, iPartId, iStateId, pszText])));
    finally
      VCLStylesLock.Leave;
    end;
@@ -1850,7 +1921,54 @@ begin
    if LThemeClass<>'' then
    begin
 
+     {$IFDEF HOOK_PopMenu}
+     if  SameText(LThemeClass, VSCLASS_MENU) then
+     begin
+        case iPartId of
 
+           MENU_POPUPITEM      :
+                                   begin
+                                     SaveIndex := SaveDC(hdc);
+                                     try
+                                      case iStateId of
+                                        MPI_NORMAL         : LDetails:=StyleServices.GetElementDetails(tmPopupItemNormal);
+                                        MPI_HOT            : LDetails:=StyleServices.GetElementDetails(tmPopupItemHot);
+                                        //MPI_PUSHED         : LDetails:=StyleServices.GetElementDetails(tmMenuBarItemPushed);
+                                        MPI_DISABLED       : LDetails:=StyleServices.GetElementDetails(tmPopupItemDisabled);
+                                        MPI_DISABLEDHOT    : LDetails:=StyleServices.GetElementDetails(tmPopupItemDisabledHot);
+                                        //MPI_DISABLEDPUSHED : LDetails:=StyleServices.GetElementDetails(tmMenuBarItemDisabledPushed);
+                                      end;
+
+                                      LRect:=pRect;
+                                      StyleServices.GetElementColor(LDetails, ecTextColor, ThemeTextColor);
+                                      LText :=  string(pszText);
+
+                                      //SetTextColor(hdc, ColorToRGB(clred));
+
+//                                      LCanvas:= TCanvas.Create;
+//                                      try
+//                                        LCanvas.Handle:=hdc;
+//                                        LCanvas.Brush.Style:=bsClear;
+//                                        _DrawControlText(LCanvas, LText, LRect, TTextFormatFlags(dwTextFlags), clred);
+//                                      finally
+//                                        LCanvas.Handle:=0;
+//                                        LCanvas.Free;
+//                                      end;
+                                      StyleServices.DrawText(hdc, LDetails, LText, LRect, TTextFormatFlags(dwTextFlags), ThemeTextColor);
+                                      Exit(S_OK);
+                                     finally
+                                       RestoreDC(hdc, SaveIndex);
+                                     end;
+                                   end;
+         else
+         begin
+            OutputDebugString(PChar(Format('Detour_UxTheme_DrawThemeText hTheme %d iPartId %d iStateId %d  text %s', [hTheme, iPartId, iStateId, pszText])));
+            Exit(TrampolineDrawThemeText(hTheme, hdc, iPartId, iStateId, pszText, iCharCount, dwTextFlags, dwTextFlags2, pRect));
+         end;
+        end;
+     end
+     else
+     {$ENDIF}
      {$IFDEF HOOK_Menu}
      if  SameText(LThemeClass, VSCLASS_MENU) then
      begin
@@ -1858,7 +1976,7 @@ begin
 
            MENU_BARITEM      :
                                    begin
-                                     SaveIndex := SaveDC(hdc);
+                                    // SaveIndex := SaveDC(hdc);
                                      try
                                       case iStateId of
                                         MBI_NORMAL         : LDetails:=StyleServices.GetElementDetails(tmPopupItemNormal);
@@ -1871,9 +1989,9 @@ begin
 
                                       LRect:=pRect;
                                       StyleServices.DrawText(hdc, LDetails, string(pszText), LRect, TTextFormatFlags(dwTextFlags), ThemeTextColor);
-                                      Result:=S_OK;
+                                      Exit(S_OK);
                                      finally
-                                       RestoreDC(hdc, SaveIndex);
+                                      // RestoreDC(hdc, SaveIndex);
                                      end;
                                    end;
          else
@@ -2119,6 +2237,7 @@ var
   LThemeClass : string;
   plf: LOGFONTW;
 begin
+
  //OutputDebugString(PChar(Format('Detour_UxTheme_DrawThemeTextEx hTheme %d iPartId %d iStateId %d  text %s', [hTheme, iPartId, iStateId, pszText])));
  //Result:=TrampolineDrawThemeTextEx(hTheme, hdc, iPartId, iStateId, pszText, cchText, dwTextFlags, pRect, pOptions);
  VCLStylesLock.Enter;
@@ -2133,6 +2252,40 @@ begin
 
  if LThemeClass<>'' then
  begin
+     {$IFDEF HOOK_PopMenu}
+     if  SameText(LThemeClass, VSCLASS_MENU) then
+     begin
+        case iPartId of
+
+           MENU_POPUPITEM      :
+                                   begin
+                                     SaveIndex := SaveDC(hdc);
+                                     try
+                                      case iStateId of
+                                        MPI_NORMAL         : LDetails:=StyleServices.GetElementDetails(tmPopupItemNormal);
+                                        MPI_HOT            : LDetails:=StyleServices.GetElementDetails(tmPopupItemHot);
+                                        //MPI_PUSHED         : LDetails:=StyleServices.GetElementDetails(tmMenuBarItemPushed);
+                                        MPI_DISABLED       : LDetails:=StyleServices.GetElementDetails(tmPopupItemDisabled);
+                                        MPI_DISABLEDHOT    : LDetails:=StyleServices.GetElementDetails(tmPopupItemDisabledHot);
+                                        //MPI_DISABLEDPUSHED : LDetails:=StyleServices.GetElementDetails(tmMenuBarItemDisabledPushed);
+                                      end;
+
+
+                                      StyleServices.DrawText(hdc, LDetails, string(pszText), pRect^, TTextFormatFlags(dwTextFlags), ThemeTextColor);
+                                      Result:=S_OK;
+                                     finally
+                                       RestoreDC(hdc, SaveIndex);
+                                     end;
+                                   end;
+         else
+         begin
+             //OutputDebugString(PChar(Format('Detour_UxTheme_DrawThemeTextEx hTheme %d iPartId %d iStateId %d  text %s', [hTheme, iPartId, iStateId, pszText])));
+             Exit(TrampolineDrawThemeTextEx(hTheme, hdc, iPartId, iStateId, pszText, cchText, dwTextFlags, pRect, pOptions));
+         end;
+        end;
+     end
+     else
+     {$ENDIF}
    {$IFDEF HOOK_ListView}
    if SameText(LThemeClass, VSCLASS_LISTVIEW) or SameText(LThemeClass, VSCLASS_ITEMSVIEW_LISTVIEW) then
    begin
