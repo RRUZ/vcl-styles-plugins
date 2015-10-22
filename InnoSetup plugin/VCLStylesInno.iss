@@ -9,8 +9,8 @@ DefaultDirName={pf}\The Road To Delphi\VCL Styles Inno
 DefaultGroupName=The Road To Delphi
 Compression=lzma
 SolidCompression=true
-WizardImageFile=images\WizModernImage-IS_Green.bmp
-WizardSmallImageFile=images\WizModernSmallImage-IS_Green.bmp
+WizardImageFile=images\WizModernImage-IS.bmp
+WizardSmallImageFile=images\WizModernSmallImage-IS.bmp
 OutputDir=.\Output
 OutputBaseFilename=SetupVCLStylesInno
 VersionInfoVersion={#MyAppVersion}
@@ -20,39 +20,6 @@ InternalCompressLevel=max
 
 [Files]
 Source: Win32\Release\VclStylesinno.dll; DestDir: {app}
-Source: Styles\Amakrits.vsf; DestDir: {app}\Styles\
-Source: Styles\AmethystKamri.vsf; DestDir: {app}\Styles\
-Source: Styles\AquaGraphite.vsf; DestDir: {app}\Styles\
-Source: Styles\AquaLightSlate.vsf; DestDir: {app}\Styles\
-Source: Styles\Auric.vsf; DestDir: {app}\Styles\
-Source: Styles\BlueGraphite.vsf; DestDir: {app}\Styles\
-Source: Styles\Carbon.vsf; DestDir: {app}\Styles\
-Source: Styles\CharcoalDarkSlate.vsf; DestDir: {app}\Styles\
-Source: Styles\CobaltXEMedia.vsf; DestDir: {app}\Styles\
-Source: Styles\CyanDusk.vsf; DestDir: {app}\Styles\
-Source: Styles\CyanNight.vsf; DestDir: {app}\Styles\
-Source: Styles\EmeraldLightSlate.vsf; DestDir: {app}\Styles\
-Source: Styles\GoldenGraphite.vsf; DestDir: {app}\Styles\
-Source: Styles\GreenGraphite.vsf; DestDir: {app}\Styles\
-Source: Styles\IcebergClassico.vsf; DestDir: {app}\Styles\
-Source: Styles\khaki.vsf; DestDir: {app}\Styles\
-Source: Styles\LavenderClassico.vsf; DestDir: {app}\Styles\
-Source: Styles\LightGreen.vsf; DestDir: {app}\Styles\
-Source: Styles\lilac.vsf; DestDir: {app}\Styles\
-Source: Styles\MetroBlack.vsf; DestDir: {app}\Styles\
-Source: Styles\MetroBlue.vsf; DestDir: {app}\Styles\
-Source: Styles\MetroGreen.vsf; DestDir: {app}\Styles\
-Source: Styles\Orange.vsf; DestDir: {app}\Styles\
-Source: Styles\OrangeGraphite.vsf; DestDir: {app}\Styles\
-Source: Styles\Pink.vsf; DestDir: {app}\Styles\
-Source: Styles\RubyGraphite.vsf; DestDir: {app}\Styles\
-Source: Styles\SapphireKamri.vsf; DestDir: {app}\Styles\
-Source: Styles\sepia.vsf; DestDir: {app}\Styles\
-Source: Styles\Sky.vsf; DestDir: {app}\Styles\
-Source: Styles\SlateClassico.vsf; DestDir: {app}\Styles\
-Source: Styles\SmokeyQuartzKamri.vsf; DestDir: {app}\Styles\
-Source: Styles\TurquoiseGray.vsf; DestDir: {app}\Styles\
-Source: Styles\YellowGraphite.vsf; DestDir: {app}\Styles\
 Source: Samples\CodeClasses.iss; DestDir: {app}\Samples\
 Source: Samples\VCLStylesDemo.iss; DestDir: {app}\Samples\
 Source: Samples\VCLStylesDemo_Uninstall.iss; DestDir: {app}\Samples\
@@ -75,6 +42,43 @@ Source: Images\WizModernSmallImage-IS_Purple.bmp; DestDir: {app}\Images\
 Source: ..\..\..\..\Program Files (x86)\Embarcadero\RAD Studio\9.0\bin\VclStyleDesigner.exe; DestDir: {app}
 Source: ..\..\..\..\Program Files (x86)\Embarcadero\RAD Studio\9.0\bin\VclStyleTest.exe; DestDir: {app}
 Source: background.bmp; Flags: dontcopy
+Source: Styles New\Amakrits.vsf; DestDir: {app}\Styles\
+Source: Styles New\AmethystKamri.vsf; DestDir: {app}\Styles\
+Source: Styles New\AquaGraphite.vsf; DestDir: {app}\Styles\
+Source: Styles New\AquaLightSlate.vsf; DestDir: {app}\Styles\
+Source: Styles New\Auric.vsf; DestDir: {app}\Styles\
+Source: Styles New\BlueGraphite.vsf; DestDir: {app}\Styles\
+Source: Styles New\Carbon.vsf; DestDir: {app}\Styles\
+Source: Styles New\CharcoalDarkSlate.vsf; DestDir: {app}\Styles\
+Source: Styles New\CobaltXEMedia.vsf; DestDir: {app}\Styles\
+Source: Styles New\CyanDusk.vsf; DestDir: {app}\Styles\
+Source: Styles New\CyanNight.vsf; DestDir: {app}\Styles\
+Source: Styles New\Glossy.vsf; DestDir: {app}\Styles\
+Source: Styles New\Glow.vsf; DestDir: {app}\Styles\
+Source: Styles New\GoldenGraphite.vsf; DestDir: {app}\Styles\
+Source: Styles New\GreenGraphite.vsf; DestDir: {app}\Styles\
+Source: Styles New\IcebergClassico.vsf; DestDir: {app}\Styles\
+Source: Styles New\LavenderClassico.vsf; DestDir: {app}\Styles\
+Source: Styles New\Light.vsf; DestDir: {app}\Styles\
+Source: Styles New\LightGreen.vsf; DestDir: {app}\Styles\
+Source: Styles New\lilac.vsf; DestDir: {app}\Styles\
+Source: Styles New\Luna.vsf; DestDir: {app}\Styles\
+Source: Styles New\MetroBlack.vsf; DestDir: {app}\Styles\
+Source: Styles New\MetroBlue.vsf; DestDir: {app}\Styles\
+Source: Styles New\MetroGreen.vsf; DestDir: {app}\Styles\
+Source: Styles New\OnyxBlue.vsf; DestDir: {app}\Styles\
+Source: Styles New\OrangeGraphite.vsf; DestDir: {app}\Styles\
+Source: Styles New\RubyGraphite.vsf; DestDir: {app}\Styles\
+Source: Styles New\SapphireKamri.vsf; DestDir: {app}\Styles\
+Source: Styles New\Sky.vsf; DestDir: {app}\Styles\
+Source: Styles New\SlateClassico.vsf; DestDir: {app}\Styles\
+Source: Styles New\SmokeyQuartzKamri.vsf; DestDir: {app}\Styles\
+Source: Styles New\TabletDark.vsf; DestDir: {app}\Styles\
+Source: Styles New\TurquoiseGray.vsf; DestDir: {app}\Styles\
+Source: Styles New\Windows10.vsf; DestDir: {app}\Styles\
+Source: Styles New\Windows10Blue.vsf; DestDir: {app}\Styles\
+Source: Styles New\Windows10Dark.vsf; DestDir: {app}\Styles\
+Source: Styles New\YellowGraphite.vsf; DestDir: {app}\Styles\
 
 [Code]
 // Import the LoadVCLStyle function from VclStylesInno.DLL
@@ -123,8 +127,8 @@ end;
 
 function InitializeSetup(): Boolean;
 begin
-	ExtractTemporaryFile('Auric.vsf');
-	LoadVCLStyle(ExpandConstant('{tmp}\Auric.vsf'));
+	ExtractTemporaryFile('Glossy.vsf');
+	LoadVCLStyle(ExpandConstant('{tmp}\Glossy.vsf'));
 	Result := True;
 end;
 

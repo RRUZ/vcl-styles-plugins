@@ -32,6 +32,7 @@ uses
   Winapi.Windows,
   Vcl.Styles,
   Vcl.Themes,
+  Vcl.StdCtrls,
   Vcl.GraphUtil,
   Vcl.Graphics;
 
@@ -576,9 +577,10 @@ type
   public
     constructor Create;
     Destructor Destroy; override;
-    procedure DrawChar(DC: HDC; const AChar: Char; DestRect: TRect; AColor : TColor; Orientation : Integer = 0); overload;
-    procedure DrawChar(DC: HDC; const ACode: Word; DestRect: TRect; AColor : TColor; Orientation : Integer = 0); overload;
-    function  GetIcon(const ACode: Word; Width, Height : Integer; AColor, ABackColor : TColor; Orientation : Integer = 0) : HICON; overload;
+    procedure DrawChar(DC: HDC; const AChar: Char; DestRect: TRect; AColor : TColor; Orientation : Integer = 0; ImageAlignment: TImageAlignment = iaLeft); overload;
+    procedure DrawChar(DC: HDC; const ACode: Word; DestRect: TRect; AColor : TColor; Orientation : Integer = 0; ImageAlignment: TImageAlignment = iaLeft); overload;
+    function  GetIcon(const ACode: Word; Width, Height : Integer; AColor, ABackColor : TColor; Orientation : Integer = 0; ImageAlignment: TImageAlignment = iaLeft) : HICON; overload;
+    function  GetIcon(const ACode: Word; Width, Height, CharX, CharY : Integer; AColor, ABackColor : TColor; Orientation : Integer = 0; ImageAlignment: TImageAlignment = iaLeft) : HICON; overload;
   end;
 
 
@@ -1233,7 +1235,8 @@ var
   LPoint: TPoint;
   LParentHandle : THandle;
 begin
-  if Handle=0 then exit;
+  if (Handle=0) or (ARect.Width<=0) or (ARect.Height<=0) then exit;
+
   LPoint := Point(ARect.Left, ARect.Top);
   LBuffer := TBitmap.Create;
   try
@@ -1258,7 +1261,7 @@ var
   LPoint: TPoint;
   LParentHandle : THandle;
 begin
-  if Handle=0 then exit;
+  if (Handle=0) or (ARect.Width<=0) or (ARect.Height<=0) then exit;
   LPoint := Point(ARect.Left, ARect.Top);
   LBuffer := TBitmap.Create;
   try
@@ -1387,8 +1390,6 @@ begin
   else
     Result := i;
 end;
-
-
 
 
 procedure _ProcessBitmap32(const Dest: TBitmap; Value: Integer; _Process:TImageFilterCallback); overload;
@@ -2764,12 +2765,14 @@ begin
 {$ENDIF}
 end;
 
-procedure TAwesomeFont.DrawChar(DC: HDC; const ACode: Word; DestRect: TRect; AColor: TColor; Orientation : Integer = 0);
+procedure TAwesomeFont.DrawChar(DC: HDC; const ACode: Word; DestRect: TRect; AColor: TColor; Orientation : Integer = 0; ImageAlignment: TImageAlignment = iaLeft);
 begin
-  DrawChar(DC, Chr(ACode), DestRect, AColor, Orientation);
+  DrawChar(DC, Chr(ACode), DestRect, AColor, Orientation, ImageAlignment);
 end;
 
-function TAwesomeFont.GetIcon(const ACode: Word; Width, Height: Integer; AColor, ABackColor: TColor; Orientation: Integer): HICON;
+function TAwesomeFont.GetIcon(const ACode: Word; Width, Height, CharX,
+  CharY: Integer; AColor, ABackColor: TColor; Orientation: Integer;
+  ImageAlignment: TImageAlignment): HICON;
 var
   LIconInfo : TIconInfo;
   LBitmap, LMask : TBitmap;
@@ -2783,7 +2786,8 @@ begin
     //LBitmap.Canvas.FillRect(Rect(0, 0, LBitmap.Width, LBitmap.Height));
     //Bitmap32_SetAlphaAndColor(LBitmap, 255, clFuchsia);
 
-    DrawChar(LBitmap.Canvas.Handle, ACode, Rect(0, 0, LBitmap.Width, LBitmap.Height), AColor, 0);
+    //DrawChar(LBitmap.Canvas.Handle, ACode, Rect(0, 0, LBitmap.Width, LBitmap.Height), AColor, Orientation, ImageAlignment);
+    DrawChar(LBitmap.Canvas.Handle, ACode, Rect(0, 0, CharX, CharY), AColor, Orientation, ImageAlignment);
     Bitmap32_SetAlphaExceptColor(LBitmap, 255, ABackColor);
     LBitmap.AlphaFormat := afDefined;
 
@@ -2808,13 +2812,20 @@ begin
     LBitmap.Free;
   end;
 end;
-procedure TAwesomeFont.DrawChar(DC: HDC; const AChar: Char; DestRect: TRect; AColor: TColor; Orientation : Integer = 0);
+
+
+function TAwesomeFont.GetIcon(const ACode: Word; Width, Height: Integer; AColor, ABackColor: TColor; Orientation: Integer = 0; ImageAlignment: TImageAlignment = iaLeft): HICON;
+begin
+  Result:=GetIcon(ACode, Width, Height, Width, Height, AColor, ABackColor, Orientation, ImageAlignment);
+end;
+procedure TAwesomeFont.DrawChar(DC: HDC; const AChar: Char; DestRect: TRect; AColor: TColor; Orientation : Integer = 0; ImageAlignment: TImageAlignment = iaLeft);
 var
   LogFont: TLogFont;
   AFont  : HFONT;
   pOldFont: HGDIOBJ;
   LColorRef: COLORREF;
   OldMode: integer;
+  uFormat : Cardinal;
 begin
   ZeroMemory(@LogFont, SizeOf(LogFont));
   LogFont.lfHeight := DestRect.Height;
@@ -2842,7 +2853,17 @@ begin
       pOldFont := SelectObject(DC, AFont);
       try
         OldMode := SetBkMode(DC, TRANSPARENT);
-        Winapi.Windows.DrawText(DC, AChar, 1, DestRect, DT_LEFT or DT_SINGLELINE);
+        uFormat := DT_SINGLELINE;
+
+        case ImageAlignment of
+         iaLeft   : uFormat:= uFormat or DT_LEFT;
+         iaRight  : uFormat:= uFormat or DT_RIGHT;
+         iaCenter : uFormat:= uFormat or DT_CENTER;
+         iaTop    : uFormat:= uFormat or DT_TOP;
+         iaBottom : uFormat:= uFormat or DT_BOTTOM;
+        end;
+
+        Winapi.Windows.DrawText(DC, AChar, 1, DestRect, uFormat);
         SetBkMode(DC, OldMode);
         SelectObject(DC, LColorRef);
       finally

@@ -226,8 +226,8 @@ var
   C: array [0 .. 256] of Char;
   sClassName : string;
 begin
+  Result := CallNextHookEx(FHook_WH_CALLWNDPROC, nCode, wParam, lParam);
   try
-    Result := CallNextHookEx(FHook_WH_CALLWNDPROC, nCode, wParam, lParam);
     if (nCode < 0) then
      Exit;
 

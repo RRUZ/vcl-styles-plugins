@@ -51,7 +51,11 @@ type
     procedure DeleteMenus;
     procedure CreateMenuStyles;
     procedure WndProc(var Message: TMessage);
+  private
+    FMenuCaption: string;
+    procedure SetMenuCaption(const Value: string);
   public
+    property MenuCaption : string read FMenuCaption write SetMenuCaption;
     constructor Create(AOwner: TForm); reintroduce;
     destructor Destroy; override;
   end;
@@ -105,6 +109,7 @@ end;
 constructor TVclStylesSystemMenu.Create(AOwner: TForm);
 begin
   inherited Create(AOwner);
+  FMenuCaption:='VCL Styles';
   FForm:=AOwner;
   FMethodsDict:=TObjectDictionary<NativeUInt, TMethodInfo>.Create([doOwnsValues]);
   FOrgWndProc := FForm.WindowProc;
@@ -121,16 +126,32 @@ begin
   inherited;
 end;
 
+procedure TVclStylesSystemMenu.SetMenuCaption(const Value: string);
+begin
+  DeleteMenus;
+  FMenuCaption := Value;
+  CreateMenus;
+end;
+
 procedure TVclStylesSystemMenu.CreateMenus;
 begin
   CreateMenuStyles;
 end;
 
 procedure TVclStylesSystemMenu.DeleteMenus;
+var
+ LSysMenu : HMenu;
 begin
    if IsMenu(FVCLStylesMenu) then
    while GetMenuItemCount(FVCLStylesMenu)>0 do
      DeleteMenu(FVCLStylesMenu, 0, MF_BYPOSITION);
+
+   if FForm.HandleAllocated then
+   begin
+     LSysMenu := GetSystemMenu(FForm.Handle, False);
+     if IsMenu(LSysMenu) then
+      DeleteMenu(LSysMenu, VCLStylesMenu, MF_BYCOMMAND);
+   end;
 
    FMethodsDict.Clear;
 end;
@@ -139,9 +160,11 @@ procedure TVclStylesSystemMenu.CreateMenuStyles;
 var
  LSysMenu : HMenu;
  LMenuItem: TMenuItemInfo;
- s : string;
  uIDNewItem, LSubMenuIndex : Integer;
  LMethodInfo : TMethodInfo;
+ s : string;
+ LStyleNames: TArray<string>;
+
 begin
   LSysMenu := GetSystemMenu(FForm.Handle, False);
 
@@ -149,7 +172,6 @@ begin
   AddMenuSeparatorHelper(LSysMenu,  LSubMenuIndex);
 
   FVCLStylesMenu   := CreatePopupMenu();
-  s:='VCL Styles';
 
   uIDNewItem := VCLStylesMenu;
   ZeroMemory(@LMenuItem, SizeOf(TMenuItemInfo));
@@ -158,17 +180,25 @@ begin
   LMenuItem.fType  := MFT_STRING;
   LMenuItem.wID    := VCLStylesMenu;
   LMenuItem.hSubMenu := FVCLStylesMenu;
-  LMenuItem.dwTypeData := PWideChar(s);
-  LMenuItem.cch := Length(s);
+  LMenuItem.dwTypeData := PWideChar(FMenuCaption);
+  LMenuItem.cch := Length(FMenuCaption);
 
   InsertMenuItem(LSysMenu, GetMenuItemCount(LSysMenu), True, LMenuItem);
   inc(uIDNewItem);
   LSubMenuIndex:=0;
-  for s in TStyleManager.StyleNames do
+
+  LStyleNames:=TStyleManager.StyleNames;
+  TArray.Sort<String>(LStyleNames);
+
+  for s in LStyleNames do
   begin
     InsertMenuHelper(FVCLStylesMenu, LSubMenuIndex, uIDNewItem,  PChar(s), nil);
     if SameText(TStyleManager.ActiveStyle.Name, s) then
       CheckMenuItem(FVCLStylesMenu, LSubMenuIndex, MF_BYPOSITION or MF_CHECKED);
+
+    if SameText('Windows', s) then
+     AddMenuSeparatorHelper(FVCLStylesMenu,  LSubMenuIndex);
+
     inc(LSubMenuIndex);
     inc(uIDNewItem);
     LMethodInfo:=TMethodInfo.Create;

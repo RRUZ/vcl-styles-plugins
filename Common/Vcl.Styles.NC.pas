@@ -27,13 +27,14 @@ interface
 uses
   System.Classes,
   System.Generics.Collections,
-  Vcl.ImgList,
   System.Types,
   System.UITypes,
   Winapi.Windows,
   Winapi.Messages,
+  Vcl.ImgList,
   Vcl.Graphics,
   Vcl.Themes,
+  Vcl.Styles,
   Vcl.Controls,
   Vcl.Menus,
   Vcl.StdCtrls,
@@ -81,6 +82,8 @@ type
     procedure SetImages(const Value: TCustomImageList);
     procedure SetShowSystemMenu(const Value: Boolean);
     procedure SetShowCaption(const Value: Boolean);
+    function GetActiveTabButtonIndex: Integer;
+    procedure SetActiveTabButtonIndex(const Value: Integer);
     property FormBorderSize : TRect read FFormBorderSize write FFormBorderSize;
     property Form : TCustomForm read FForm;
   public
@@ -92,6 +95,9 @@ type
     constructor Create(AOwner: TComponent);override;
     destructor Destroy; override;
   published
+
+    property ActiveTabButtonIndex : Integer read GetActiveTabButtonIndex write SetActiveTabButtonIndex;
+
     property ButtonsList : TListNCButtons read FButtons;
     property Visible : Boolean read FVisible write SetVisible default True;
     property Images: TCustomImageList read FImages write SetImages;
@@ -137,7 +143,7 @@ type
     FShowHint: Boolean;
     FName: TComponentName;
     FTag: NativeInt;
-    FUseAwesomeFont: Boolean;
+    FUseFontAwesome: Boolean;
     procedure DrawButton(ACanvas: TCanvas; AMouseInControl, Pressed: Boolean);
     procedure SetStyle(const Value: TNCButtonStyle);
     procedure SetDisabledImageIndex(const Value: TImageIndex);
@@ -164,8 +170,7 @@ type
     procedure SetVisible(const Value: Boolean);
     procedure SetShowHint(const Value: Boolean);
     procedure SetName(const Value: TComponentName);
-    procedure SetUseAwesomeFont(const Value: Boolean);
-    property TabIndex : Integer read GetTabIndex;
+    procedure SetUseFontAwesome(const Value: Boolean);
   protected
     procedure SetBounds(ALeft, ATop, AWidth, AHeight: Integer); virtual;
   public
@@ -178,6 +183,7 @@ type
     property Height: Integer read FHeight write SetHeight;
     property NCControls: TNCControls read FNCControls;
     property BoundsRect: TRect read GetBoundsRect write SetBoundsRect;
+    property TabIndex : Integer read GetTabIndex;
   published
     property Style: TNCButtonStyle read FStyle write SetStyle;
 
@@ -208,7 +214,8 @@ type
     property Name: TComponentName read FName write SetName stored False;
     property Tag: NativeInt read FTag write FTag default 0;
 
-    property UseAwesomeFont : Boolean read FUseAwesomeFont write SetUseAwesomeFont;
+
+    property UseFontAwesome : Boolean read FUseFontAwesome write SetUseFontAwesome;
 
     property OnDropDownClick: TNotifyEvent read FOnDropDownClick write FOnDropDownClick;
     property OnClick: TNotifyEvent read FOnClick write FOnClick;
@@ -330,9 +337,14 @@ begin
 end;
 
 
+function TNCControls.GetActiveTabButtonIndex: Integer;
+begin
+ Result:= FActiveTabButtonIndex;
+end;
+
 function TNCControls.GetButton(index: Integer): TNCButton;
 begin
-  Result:=FButtons[Index];
+  Result:= FButtons[Index];
 end;
 
 function TNCControls.GetCount: Integer;
@@ -351,6 +363,30 @@ procedure TNCControls.Invalidate;
 begin
  if FForm.HandleAllocated then
    SendMessage(FForm.Handle, WM_NCPAINT, 0, 0);
+end;
+
+procedure TNCControls.SetActiveTabButtonIndex(const Value: Integer);
+
+ function GetMaxTabIndex : Integer;
+ var
+   i : integer;
+ begin
+    Result:=-1;
+    For i:=0 to FButtons.Count-1 do
+     if FButtons[i].Style=nsTab then
+      Inc(Result);
+ end;
+
+var
+  lmax, i : Integer;
+begin
+   lmax:=GetMaxTabIndex;
+   if (Value<>FActiveTabButtonIndex) and (Value>=0) and (lmax>=0) and (Value<=lmax) then
+   begin
+     FActiveTabButtonIndex:=Value;
+     Invalidate;
+   end;
+
 end;
 
 procedure TNCControls.SetImages(const Value: TCustomImageList);
@@ -408,7 +444,7 @@ begin
   FDisabledImageIndex:=-1;
   FPressedImageIndex :=-1;
   FImageIndex        :=-1;
-  FUseAwesomeFont    :=False;
+  FUseFontAwesome    :=False;
   FHotImageIndex     :=-1;
   FImageAlignment    := iaLeft;
   FStyle             := nsPushButton;
@@ -663,14 +699,16 @@ begin
     LStyleServices.DrawElement(ACanvas.Handle, Details, DrawRect);
 
 
-  if FUseAwesomeFont and (LImgIndex>=0) then
+  if FUseFontAwesome and (LImgIndex>=0) then
   begin
+
     IW:= 16;
     IH:= 16;
+
     IX := DrawRect.Left + (DrawRect.Width  - IW) div 2;
     IY := DrawRect.Top  + (DrawRect.Height - IH) div 2;
 
-       case ImageAlignment of
+       case FImageAlignment of
           iaLeft:
             begin
               IX := DrawRect.Left + 2;
@@ -720,10 +758,11 @@ begin
   if (LImgIndex>=0) and (NCControls.FImages<>nil) and (NCControls.FImages.Handle <> 0) and
      ImageList_GetIconSize(NCControls.FImages.Handle, IW, IH) then
   begin
+
     IX := DrawRect.Left + (DrawRect.Width  - IW) div 2;
     IY := DrawRect.Top  + (DrawRect.Height - IH) div 2;
 
-       case ImageAlignment of
+       case FImageAlignment of
           iaLeft:
             begin
               IX := DrawRect.Left + 2;
@@ -785,11 +824,11 @@ begin
        ThemeTextColor:=clNone;
 
        DrawControlText(ACanvas, Details, BCaption, DrawRect, DT_VCENTER or DT_CENTER, ThemeTextColor);
-       if FUseAwesomeFont and (FImageIndex>=0) then
+       if FUseFontAwesome and (FImageIndex>=0) then
        begin
          if ThemeTextColor=clNone then
            LStyleServices.GetElementColor(Details, ecTextColor, ThemeTextColor);
-         AwesomeFont.DrawChar(ACanvas.Handle, LImgIndex, LRectAwesome, ThemeTextColor);
+         AwesomeFont.DrawChar(ACanvas.Handle, LImgIndex, LRectAwesome, ThemeTextColor, 0, FImageAlignment);
        end;
 
       if FDropDown then
@@ -862,11 +901,11 @@ begin
 
       DrawControlText(ACanvas, Details, BCaption, DrawRect, DT_VCENTER or DT_CENTER or DT_WORDBREAK, ThemeTextColor);
 
-     if FUseAwesomeFont and (FImageIndex>=0) then
+     if FUseFontAwesome and (FImageIndex>=0) then
      begin
          if ThemeTextColor=clNone then
            LStyleServices.GetElementColor(Details, ecTextColor, ThemeTextColor);
-       AwesomeFont.DrawChar(ACanvas.Handle, LImgIndex, LRectAwesome, ThemeTextColor);
+       AwesomeFont.DrawChar(ACanvas.Handle, LImgIndex, LRectAwesome, ThemeTextColor, 0, FImageAlignment);
      end;
     end;
 end;
@@ -967,9 +1006,9 @@ begin
   FTop := Value;
 end;
 
-procedure TNCButton.SetUseAwesomeFont(const Value: Boolean);
+procedure TNCButton.SetUseFontAwesome(const Value: Boolean);
 begin
-  FUseAwesomeFont := Value;
+  FUseFontAwesome := Value;
 end;
 
 procedure TNCButton.SetVisible(const Value: Boolean);

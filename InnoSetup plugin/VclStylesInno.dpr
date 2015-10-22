@@ -44,7 +44,9 @@ uses
   Vcl.Styles.Utils.StdCtrls in '..\Common\Vcl.Styles.Utils.StdCtrls.pas',
   Vcl.Styles.InnoSetup.StyleHooks in 'Vcl.Styles.InnoSetup.StyleHooks.pas',
   DDetours in '..\Common\delphi-detours-library\DDetours.pas',
-  InstDecode in '..\Common\delphi-detours-library\InstDecode.pas';
+  InstDecode in '..\Common\delphi-detours-library\InstDecode.pas',
+  CPUID in '..\Common\delphi-detours-library\CPUID.pas',
+  GenericsCast in '..\Common\delphi-detours-library\GenericsCast.pas';
 
 {$R *.res}
 
