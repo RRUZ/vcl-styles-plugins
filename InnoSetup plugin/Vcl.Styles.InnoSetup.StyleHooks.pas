@@ -1,4 +1,4 @@
-//**************************************************************************************************
+// **************************************************************************************************
 //
 // Unit Vcl.Styles.InnoSetup.StyleHooks
 // unit for the VCL Styles Plugin for Inno Setup
@@ -19,7 +19,7 @@
 // Portions created by Rodrigo Ruz V. are Copyright (C) 2013-2015 Rodrigo Ruz V.
 // All Rights Reserved.
 //
-//**************************************************************************************************
+// **************************************************************************************************
 
 unit Vcl.Styles.InnoSetup.StyleHooks;
 
@@ -102,7 +102,11 @@ type
     constructor Create(AHandle: THandle); override;
   end;
 
-  TFolderTreeViewStyleHook = class(TSysTreeViewStyleHook)
+  TFolderTreeViewStyleHook = class (TSysScrollingStyleHook) {(TSysTreeViewStyleHook)}
+  protected
+    procedure UpdateColors; override;
+    procedure WndProc(var Message: TMessage); override;
+    function GetBorderSize: TRect; override;
   public
     constructor Create(AHandle: THandle); override;
   end;
@@ -110,7 +114,9 @@ type
 implementation
 
 uses
- Vcl.Styles.Utils.SysControls;
+  Winapi.CommCtrl,
+  Vcl.Styles.Utils.SysControls,
+  uLogExcept;
 
 { TRichEditViewerStyleHook }
 
@@ -138,8 +144,8 @@ procedure TRichEditViewerStyleHook.EMSetCharFormat(var Message: TMessage);
 type
   PCharFormat2 = ^TCharFormat2;
 const
-  TextColor: array[Boolean] of TStyleFont = (sfEditBoxTextDisabled, sfEditBoxTextNormal);
-  BkColor: array[Boolean] of TStyleColor = (scEditDisabled, scEdit);
+  TextColor: array [Boolean] of TStyleFont = (sfEditBoxTextDisabled, sfEditBoxTextNormal);
+  BkColor: array [Boolean] of TStyleColor = (scEditDisabled, scEdit);
 var
   Format: PCharFormat2;
 begin
@@ -153,12 +159,11 @@ begin
   Handled := False;
 end;
 
-
 function TRichEditViewerStyleHook.GetBorderSize: TRect;
 begin
   Result := inherited GetBorderSize;
   if (SysControl.HasBorder) then
-      Result := Rect(2, 2, 2, 2);
+    Result := Rect(2, 2, 2, 2);
 end;
 
 procedure TRichEditViewerStyleHook.WndProc(var Message: TMessage);
@@ -171,7 +176,7 @@ end;
 constructor TNewCheckListBoxStyleHook.Create(AHandle: THandle);
 begin
   inherited;
-  HookedDirectly:=True;
+  HookedDirectly := True;
   OverridePaint := False;
   OverridePaintNC := True;
   OverrideFont := False;
@@ -187,7 +192,7 @@ function TNewCheckListBoxStyleHook.GetBorderSize: TRect;
 begin
   Result := inherited GetBorderSize;
   if (SysControl.HasBorder) then
-      Result := Rect(2, 2, 2, 2);
+    Result := Rect(2, 2, 2, 2);
 end;
 
 procedure TNewCheckListBoxStyleHook.WndProc(var Message: TMessage);
@@ -218,7 +223,6 @@ begin
   HookedDirectly := True;
 end;
 
-
 procedure TWizardFormStyleHook.WMNCLButtonDown(var Message: TWMNCLButtonDown);
 var
   P: TPoint;
@@ -229,7 +233,8 @@ begin
 
   if OverridePaintNC then
   begin
-    if (Message.HitTest = HTCLOSE) or (Message.HitTest = HTMAXBUTTON) or (Message.HitTest = HTMINBUTTON) or (Message.HitTest = HTHELP) then
+    if (Message.HitTest = HTCLOSE) or (Message.HitTest = HTMAXBUTTON) or (Message.HitTest = HTMINBUTTON) or
+      (Message.HitTest = HTHELP) then
     begin
       PressedButton := Message.HitTest;
       InvalidateNC;
@@ -243,9 +248,11 @@ begin
       P := NormalizePoint(P);
 
       case Message.HitTest of
+
         HTCLOSE:
           if CloseButtonRect.Contains(P) then
-              Close;
+            Close;
+
         HTMAXBUTTON:
           begin
             if MaxButtonRect.Contains(P) then
@@ -256,9 +263,11 @@ begin
                 Maximize;
             end;
           end;
+
         HTMINBUTTON:
           if MinButtonRect.Contains(P) then
             Minimize;
+
         HTHELP:
           if HelpButtonRect.Contains(P) then
             Help;
@@ -287,9 +296,59 @@ end;
 constructor TFolderTreeViewStyleHook.Create(AHandle: THandle);
 begin
   inherited;
+  OverrideEraseBkgnd:=True;
+  OverridePaintNC := True;
+  OverrideFont := True;
   HookedDirectly := True;
 end;
 
+procedure TFolderTreeViewStyleHook.UpdateColors;
+begin
+  //TLogFile.Add('TFolderTreeViewStyleHook.UpdateColors');
+  inherited;
+  if OverrideEraseBkgnd then
+    Color := StyleServices.GetStyleColor(scTreeView)
+  else
+    Color := clWhite;
+
+  if OverrideFont then
+    FontColor := StyleServices.GetSystemColor(clWindowText)
+  else
+    FontColor := clWindowText;
+end;
+
+procedure TFolderTreeViewStyleHook.WndProc(var Message: TMessage);
+begin
+  case Message.Msg of
+    WM_ERASEBKGND:
+      begin
+        UpdateColors;
+        if (Longint(TreeView_GetBkColor(Handle))<>ColorToRGB(Color)) then
+          TreeView_SetBkColor(Handle, ColorToRGB(Color));
+
+        if (Longint(TreeView_GetTextColor(Handle))<>ColorToRGB(FontColor)) then
+         TreeView_SetTextColor(Handle, ColorToRGB(FontColor));
+
+        //Message.Result := CallDefaultProc(Message);
+        //Exit;
+      end;
+  end;
+
+  inherited;
+end;
+
+function TFolderTreeViewStyleHook.GetBorderSize: TRect;
+begin
+  if SysControl.HasBorder then
+    Result := Rect(2, 2, 2, 2);
+end;
+
+// procedure TFolderTreeViewStyleHook.PaintNC(Canvas: TCanvas);
+// begin
+// inherited;
+// TLogFile.Add('TFolderTreeViewStyleHook.PaintNC');
+// //DrawBorder(Canvas);
+// end;
 
 { TPanelComponentStyleHook }
 
@@ -297,7 +356,7 @@ constructor TPanelComponentStyleHook.Create(AHandle: THandle);
 begin
   inherited;
   OverrideEraseBkgnd := True;
-  OverrideFont:=True;
+  OverrideFont := True;
   HookedDirectly := True;
 end;
 
@@ -312,10 +371,10 @@ constructor TLabelComponentStyleHook.Create(AHandle: THandle);
 begin
   inherited;
   OverrideEraseBkgnd := True;
-  OverrideFont:=True;
-  //Addlog('TLabelComponentStyleHook.Create');
+  OverrideFont := True;
+  // Addlog('TLabelComponentStyleHook.Create');
   SetTextColor(GetWindowDC(Handle), ColorToRGB(clWhite));
- // HookedDirectly := True;
+  // HookedDirectly := True;
 end;
 
 procedure TLabelComponentStyleHook.PaintBackground(Canvas: TCanvas);
@@ -326,34 +385,32 @@ end;
 
 procedure TLabelComponentStyleHook.WMPaint(var Message: TWMPaint);
 begin
-    //SetTextColor(TWMPaint(Message).DC, ColorToRGB(clWhite));
-   //SetTextColor(TWMPaint(Message).DC, ColorToRGB(StyleServices.GetSystemColor(clWindowText)));
-   Message.Result := CallDefaultProc(TMessage(Message));
-   Handled := False;
+  // SetTextColor(TWMPaint(Message).DC, ColorToRGB(clWhite));
+  // SetTextColor(TWMPaint(Message).DC, ColorToRGB(StyleServices.GetSystemColor(clWindowText)));
+  Message.Result := CallDefaultProc(TMessage(Message));
+  Handled := False;
 end;
 
-
-
 procedure TLabelComponentStyleHook.WndProc(var Message: TMessage);
-//var
+// var
 // LHDC : HDC;
 begin
-  //Addlog(WM_To_String(Message.Msg));
+  // Addlog(WM_To_String(Message.Msg));
   inherited;
-//  if Message.Msg=WM_SETFONT then
-//  begin
-//     //TWMSetFont(Message).
-//    //  Message.WParam
-//
-//   //UpdateColors;
-//     LHDC:=GetWindowDC(Handle);
-//     Addlog('Handle '+IntToHex(Handle, 8)+' HDC '+IntToHex(LHDC, 8));
-//
-//
-//     //Message.Result := CallDefaultProc(TMessage(Message));
-//     //SetTextColor(GetWindowDC(Handle), ColorToRGB(clWhite));
-//
-//  end;
+  // if Message.Msg=WM_SETFONT then
+  // begin
+  // //TWMSetFont(Message).
+  // //  Message.WParam
+  //
+  // //UpdateColors;
+  // LHDC:=GetWindowDC(Handle);
+  // Addlog('Handle '+IntToHex(Handle, 8)+' HDC '+IntToHex(LHDC, 8));
+  //
+  //
+  // //Message.Result := CallDefaultProc(TMessage(Message));
+  // //SetTextColor(GetWindowDC(Handle), ColorToRGB(clWhite));
+  //
+  // end;
 end;
 
 end.

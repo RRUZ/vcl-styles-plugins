@@ -78,7 +78,7 @@ Source: Styles New\TurquoiseGray.vsf; DestDir: {app}\Styles\
 Source: Styles New\Windows10.vsf; DestDir: {app}\Styles\
 Source: Styles New\Windows10Blue.vsf; DestDir: {app}\Styles\
 Source: Styles New\Windows10Dark.vsf; DestDir: {app}\Styles\
-Source: Styles New\YellowGraphite.vsf; DestDir: {app}\Styles\
+Source: Styles New\YellowGraphite.vsf; DestDir: {app}\Styles\; Flags: nocompression
 
 [Code]
 // Import the LoadVCLStyle function from VclStylesInno.DLL

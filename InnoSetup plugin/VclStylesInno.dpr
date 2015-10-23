@@ -46,7 +46,8 @@ uses
   DDetours in '..\Common\delphi-detours-library\DDetours.pas',
   InstDecode in '..\Common\delphi-detours-library\InstDecode.pas',
   CPUID in '..\Common\delphi-detours-library\CPUID.pas',
-  GenericsCast in '..\Common\delphi-detours-library\GenericsCast.pas';
+  GenericsCast in '..\Common\delphi-detours-library\GenericsCast.pas',
+  uLogExcept in 'uLogExcept.pas';
 
 {$R *.res}
 
@@ -58,10 +59,10 @@ uses
    if TStyleManager.IsValidStyle(VClStyleFile) then
      TStyleManager.SetStyle(TStyleManager.LoadFromFile(VClStyleFile))
    else
-   Addlog(Format('The Style File %s is not valid',[VCLStyleFile]));
+   TLogFile.Add(Format('The Style File %s is not valid',[VCLStyleFile]));
   except
     on e: Exception do
-     Addlog(Format('%s Trace %s',[e.Message, e.StackTrace]));
+     TLogFile.Add(e);
   end;
  end;
 
@@ -73,10 +74,10 @@ uses
    if TStyleManager.IsValidStyle(String(VCLStyleFile)) then
      TStyleManager.SetStyle(TStyleManager.LoadFromFile(String(VCLStyleFile)))
    else
-   Addlog(Format('The Style File %s is not valid',[VCLStyleFile]));
+   TLogFile.Add(Format('The Style File %s is not valid',[VCLStyleFile]));
   except
     on e: Exception do
-   Addlog(Format('%s Trace %s',[e.Message, e.StackTrace]));
+   TLogFile.Add(e);
   end;
  end;
 
