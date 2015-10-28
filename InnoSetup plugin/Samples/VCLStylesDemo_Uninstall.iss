@@ -1,3 +1,4 @@
+#define VCLStyle "Auric.vsf"
 [Setup]
 AppName=VCL Styles Example
 AppVerName=VCL Styles Example v1.0
@@ -21,7 +22,7 @@ InternalCompressLevel=max
 [Files]
 Source: ..\VclStylesinno.dll; DestDir: {#VCLStylesSkinPath}; Flags: uninsneveruninstall
 ;Source: ..\Win32\Debug\VclStylesinno.dll; DestDir: {#VCLStylesSkinPath}; Flags: uninsneveruninstall
-Source: ..\Styles\Auric.vsf; DestDir: {#VCLStylesSkinPath}; Flags: uninsneveruninstall
+Source: ..\Styles\{#VCLStyle}; DestDir: {app}; Flags: dontcopy
 
 
 [Code]
@@ -34,9 +35,9 @@ procedure UnLoadVCLStyles_UnInstall; external 'UnLoadVCLStyles@{#VCLStylesSkinPa
 
 function InitializeSetup(): Boolean;
 begin
- ExtractTemporaryFile('Auric.vsf');
- LoadVCLStyle(ExpandConstant('{tmp}\Auric.vsf'));
- Result := True;
+	ExtractTemporaryFile('{#VCLStyle}');
+	LoadVCLStyle(ExpandConstant('{tmp}\{#VCLStyle}'));
+	Result := True;
 end;
 
 procedure DeinitializeSetup();
@@ -48,7 +49,7 @@ function InitializeUninstall: Boolean;
 begin
   Result := True;
   MsgBox('Hello.', mbInformation, MB_OK);
-  LoadVCLStyle_UnInstall(ExpandConstant('{#VCLStylesSkinPath}\Auric.vsf'));
+  LoadVCLStyle_UnInstall(ExpandConstant('{#VCLStylesSkinPath}\{#VCLStyle}'));
 end;
 
 procedure DeinitializeUninstall();

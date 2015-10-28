@@ -1,3 +1,4 @@
+#define VCLStyle "Auric.vsf"
 [Setup]
 AppName=VCL Styles Example
 AppVerName=VCL Styles Example v1.0
@@ -20,7 +21,7 @@ InternalCompressLevel=max
 [Files]
 Source: ..\VclStylesinno.dll; DestDir: {app}; Flags: dontcopy
 ;Source: ..\Win32\Debug\VclStylesinno.dll; DestDir: {app}; Flags: dontcopy
-Source: ..\Styles\Auric.vsf; DestDir: {app}; Flags: dontcopy
+Source: ..\Styles\{#VCLStyle}; DestDir: {app}; Flags: dontcopy
 
 
 [Code]
@@ -31,8 +32,8 @@ procedure UnLoadVCLStyles; external 'UnLoadVCLStyles@files:VclStylesInno.dll std
 
 function InitializeSetup(): Boolean;
 begin
-	ExtractTemporaryFile('Auric.vsf');
-	LoadVCLStyle(ExpandConstant('{tmp}\Auric.vsf'));
+	ExtractTemporaryFile('{#VCLStyle}');
+	LoadVCLStyle(ExpandConstant('{tmp}\{#VCLStyle}'));
 	Result := True;
 end;
 

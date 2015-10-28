@@ -1,10 +1,4 @@
-; -- CodeDlg.iss --
-;
-; This script shows how to insert custom wizard pages into Setup and how to handle
-; these pages. Furthermore it shows how to 'communicate' between the [Code] section
-; and the regular Inno Setup sections using {code:...} constants. Finally it shows
-; how to customize the settings text on the 'Ready To Install' page.
-
+#define VCLStyle "Carbon.vsf"
 [Setup]
 AppName=My Program
 AppVersion=1.5
@@ -12,6 +6,8 @@ DefaultDirName={pf}\My Program
 DisableProgramGroupPage=yes
 UninstallDisplayIcon={app}\MyProg.exe
 OutputDir=userdocs:Inno Setup Examples Output
+WizardImageFile=..\images\WizModernImage-IS.bmp
+WizardSmallImageFile=..\images\WizModernSmallImage-IS.bmp
 
 [Files]
 Source: MyProg.exe; DestDir: {app}
@@ -19,7 +15,7 @@ Source: MyProg.chm; DestDir: {app}
 Source: Readme.txt; DestDir: {app}; Flags: isreadme
 Source: ..\VclStylesinno.dll; DestDir: {app}; Flags: dontcopy
 ;Source: ..\Win32\Release\VclStylesinno.dll; DestDir: {app}; Flags: dontcopy
-Source: ..\Styles\MetroGreen.vsf; DestDir: {app}; Flags: dontcopy
+Source: ..\Styles\{#VCLStyle}; DestDir: {app}; Flags: dontcopy
 
 [Registry]
 Root: HKCU; Subkey: Software\My Company; Flags: uninsdeletekeyifempty
@@ -49,8 +45,8 @@ var
 
 function InitializeSetup(): Boolean;
 begin
-	ExtractTemporaryFile('MetroGreen.vsf');
-	LoadVCLStyle(ExpandConstant('{tmp}\MetroGreen.vsf'));
+	ExtractTemporaryFile('{#VCLStyle}');
+	LoadVCLStyle(ExpandConstant('{tmp}\{#VCLStyle}'));
 	Result := True;
 end;
 

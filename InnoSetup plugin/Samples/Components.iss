@@ -1,7 +1,4 @@
-; -- Components.iss --
-; Demonstrates a components-based installation.
-
-; SEE THE DOCUMENTATION FOR DETAILS ON CREATING .ISS SCRIPT FILES!
+#define VCLStyle "Auric.vsf"
 
 [Setup]
 AppName=My Program
@@ -10,7 +7,8 @@ DefaultDirName={pf}\My Program
 DefaultGroupName=My Program
 UninstallDisplayIcon={app}\MyProg.exe
 OutputDir=userdocs:Inno Setup Examples Output
-
+WizardImageFile=..\images\WizModernImage-IS.bmp
+WizardSmallImageFile=..\images\WizModernSmallImage-IS.bmp
 [Types]
 Name: full; Description: Full installation
 Name: compact; Description: Compact installation
@@ -30,7 +28,7 @@ Source: Readme.txt; DestDir: {app}; Components: readme\en; Flags: isreadme
 Source: Readme-German.txt; DestName: Liesmich.txt; DestDir: {app}; Components: readme\de; Flags: isreadme
 Source: ..\VclStylesinno.dll; DestDir: {app}; Flags: dontcopy
 ;Source: ..\Win32\Release\VclStylesinno.dll; DestDir: {app}; Flags: dontcopy
-Source: ..\Styles\Amakrits.vsf; DestDir: {app}; Flags: dontcopy
+Source: ..\Styles\{#VCLStyle}; DestDir: {app}; Flags: dontcopy
 [Icons]
 Name: {group}\My Program; Filename: {app}\MyProg.exe
 
@@ -43,9 +41,9 @@ procedure UnLoadVCLStyles; external 'UnLoadVCLStyles@files:VclStylesInno.dll std
 
 function InitializeSetup(): Boolean;
 begin
-	ExtractTemporaryFile('Amakrits.vsf');
-	LoadVCLStyle(ExpandConstant('{tmp}\Amakrits.vsf'));
-	Result := True;
+  ExtractTemporaryFile('{#VCLStyle}');
+  LoadVCLStyle(ExpandConstant('{tmp}\{#VCLStyle}'));
+  Result := True;
 end;
 
 procedure DeinitializeSetup();
