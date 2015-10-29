@@ -102,7 +102,7 @@ type
     constructor Create(AHandle: THandle); override;
   end;
 
-  TFolderTreeViewStyleHook = class (TSysScrollingStyleHook) {(TSysTreeViewStyleHook)}
+  TFolderTreeViewStyleHook = class (TMouseTrackSysControlStyleHook) {(TSysTreeViewStyleHook)}
   protected
     procedure UpdateColors; override;
     procedure WndProc(var Message: TMessage); override;
