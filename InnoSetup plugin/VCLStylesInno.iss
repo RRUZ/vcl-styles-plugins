@@ -39,8 +39,15 @@ Source: Images\WizModernSmallImage-IS_BW.bmp; DestDir: {app}\Images\
 Source: Images\WizModernSmallImage-IS_Green.bmp; DestDir: {app}\Images\
 Source: Images\WizModernSmallImage-IS_Orange.bmp; DestDir: {app}\Images\
 Source: Images\WizModernSmallImage-IS_Purple.bmp; DestDir: {app}\Images\
-Source: ..\..\..\..\Program Files (x86)\Embarcadero\RAD Studio\10.0\bin\BitmapStyleDesigner.exe; DestDir: {app}
-Source: ..\..\..\..\Program Files (x86)\Embarcadero\RAD Studio\10.0\bin\VclStyleViewer.exe; DestDir: {app}
+Source: C:\Program Files (x86)\Embarcadero\RAD Studio\10.0\Redist\win32\BitmapStyleDesigner.exe; DestDir: {app}
+Source: C:\Program Files (x86)\Embarcadero\RAD Studio\10.0\Redist\win32\VclStyleViewer.exe; DestDir: {app}
+Source: C:\Program Files (x86)\Embarcadero\RAD Studio\10.0\bin\designide170.bpl; DestDir: {app}
+Source: C:\Program Files (x86)\Embarcadero\RAD Studio\10.0\Redist\win32\rtl170.bpl; DestDir: {app}
+Source: C:\Program Files (x86)\Embarcadero\RAD Studio\10.0\Redist\win32\vcl170.bpl; DestDir: {app}
+Source: C:\Program Files (x86)\Embarcadero\RAD Studio\10.0\Redist\win32\vclactnband170.bpl; DestDir: {app}
+Source: C:\Program Files (x86)\Embarcadero\RAD Studio\10.0\Redist\win32\vclimg170.bpl; DestDir: {app}
+Source: C:\Program Files (x86)\Embarcadero\RAD Studio\10.0\Redist\win32\vclx170.bpl; DestDir: {app}
+Source: C:\Program Files (x86)\Embarcadero\RAD Studio\10.0\Redist\win32\xmlrtl170.bpl; DestDir: {app}
 Source: background.bmp; Flags: dontcopy
 Source: Styles New\Amakrits.vsf; DestDir: {app}\Styles\
 Source: Styles New\AmethystKamri.vsf; DestDir: {app}\Styles\
