@@ -1,0 +1,4 @@
+call Build_x86NSIS_ANSI_Lite.bat
+call Build_x86NSIS_ANSI.bat
+call Build_x86NSIS_UNICODE _Lite.bat
+call Build_x86NSIS_UNICODE.bat

@@ -111,13 +111,22 @@ type
     constructor Create(AHandle: THandle); override;
   end;
 
+  TNSISTreeViewStyleHook = class (TMouseTrackSysControlStyleHook)
+  protected
+    procedure UpdateColors; override;
+    procedure WndProc(var Message: TMessage); override;
+    function GetBorderSize: TRect; override;
+  public
+    constructor Create(AHandle: THandle); override;
+  end;
+
 var
   NSIS_IgnoredControls: TList<HWND>;
 
 implementation
 
 uses
-  //IOutils,
+  Winapi.CommCtrl,
   DDetours,
   Winapi.CommDlg,
   Vcl.Styles.Utils.SysControls;
@@ -148,6 +157,58 @@ procedure Addlog(const Msg: string);
 begin
   //TFile.AppendAllText('C:\Test\log.txt', Format('%s %s %s', [FormatDateTime('hh:nn:ss.zzz', Now), Msg, sLineBreak]));
 end;
+
+
+constructor TNSISTreeViewStyleHook.Create(AHandle: THandle);
+begin
+  inherited;
+  OverrideEraseBkgnd:=True;
+  OverridePaintNC := True;
+  OverrideFont := True;
+  HookedDirectly := True;
+end;
+
+procedure TNSISTreeViewStyleHook.UpdateColors;
+begin
+  //TLogFile.Add('TFolderTreeViewStyleHook.UpdateColors');
+  inherited;
+  if OverrideEraseBkgnd then
+    Color := StyleServices.GetStyleColor(scTreeView)
+  else
+    Color := clWhite;
+
+  if OverrideFont then
+    FontColor := StyleServices.GetSystemColor(clWindowText)
+  else
+    FontColor := clWindowText;
+end;
+
+procedure TNSISTreeViewStyleHook.WndProc(var Message: TMessage);
+begin
+  case Message.Msg of
+    WM_ERASEBKGND:
+      begin
+        UpdateColors;
+        if (Longint(TreeView_GetBkColor(Handle))<>ColorToRGB(Color)) then
+          TreeView_SetBkColor(Handle, ColorToRGB(Color));
+
+        if (Longint(TreeView_GetTextColor(Handle))<>ColorToRGB(FontColor)) then
+         TreeView_SetTextColor(Handle, ColorToRGB(FontColor));
+
+        //Message.Result := CallDefaultProc(Message);
+        //Exit;
+      end;
+  end;
+
+  inherited;
+end;
+
+function TNSISTreeViewStyleHook.GetBorderSize: TRect;
+begin
+  if SysControl.HasBorder then
+    Result := Rect(2, 2, 2, 2);
+end;
+
 
 { TTransparentStaticNSIS }
 

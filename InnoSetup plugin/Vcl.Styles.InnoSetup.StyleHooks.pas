@@ -102,7 +102,7 @@ type
     constructor Create(AHandle: THandle); override;
   end;
 
-  TFolderTreeViewStyleHook = class (TMouseTrackSysControlStyleHook) {(TSysTreeViewStyleHook)}
+  TFolderTreeViewStyleHook = class (TMouseTrackSysControlStyleHook)
   protected
     procedure UpdateColors; override;
     procedure WndProc(var Message: TMessage); override;
@@ -343,12 +343,7 @@ begin
     Result := Rect(2, 2, 2, 2);
 end;
 
-// procedure TFolderTreeViewStyleHook.PaintNC(Canvas: TCanvas);
-// begin
-// inherited;
-// TLogFile.Add('TFolderTreeViewStyleHook.PaintNC');
-// //DrawBorder(Canvas);
-// end;
+
 
 { TPanelComponentStyleHook }
 

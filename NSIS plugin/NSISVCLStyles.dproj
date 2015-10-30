@@ -149,7 +149,9 @@
 			<DCCReference Include="..\Common\Vcl.Styles.UxTheme.pas"/>
 			<DCCReference Include="..\Common\Vcl.Styles.Utils.Graphics.pas"/>
 			<DCCReference Include="nsis.pas"/>
+			<DCCReference Include="..\Common\delphi-detours-library\CPUID.pas"/>
 			<DCCReference Include="..\Common\delphi-detours-library\DDetours.pas"/>
+			<DCCReference Include="..\Common\delphi-detours-library\GenericsCast.pas"/>
 			<DCCReference Include="..\Common\delphi-detours-library\InstDecode.pas"/>
 			<BuildConfiguration Include="Release">
 				<Key>Cfg_2</Key>
