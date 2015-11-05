@@ -88,8 +88,8 @@ SectionEnd
 Function .onInit
    InitPluginsDir
    ;Get the skin file to use
-   File /oname=$PLUGINSDIR\AmethystKamri.vsf "..\..\Styles\AmethystKamri.vsf"
+   File /oname=$PLUGINSDIR\VCLStyle.vsf "..\..\Styles\Auric.vsf"
    ;Load the skin using the LoadVCLStyle function
-   NSISVCLStyles::LoadVCLStyle $PLUGINSDIR\AmethystKamri.vsf 
+   NSISVCLStyles::LoadVCLStyle $PLUGINSDIR\VCLStyle.vsf 
 FunctionEnd
 
