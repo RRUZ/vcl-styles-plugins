@@ -185,7 +185,7 @@ begin
     case nCode of
       HCBT_ACTIVATE:
         begin
-          TLogFile.Add('HookActionCallBackCBT');
+          //TLogFile.Add('HookActionCallBackCBT');
           LHWND := hwnd(wParam);
           if (LHWND > 0) then
           begin

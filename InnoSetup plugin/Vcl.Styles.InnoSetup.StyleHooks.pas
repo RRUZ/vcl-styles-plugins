@@ -226,7 +226,31 @@ end;
 procedure TWizardFormStyleHook.WMNCLButtonDown(var Message: TWMNCLButtonDown);
 var
   P: TPoint;
+
+  procedure Minimize;
+  begin
+    TLogFile.Add('Minimize 1');
+    if Handle <> 0 then
+    begin
+      TLogFile.Add('Minimize 2');
+      PressedButton := 0;
+      HotButton := 0;
+      TLogFile.Add('Minimize 3');
+      if IsIconic(Handle) then
+      begin
+        TLogFile.Add('Minimize IsIconic');
+        SendMessage(Handle, WM_SYSCOMMAND, SC_RESTORE, 0)
+      end
+      else
+      begin
+        TLogFile.Add('Minimize not IsIconic');
+        SendMessage(Handle, WM_SYSCOMMAND, SC_MINIMIZE, 0);
+      end;
+    end;
+  end;
+
 begin
+  TLogFile.Add('WMNCLButtonDown 1');
   Handled := False;
   if (not StyleServicesEnabled) or (not OverridePaintNC) then
     Exit;
@@ -236,6 +260,7 @@ begin
     if (Message.HitTest = HTCLOSE) or (Message.HitTest = HTMAXBUTTON) or (Message.HitTest = HTMINBUTTON) or
       (Message.HitTest = HTHELP) then
     begin
+      TLogFile.Add('WMNCLButtonDown 2');
       PressedButton := Message.HitTest;
       InvalidateNC;
       SetRedraw(False);
@@ -247,6 +272,7 @@ begin
       GetCursorPos(P);
       P := NormalizePoint(P);
 
+      TLogFile.Add(Format('WMNCLButtonDown  Message.HitTest %d', [Message.HitTest]));
       case Message.HitTest of
 
         HTCLOSE:
@@ -265,8 +291,14 @@ begin
           end;
 
         HTMINBUTTON:
+        begin
+          TLogFile.Add('WMNCLButtonDown HTMINBUTTON');
           if MinButtonRect.Contains(P) then
+          begin
+            TLogFile.Add('WMNCLButtonDown Contains');
             Minimize;
+          end;
+        end;
 
         HTHELP:
           if HelpButtonRect.Contains(P) then
