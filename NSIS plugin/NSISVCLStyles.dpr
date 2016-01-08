@@ -51,7 +51,8 @@ uses
   CPUID in '..\Common\delphi-detours-library\CPUID.pas',
   DDetours in '..\Common\delphi-detours-library\DDetours.pas',
   GenericsCast in '..\Common\delphi-detours-library\GenericsCast.pas',
-  InstDecode in '..\Common\delphi-detours-library\InstDecode.pas';
+  InstDecode in '..\Common\delphi-detours-library\InstDecode.pas',
+  uLogExcept in 'uLogExcept.pas';
 
 //NSIS Scripting Reference
   //http://nsis.sourceforge.net/Docs/Chapter4.html

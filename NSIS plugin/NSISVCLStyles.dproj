@@ -153,6 +153,7 @@
 			<DCCReference Include="..\Common\delphi-detours-library\DDetours.pas"/>
 			<DCCReference Include="..\Common\delphi-detours-library\GenericsCast.pas"/>
 			<DCCReference Include="..\Common\delphi-detours-library\InstDecode.pas"/>
+			<DCCReference Include="uLogExcept.pas"/>
 			<BuildConfiguration Include="Release">
 				<Key>Cfg_2</Key>
 				<CfgParent>Base</CfgParent>

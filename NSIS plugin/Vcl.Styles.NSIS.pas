@@ -132,7 +132,7 @@ uses
   DDetours,
   Winapi.CommDlg,
   Vcl.Styles.Utils.Graphics,
-  Vcl.Styles.Utils.SysControls;
+  Vcl.Styles.Utils.SysControls, uLogExcept;
 
 type
   TThemedNSISControls = class
@@ -698,10 +698,10 @@ var
   LRect     : TRect;
   LSize     : TSize;
 begin
+
   if  IS_INTRESOURCE(PChar(lpBitmapName)) then
   case Integer(lpBitmapName) of
     110 :  begin
-
              LBitMap:=TBitmap.Create;
              try
                //LBitmap.Handle := Result;
