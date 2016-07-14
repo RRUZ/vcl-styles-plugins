@@ -10,9 +10,9 @@
      BEGIN   
        VALUE "CompanyName","The Road To Delphi\000"   
        VALUE "FileDescription","VCL Styles for NSIS Unicode\000"   
-       VALUE "FileVersion","1.0.5.1\000"   
+       VALUE "FileVersion","1.0.5.2\000"   
        VALUE "InternalName","NSISVCLStyles\000"   
-       VALUE "LegalCopyright","The Road To Delphi Copyright 2014\000"   
+       VALUE "LegalCopyright","The Road To Delphi Copyright 2016\000"   
        VALUE "LegalTrademarks","The Road To Delphi\000"   
        VALUE "OriginalFilename","NSISVCLStyles.dll\000"   
        VALUE "ProductName","NSISVCLStyles\000"   

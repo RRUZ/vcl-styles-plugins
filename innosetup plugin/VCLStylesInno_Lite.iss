@@ -72,8 +72,9 @@ Source: Images\WizModernSmallImage-IS_BW.bmp; DestDir: {app}\Images\
 Source: Images\WizModernSmallImage-IS_Green.bmp; DestDir: {app}\Images\
 Source: Images\WizModernSmallImage-IS_Orange.bmp; DestDir: {app}\Images\
 Source: Images\WizModernSmallImage-IS_Purple.bmp; DestDir: {app}\Images\
-Source: ..\..\..\..\Program Files (x86)\Embarcadero\RAD Studio\9.0\bin\VclStyleDesigner.exe; DestDir: {app}
-Source: ..\..\..\..\Program Files (x86)\Embarcadero\RAD Studio\9.0\bin\VclStyleTest.exe; DestDir: {app}
+Source: C:\Program Files (x86)\Embarcadero\RAD Studio\9.0\bin\VclStyleDesigner.exe; DestDir: {app}
+Source: C:\Program Files (x86)\Embarcadero\RAD Studio\9.0\bin\VclStyleTest.exe; DestDir: {app}
+Source: C:\Program Files (x86)\Embarcadero\RAD Studio\9.0\Redist\win32\midas.dll; DestDir: {app}
 Source: background.bmp; Flags: dontcopy
 
 [Code]

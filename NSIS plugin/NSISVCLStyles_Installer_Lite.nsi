@@ -11,7 +11,7 @@
   InstallDir "$PROGRAMFILES\The Road To Delphi\NSISVCLStyles"
   InstallDirRegKey HKCU "Software\NSISVCLStyles" ""
   RequestExecutionLevel admin
-  !define _VERSION "1.0.4.5"
+  !define _VERSION "1.0.5.2"
   VIProductVersion "${_VERSION}"
   VIAddVersionKey  "ProductName" "VCL Styles for NSIS"
   VIAddVersionKey  "CompanyName" "The Road To Delphi"
@@ -75,8 +75,9 @@ Section ""
 
     SetOutPath "$INSTDIR"
     ;ADD YOUR OWN FILES HERE...
-    File "c:\Program Files (x86)\Embarcadero\RAD Studio\9.0\bin\VclStyleDesigner.exe"
-    File "c:\Program Files (x86)\Embarcadero\RAD Studio\9.0\bin\VclStyleTest.exe"		
+    File "C:\Program Files (x86)\Embarcadero\RAD Studio\9.0\bin\VclStyleDesigner.exe"
+    File "C:\Program Files (x86)\Embarcadero\RAD Studio\9.0\bin\VclStyleTest.exe"		
+	File "C:\Program Files (x86)\Embarcadero\RAD Studio\9.0\Redist\win32\midas.dll"
 	SetOutPath "$INSTDIR\Styles"
 	File "Styles\Amakrits.vsf"
 	File "Styles\AmethystKamri.vsf"
