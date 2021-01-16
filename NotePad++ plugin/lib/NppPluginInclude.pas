@@ -47,7 +47,7 @@ begin
 end;
 
 {$IFDEF NPPUNICODE}
-function isUnicode : Boolean; cdecl; export;
+function isUnicode: Boolean; cdecl; export;
 begin
   Result := true;
 end;

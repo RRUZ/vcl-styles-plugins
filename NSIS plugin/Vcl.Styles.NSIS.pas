@@ -15,7 +15,7 @@
 //
 // The Initial Developer of the Original Code is Rodrigo Ruz V.
 //
-// Portions created by Rodrigo Ruz V. are Copyright (C) 2013-2015 Rodrigo Ruz V.
+// Portions created by Rodrigo Ruz V. are Copyright (C) 2013-2021 Rodrigo Ruz V.
 //
 // All Rights Reserved.
 //
@@ -151,9 +151,9 @@ type
 
 
 var
-  NSISControlsList      : TObjectDictionary<HWND, TSysStyleHook>;
-  ClassesList           : TStrings; //use a  TStrings to avoid the use of generics
-  ThemedNSISControls    : TThemedNSISControls;
+  NSISControlsList: TObjectDictionary<HWND, TSysStyleHook>;
+  ClassesList: TStrings; //use a  TStrings to avoid the use of generics
+  ThemedNSISControls: TThemedNSISControls;
 
 //
 procedure Addlog(const Msg: string);
@@ -221,7 +221,7 @@ begin
   OverrideEraseBkgnd := True;
   OverrideFont := False;
   // if (SysControl.ExStyle and WS_EX_TRANSPARENT <> WS_EX_TRANSPARENT) then
-  // SysControl.ExStyle  := SysControl.ExStyle or WS_EX_TRANSPARENT;
+  // SysControl.ExStyle := SysControl.ExStyle or WS_EX_TRANSPARENT;
 
 end;
 
@@ -558,41 +558,41 @@ end;
 class function TThemedNSISControls.HookActionCallBackWndProc(nCode: Integer;
   wParam: wParam; lParam: lParam): LRESULT;
 var
-  sClassName : string;
+  sClassName: string;
 begin
-    Result := CallNextHookEx(FHook_WH_CALLWNDPROC, nCode, wParam, lParam);
-    if (nCode < 0) then
-     Exit;
+  Result := CallNextHookEx(FHook_WH_CALLWNDPROC, nCode, wParam, lParam);
+  if (nCode < 0) then
+   Exit;
 
-    if (StyleServices.Enabled) and not (StyleServices.IsSystemStyle) then
+  if (StyleServices.Enabled) and not (StyleServices.IsSystemStyle) then
+  begin
+
+//     GetClassName(PCWPStruct(lParam)^.hwnd, C, 256);
+//     if SameText(C,'#32770') then
+//     begin
+//      Addlog(Format('Handle %x ',[PCWPStruct(lParam)^.hwnd]));
+//      Addlog('GetClassName ' + C);
+//     end;
+
+    if ClassesList.IndexOfName(IntToStr(PCWPStruct(lParam)^.hwnd))=-1 then
     begin
-
-//       GetClassName(PCWPStruct(lParam)^.hwnd, C, 256);
-//       if SameText(C,'#32770') then
-//       begin
-//        Addlog(Format('Handle %x ',[PCWPStruct(lParam)^.hwnd]));
-//        Addlog('GetClassName ' + C);
-//       end;
-
-      if ClassesList.IndexOfName(IntToStr(PCWPStruct(lParam)^.hwnd))=-1 then
-      begin
-        sClassName:=GetWindowClassName(PCWPStruct(lParam)^.hwnd);
-        //Addlog('GetClassName ' + C);
-        ClassesList.Add(Format('%d=%s',[PCWPStruct(lParam)^.hwnd, sClassName]));
-      end;
-
-      if ClassesList.IndexOfName(IntToStr(PCWPStruct(lParam)^.hwnd))>=0 then
-      begin
-        sClassName:=ClassesList.Values[IntToStr(PCWPStruct(lParam)^.hwnd)]; //ClassesList[PCWPStruct(lParam)^.hwnd];
-
-        if SameText(sClassName,'#32770') then
-        begin
-           if not TSysStyleManager.SysStyleHookList.ContainsKey(PCWPStruct(lParam)^.hwnd) then  // avoid double registration
-           if (PCWPStruct(lParam)^.message=WM_NCCALCSIZE) and not (NSISControlsList.ContainsKey(PCWPStruct(lParam)^.hwnd)) then
-               NSISControlsList.Add(PCWPStruct(lParam)^.hwnd, TSysDialogStyleHook.Create(PCWPStruct(lParam)^.hwnd));
-        end
-      end;
+      sClassName:=GetWindowClassName(PCWPStruct(lParam)^.hwnd);
+      //Addlog('GetClassName ' + C);
+      ClassesList.Add(Format('%d=%s',[PCWPStruct(lParam)^.hwnd, sClassName]));
     end;
+
+    if ClassesList.IndexOfName(IntToStr(PCWPStruct(lParam)^.hwnd))>=0 then
+    begin
+      sClassName:=ClassesList.Values[IntToStr(PCWPStruct(lParam)^.hwnd)]; //ClassesList[PCWPStruct(lParam)^.hwnd];
+
+      if SameText(sClassName,'#32770') then
+      begin
+        if not TSysStyleManager.SysStyleHookList.ContainsKey(PCWPStruct(lParam)^.hwnd) then  // avoid double registration
+          if (PCWPStruct(lParam)^.message=WM_NCCALCSIZE) and not (NSISControlsList.ContainsKey(PCWPStruct(lParam)^.hwnd)) then
+            NSISControlsList.Add(PCWPStruct(lParam)^.hwnd, TSysDialogStyleHook.Create(PCWPStruct(lParam)^.hwnd));
+      end
+    end;
+  end;
 end;
 
 procedure TThemedNSISControls.InstallHook;
@@ -606,9 +606,9 @@ begin
     UnhookWindowsHookEx(FHook_WH_CALLWNDPROC);
 end;
 
-Procedure  Done;
+Procedure Done;
 begin
-if Assigned(ThemedNSISControls) then
+  if Assigned(ThemedNSISControls) then
   begin
     ThemedNSISControls.Free;
     ThemedNSISControls:=nil;
@@ -621,10 +621,10 @@ const
   commdlg32 = 'comdlg32.dll';
 
 var
- TrampolineGetOpenFileNameW  : function (var OpenFile: TOpenFilenameW): Bool; stdcall;
- TrampolineGetOpenFileNameA  : function (var OpenFile: TOpenFilenameA): Bool; stdcall;
- TrampolineGetSaveFileNameW  : function (var OpenFile: TOpenFilenameW): Bool; stdcall;
- TrampolineGetSaveFileNameA  : function (var OpenFile: TOpenFilenameA): Bool; stdcall;
+ TrampolineGetOpenFileNameW: function (var OpenFile: TOpenFilenameW): Bool; stdcall;
+ TrampolineGetOpenFileNameA: function (var OpenFile: TOpenFilenameA): Bool; stdcall;
+ TrampolineGetSaveFileNameW: function (var OpenFile: TOpenFilenameW): Bool; stdcall;
+ TrampolineGetSaveFileNameA: function (var OpenFile: TOpenFilenameA): Bool; stdcall;
 
 function DialogHook(Wnd: HWnd; Msg: UINT; WParam: WPARAM; LParam: LPARAM): UINT_PTR; stdcall;
 begin
@@ -635,7 +635,7 @@ function DetourGetOpenFileNameW(var OpenFile: TOpenFilename): Bool; stdcall;
 begin
  //Addlog('DetourGetOpenFileNameW');
  OpenFile.lpfnHook := @DialogHook;
- OpenFile.Flags    := OpenFile.Flags or OFN_ENABLEHOOK or OFN_EXPLORER;
+ OpenFile.Flags := OpenFile.Flags or OFN_ENABLEHOOK or OFN_EXPLORER;
  Exit(TrampolineGetOpenFileNameW(OpenFile));
 end;
 
@@ -644,7 +644,7 @@ function DetourGetOpenFileNameA(var OpenFile: TOpenFilenameA): Bool; stdcall;
 begin
  //Addlog('DetourGetOpenFileNameA');
  OpenFile.lpfnHook := @DialogHook;
- OpenFile.Flags    := OpenFile.Flags or OFN_ENABLEHOOK or OFN_EXPLORER;
+ OpenFile.Flags := OpenFile.Flags or OFN_ENABLEHOOK or OFN_EXPLORER;
  Exit(TrampolineGetOpenFileNameA(OpenFile));
 end;
 
@@ -653,7 +653,7 @@ function DetourGetSaveFileNameW(var OpenFile: TOpenFilename): Bool; stdcall;
 begin
  //Addlog('DetourGetSaveFileNameW');
  OpenFile.lpfnHook := @DialogHook;
- OpenFile.Flags    := OpenFile.Flags or OFN_ENABLEHOOK or OFN_EXPLORER;
+ OpenFile.Flags := OpenFile.Flags or OFN_ENABLEHOOK or OFN_EXPLORER;
  Exit(TrampolineGetSaveFileNameW(OpenFile));
 end;
 
@@ -662,7 +662,7 @@ function DetourGetSaveFileNameA(var OpenFile: TOpenFilenameA): Bool; stdcall;
 begin
  //Addlog('DetourGetSaveFileNameA');
  OpenFile.lpfnHook := @DialogHook;
- OpenFile.Flags    := OpenFile.Flags or OFN_ENABLEHOOK or OFN_EXPLORER;
+ OpenFile.Flags := OpenFile.Flags or OFN_ENABLEHOOK or OFN_EXPLORER;
  Exit(TrampolineGetSaveFileNameA(OpenFile));
 end;
 
@@ -689,19 +689,19 @@ end;
 
 var
 
-Trampoline_LoadBitmapA :  function (hInstance: HINST; lpBitmapName: PAnsiChar): HBITMAP; stdcall;
+Trampoline_LoadBitmapA:  function (hInstance: HINST; lpBitmapName: PAnsiChar): HBITMAP; stdcall;
 
 
 function Detour_LoadBitmapA(hInstance: HINST; lpBitmapName: PAnsiChar): HBITMAP; stdcall;
 var
-  LBitMap   : TBitmap;
-  LRect     : TRect;
-  LSize     : TSize;
+  LBitMap: TBitmap;
+  LRect: TRect;
+  LSize: TSize;
 begin
 
   if  IS_INTRESOURCE(PChar(lpBitmapName)) then
   case Integer(lpBitmapName) of
-    110 :  begin
+    110:  begin
              LBitMap:=TBitmap.Create;
              try
                //LBitmap.Handle := Result;

@@ -11,7 +11,7 @@ uses Windows;
 
 type
   TScintillaMessageFnc = function(ptr: Pointer; Msg, wParam, lParam: LongInt)
-    : LongInt; cdecl;
+: LongInt; cdecl;
   uptr_t = Longword;
   sptr_t = LongInt;
 

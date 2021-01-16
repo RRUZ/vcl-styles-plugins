@@ -152,7 +152,7 @@ const
   NPPM_GETNPPVERSION = (NOTEPADPLUS_USER + 50);
   // int NPPM_GETNPPVERSION(0, 0)
   // return version
-  // ex : v4.6
+  // ex: v4.6
   // HIWORD(version) == 4
   // LOWORD(version) == 6
 
@@ -160,11 +160,11 @@ const
   // BOOL NPPM_HIDETABBAR(0, BOOL hideOrNot)
   // if hideOrNot is set as TRUE then tab bar will be hidden
   // otherwise it'll be shown.
-  // return value : the old status value
+  // return value: the old status value
 
   NPPM_ISTABBARHIDE = (NOTEPADPLUS_USER + 52);
   // BOOL NPPM_ISTABBARHIDE(0, 0)
-  // returned value : TRUE if tab bar is hidden, otherwise FALSE
+  // returned value: TRUE if tab bar is hidden, otherwise FALSE
 
   NPPM_CHECKDOCSTATUS = (NOTEPADPLUS_USER + 53);
   // VOID NPPM_CHECKDOCSTATUS(BOOL, 0)
@@ -450,7 +450,7 @@ type
   protected
     PluginName: nppString;
     function AddFuncItem(Name: nppString; Func: PFUNCPLUGINCMD)
-      : Integer; overload;
+: Integer; overload;
     function AddFuncItem(Name: nppString; Func: PFUNCPLUGINCMD;
       ShortcutKey: TShortcutKey): Integer; overload;
   public
@@ -558,7 +558,7 @@ begin
   SendMessage(self.NppData.NppHandle, NPPM_GETFULLCURRENTPATH, 0, LPARAM(PChar(s)));
   SetLength(s, StrLen(PChar(s)));
   filename := s;
-  r    := SendMessage(self.NppData.ScintillaMainHandle, SciSupport.SCI_GETCURRENTPOS, 0, 0);
+  r := SendMessage(self.NppData.ScintillaMainHandle, SciSupport.SCI_GETCURRENTPOS, 0, 0);
   Line := SendMessage(self.NppData.ScintillaMainHandle, SciSupport.SCI_LINEFROMPOSITION, r, 0);
 end;
 

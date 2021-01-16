@@ -16,7 +16,7 @@
 //
 // The Initial Developer of the Original Code is Rodrigo Ruz V.
 //
-// Portions created by Rodrigo Ruz V. are Copyright (C) 2013-2015 Rodrigo Ruz V.
+// Portions created by Rodrigo Ruz V. are Copyright (C) 2013-2021 Rodrigo Ruz V.
 // All Rights Reserved.
 //
 // **************************************************************************************************
@@ -232,8 +232,8 @@ begin
         // Addlog(sClassName+' '+WM_To_String(PCWPStruct(lParam)^.message)+
         // ' WParam '+IntToHex(PCWPStruct(lParam)^.wParam, 8) +
         // ' lParam '+IntToHex(PCWPStruct(lParam)^.lParam, 8) +
-        // ' hwnd : '+ IntToHex(PCWPStruct(lParam)^.hwnd, 8) +
-        // ' WNDPROC : ' + IntToHex(GetWindowLongPtr(PCWPStruct(lParam)^.hwnd, GWL_WNDPROC), 8 )
+        // ' hwnd: '+ IntToHex(PCWPStruct(lParam)^.hwnd, 8) +
+        // ' WNDPROC: ' + IntToHex(GetWindowLongPtr(PCWPStruct(lParam)^.hwnd, GWL_WNDPROC), 8 )
         // );
 {$ENDIF}
         if SameText(sClassName, 'TNewButton') then

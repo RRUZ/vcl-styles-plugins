@@ -16,7 +16,7 @@
 //
 // The Initial Developer of the Original Code is Rodrigo Ruz V.
 //
-// Portions created by Rodrigo Ruz V. are Copyright (C) 2014-2015 Rodrigo Ruz V.
+// Portions created by Rodrigo Ruz V. are Copyright (C) 2014-2021 Rodrigo Ruz V.
 // All Rights Reserved.
 //
 //**************************************************************************************************
@@ -38,9 +38,9 @@ type
     destructor Destroy; override;
     procedure ShowSettings;
     procedure ShowAbout;
-    function GetVCLStylesNppConfigPath : string;
-    property Settings : TSettings read FSettings write FSettings;
-    property SettingsFileName : string  read FSettingsFileName  write FSettingsFileName;
+    function GetVCLStylesNppConfigPath: string;
+    property Settings: TSettings read FSettings write FSettings;
+    property SettingsFileName: string  read FSettingsFileName  write FSettingsFileName;
   end;
 
 var
@@ -76,7 +76,7 @@ uses
 type
   TThemedNppControls = class
   private
-  class var ClassesList : TDictionary<HWND, string>;
+  class var ClassesList: TDictionary<HWND, string>;
   class var  FHook_WH_CALLWNDPROC: HHook;
   class var  FHook_WH_CBT: HHook;
   protected
@@ -92,8 +92,8 @@ type
   end;
 
 var
-  NppControlsList      : TObjectDictionary<HWND, TSysStyleHook>;
-  ThemedNppControls    : TThemedNppControls;
+  NppControlsList: TObjectDictionary<HWND, TSysStyleHook>;
+  ThemedNppControls: TThemedNppControls;
 
 { TThemedSysControls }
 constructor TThemedNppControls.Create;
@@ -117,8 +117,8 @@ end;
 
 class function TThemedNppControls.HookActionCallBackCBT(nCode: Integer; wParam: wParam; lParam: lParam): LRESULT;
 var
- LHWND  : HWND;
- LClassName : string;
+ LHWND: HWND;
+ LClassName: string;
 begin
    if (StyleServices.Enabled) and not (StyleServices.IsSystemStyle) then
    case nCode of
@@ -142,7 +142,7 @@ end;
 class function TThemedNppControls.HookActionCallBackWndProc(nCode: Integer;
   wParam: wParam; lParam: lParam): LRESULT;
 var
-  LClassName : string;
+  LClassName: string;
 begin
     Result := CallNextHookEx(FHook_WH_CALLWNDPROC, nCode, wParam, lParam);
     if (nCode < 0) then
@@ -298,7 +298,7 @@ const
   commdlg32 = 'comdlg32.dll';
 
 var
- TrampolineGetOpenFileName  : function (var OpenFile: TOpenFilename): Bool; stdcall;
+ TrampolineGetOpenFileName: function (var OpenFile: TOpenFilename): Bool; stdcall;
 
 function DialogHook(Wnd: HWnd; Msg: UINT; WParam: WPARAM; LParam: LPARAM): UINT_PTR; stdcall;
 begin
@@ -310,7 +310,7 @@ begin
   if (OpenFile.Flags and  OFN_EXPLORER <> 0)  then
   begin
     OpenFile.lpfnHook := @DialogHook;
-    OpenFile.Flags    := OpenFile.Flags or OFN_ENABLEHOOK;
+    OpenFile.Flags := OpenFile.Flags or OFN_ENABLEHOOK;
   end;
  Exit(TrampolineGetOpenFileName(OpenFile));
 end;

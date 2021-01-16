@@ -15,7 +15,7 @@
 //
 // The Initial Developer of the Original Code is Rodrigo Ruz V. 
 //
-// Portions created by Rodrigo Ruz V. are Copyright (C) 2013-2015 Rodrigo Ruz V.
+// Portions created by Rodrigo Ruz V. are Copyright (C) 2013-2021 Rodrigo Ruz V.
 // Portions created by Mahdi Safsafi [SMP3]   e-mail SMP@LIVE.FR
 //
 // All Rights Reserved.
@@ -87,7 +87,7 @@ end;
 {$IFDEF NSIS_ANSI}
  procedure LoadVCLStyle(const hwndParent: HWND; const string_size: integer; const variables: PAnsiChar; const stacktop: pointer; const extraparameters: pointer = nil); cdecl;
  var
-  VCLStyleFile : PAnsiChar;
+  VCLStyleFile: PAnsiChar;
  begin
    if not StyleServices.Available then exit;
    InitA(hwndParent, string_size, variables, stacktop, extraparameters);
@@ -108,7 +108,7 @@ end;
      TSysDialogStyleHookBackground.MergeImages := True;
      TSysDialogStyleHookBackground.SharedImageLocation := 'C:\Delphi\google-code\vcl-styles-utils\NSIS plugin\background.png';
      TSysDialogStyleHookBackground.BackGroundSettings.UseImage := True;
-     TSysDialogStyleHookBackground.BackGroundSettings.Enabled  := True;
+     TSysDialogStyleHookBackground.BackGroundSettings.Enabled := True;
 
      TSysStyleManager.UnRegisterSysStyleHook('#32770', TSysDialogStyleHook);
      TSysStyleManager.RegisterSysStyleHook('#32770', TSysDialogStyleHookBackground);
@@ -129,7 +129,7 @@ end;
 
  procedure RemoveStyleControl(const hwndParent: HWND; const string_size: integer; const variables: PAnsiChar; const stacktop: pointer; const extraparameters: pointer = nil); cdecl;
  var
-  sHandle : PAnsiChar;
+  sHandle: PAnsiChar;
   Value: Integer;
  begin
    if not StyleServices.Available then exit;
@@ -160,7 +160,7 @@ end;
 {$IFDEF NSIS_UNICODE}
  procedure LoadVCLStyle(const hwndParent: HWND; const string_size: integer; const variables: PChar; const stacktop: pointer; const extraparameters: pointer = nil); cdecl;
  var
-  VCLStyleFile : PChar;
+  VCLStyleFile: PChar;
  begin
    if not StyleServices.Available then exit;
    InitW(hwndParent, string_size, variables, stacktop, extraparameters);
@@ -189,7 +189,7 @@ end;
 
  procedure RemoveStyleControl(const hwndParent: HWND; const string_size: integer; const variables: PChar; const stacktop: pointer; const extraparameters: pointer = nil); cdecl;
  var
-  sHandle : PChar;
+  sHandle: PChar;
   Value: Integer;
  begin
    if not StyleServices.Available then exit;

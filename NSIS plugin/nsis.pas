@@ -106,24 +106,24 @@ type
   {$ENDIF}
 
 var
-  g_stringsize : integer;
-  g_stacktopA  : ^pstack_t;
-  g_variablesA : PAnsiChar;
+  g_stringsize: integer;
+  g_stacktopA: ^pstack_t;
+  g_variablesA: PAnsiChar;
   {$IFDEF UNICODE}
-  g_stacktopW  : ^pstack_tW;
-  g_variablesW : PChar;
+  g_stacktopW: ^pstack_tW;
+  g_variablesW: PChar;
   {$ENDIF}
-  g_hwndParent : HWND;
-  g_hwndList   : HWND;
+  g_hwndParent: HWND;
+  g_hwndList: HWND;
   g_hwndLogList: HWND;
 
   g_extraparameters: pextrap_t;
-  func : TExecuteCodeSegment;
-  extrap : extrap_t;
+  func: TExecuteCodeSegment;
+  extrap: extrap_t;
 
   procedure InitA(const hwndParent: HWND; const string_size: integer; const variables: PAnsiChar; const stacktop: pointer; const extraparameters: pointer = nil);
-  function LogMessageA(Msg : AnsiString): BOOL;
-  function CallA(NSIS_func : AnsiString) : Integer;
+  function LogMessageA(Msg: AnsiString): BOOL;
+  function CallA(NSIS_func: AnsiString): Integer;
   function PopStringA(): AnsiString;
   procedure PushStringA(const str: AnsiString='');
   function GetUserVariableA(const varnum: TVariableList): AnsiString;
@@ -131,8 +131,8 @@ var
   procedure NSISDialogA(const text, caption: AnsiString; const buttons: integer);
  {$IFDEF UNICODE}
   procedure InitW(const hwndParent: HWND; const string_size: integer; const variables: PChar; const stacktop: pointer; const extraparameters: pointer = nil);
-  function LogMessageW(Msg : String): BOOL;
-  function CallW(NSIS_func : String) : Integer;
+  function LogMessageW(Msg: String): BOOL;
+  function CallW(NSIS_func: String): Integer;
   function PopStringW(): String;
   procedure PushStringW(const str: String='');
   function GetUserVariableW(const varnum: TVariableList): String;
@@ -147,8 +147,8 @@ procedure InitA(const hwndParent: HWND; const string_size: integer; const variab
 begin
   g_stringsize := string_size;
   g_hwndParent := hwndParent;
-  g_stacktopA   := stacktop;
-  g_variablesA  := variables;
+  g_stacktopA := stacktop;
+  g_variablesA := variables;
   g_hwndList := 0;
   g_hwndList := FindWindowEx(FindWindowEx(g_hwndParent, 0, '#32770', nil), 0,'SysListView32', nil);
   g_extraparameters := extraparameters;
@@ -162,10 +162,10 @@ procedure InitW(const hwndParent: HWND; const string_size: integer; const variab
 begin
   g_stringsize := string_size;
   g_hwndParent := hwndParent;
-  g_stacktopW  := stacktop;
+  g_stacktopW := stacktop;
   g_variablesW := variables;
-  g_hwndList   := 0;
-  g_hwndList   := FindWindowEx(FindWindowEx(g_hwndParent, 0, '#32770', nil), 0,'SysListView32', nil);
+  g_hwndList := 0;
+  g_hwndList := FindWindowEx(FindWindowEx(g_hwndParent, 0, '#32770', nil), 0,'SysListView32', nil);
   g_extraparameters := extraparameters;
   if g_extraparameters<>nil then
    extrap := g_extraparameters^;
@@ -173,7 +173,7 @@ end;
 {$ENDIF}
 
 
-function CallA(NSIS_func : AnsiString) : Integer;
+function CallA(NSIS_func: AnsiString): Integer;
 var
   NSISFun: Integer; //The ID of nsis function
 begin
@@ -188,7 +188,7 @@ begin
 end;
 
 {$IFDEF UNICODE}
-function CallW(NSIS_func : String) : Integer;
+function CallW(NSIS_func: String): Integer;
 var
   NSISFun: Integer; //The ID of nsis function
 begin
@@ -204,9 +204,9 @@ end;
 {$ENDIF}
 
 
-function LogMessageA(Msg : AnsiString): BOOL;
+function LogMessageA(Msg: AnsiString): BOOL;
 var
-  ItemCount : Integer;
+  ItemCount: Integer;
   item: TLVItem;
 begin
   Result := FAlse;
@@ -221,9 +221,9 @@ begin
 end;
 
 {$IFDEF UNICODE}
-function LogMessageW(Msg : String): BOOL;
+function LogMessageW(Msg: String): BOOL;
 var
-  ItemCount : Integer;
+  ItemCount: Integer;
   item: TLVItem;
 begin
   Result := FAlse;

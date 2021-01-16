@@ -54,15 +54,15 @@ type
   TListStyleBrush = TObjectDictionary<Integer, TBrush>;
 
 var
-  VCLStylesBrush   : TObjectDictionary<string, TListStyleBrush>;
-  VCLStylesLock    : TCriticalSection = nil;
+  VCLStylesBrush: TObjectDictionary<string, TListStyleBrush>;
+  VCLStylesLock: TCriticalSection = nil;
 
-  Trampoline_GetSysColor          : function (nIndex: Integer): DWORD; stdcall =  nil;
-  Trampoline_GetSysColorBrush     : function (nIndex: Integer): HBRUSH; stdcall=  nil;
-  Trampoline_DrawFrameControl     : function (DC: HDC; Rect: PRect; uType, uState: UINT): BOOL; stdcall = nil;
-  Trampoline_DrawEdge             : function (hdc: HDC; var qrc: TRect; edge: UINT; grfFlags: UINT): BOOL; stdcall = nil;
-  Trampoline_GetStockObject       : function (Index: Integer): HGDIOBJ; stdcall = nil;
-  Trampoline_FindResourceW        : function (hModule: HMODULE; lpName, lpType: LPCWSTR): HRSRC; stdcall =nil;
+  Trampoline_GetSysColor: function (nIndex: Integer): DWORD; stdcall =  nil;
+  Trampoline_GetSysColorBrush: function (nIndex: Integer): HBRUSH; stdcall=  nil;
+  Trampoline_DrawFrameControl: function (DC: HDC; Rect: PRect; uType, uState: UINT): BOOL; stdcall = nil;
+  Trampoline_DrawEdge: function (hdc: HDC; var qrc: TRect; edge: UINT; grfFlags: UINT): BOOL; stdcall = nil;
+  Trampoline_GetStockObject: function (Index: Integer): HGDIOBJ; stdcall = nil;
+  Trampoline_FindResourceW: function (hModule: HMODULE; lpName, lpType: LPCWSTR): HRSRC; stdcall =nil;
 
 //Custom version for npp, avoid wrong backround in images of toolbar.
 function Detour_GetSysColor(nIndex: Integer): DWORD; stdcall;
@@ -95,8 +95,8 @@ end;
 
 function Detour_GetSysColorBrush(nIndex: Integer): HBRUSH; stdcall;
 var
-  LCurrentStyleBrush : TListStyleBrush;
-  LBrush : TBrush;
+  LCurrentStyleBrush: TListStyleBrush;
+  LBrush: TBrush;
 begin
   VCLStylesLock.Enter;
   try
@@ -174,12 +174,12 @@ initialization
    TCustomStyleEngine.RegisterStyleHook(TProgressBar, TStyleHook);
    {$ENDIF}
 
-   @Trampoline_GetSysColor         :=  InterceptCreate(user32, 'GetSysColor', @Detour_GetSysColor);
-   @Trampoline_GetSysColorBrush    :=  InterceptCreate(user32, 'GetSysColorBrush', @Detour_GetSysColorBrush);
-   @Trampoline_DrawFrameControl    :=  InterceptCreate(user32, 'DrawFrameControl', @Detour_WinApi_DrawFrameControl);
-   @Trampoline_DrawEdge            :=  InterceptCreate(user32, 'DrawEdge', @Detour_WinApi_DrawEdge);
-   @Trampoline_GetStockObject      :=  InterceptCreate(gdi32, 'GetStockObject', @Detour_GetStockObject);
-   @Trampoline_FindResourceW       :=  InterceptCreate(kernel32, 'FindResourceW', @Detour_FindResourceW);
+   @Trampoline_GetSysColor :=  InterceptCreate(user32, 'GetSysColor', @Detour_GetSysColor);
+   @Trampoline_GetSysColorBrush :=  InterceptCreate(user32, 'GetSysColorBrush', @Detour_GetSysColorBrush);
+   @Trampoline_DrawFrameControl :=  InterceptCreate(user32, 'DrawFrameControl', @Detour_WinApi_DrawFrameControl);
+   @Trampoline_DrawEdge :=  InterceptCreate(user32, 'DrawEdge', @Detour_WinApi_DrawEdge);
+   @Trampoline_GetStockObject :=  InterceptCreate(gdi32, 'GetStockObject', @Detour_GetStockObject);
+   @Trampoline_FindResourceW :=  InterceptCreate(kernel32, 'FindResourceW', @Detour_FindResourceW);
  end;
 
 finalization

@@ -16,7 +16,7 @@
 //
 // The Initial Developer of the Original Code is Rodrigo Ruz V.
 //
-// Portions created by Rodrigo Ruz V. are Copyright (C) 2014-2015 Rodrigo Ruz V.
+// Portions created by Rodrigo Ruz V. are Copyright (C) 2014-2021 Rodrigo Ruz V.
 // All Rights Reserved.
 //
 //**************************************************************************************************
@@ -77,7 +77,7 @@ procedure TSettingsForm.BtnOKClick(Sender: TObject);
 begin
   inherited;
   if not SameText(ComboBoxVCLStyle.Text, TVCLStylesNppPlugin(Npp).Settings.VclStyle) then
-  if MessageBox(Handle, 'Do you want apply the changes?'+sLineBreak+'Note : You must restart Notepad++ to get better results', 'Question', MB_YESNO + MB_ICONQUESTION) = IDYES then
+  if MessageBox(Handle, 'Do you want apply the changes?'+sLineBreak+'Note: You must restart Notepad++ to get better results', 'Question', MB_YESNO + MB_ICONQUESTION) = IDYES then
   begin
     TVCLStylesNppPlugin(Npp).Settings.VclStyle:=ComboBoxVCLStyle.Text;
     WriteSettings(TVCLStylesNppPlugin(Npp).Settings, TVCLStylesNppPlugin(Npp).SettingsFileName);
@@ -87,7 +87,7 @@ begin
   end;
 end;
 
-//function EnumChildProc(const hWindow: hWnd; const LParam : Winapi.Windows.LParam): boolean; stdcall;
+//function EnumChildProc(const hWindow: hWnd; const LParam: Winapi.Windows.LParam): boolean; stdcall;
 //begin
 //  InvalidateRect(hWindow, nil, False);
 //  SendMessage(hWindow, WM_NCPAINT, 0, 0);
@@ -109,8 +109,8 @@ end;
 
 procedure TSettingsForm.DrawSeletedVCLStyle;
 var
-  StyleName : string;
-  LStyle    : TCustomStyleServices;
+  StyleName: string;
+  LStyle: TCustomStyleServices;
 begin
    StyleName:=ComboBoxVCLStyle.Text;
    if (StyleName<>'') and (not SameText(StyleName, 'Windows')) then
@@ -150,7 +150,7 @@ end;
 
 procedure TSettingsForm.LoadStyles;
 var
-  Style   : string;
+  Style: string;
 begin
   try
     ComboBoxVCLStyle.Items.BeginUpdate;

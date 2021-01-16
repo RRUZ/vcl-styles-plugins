@@ -16,7 +16,7 @@
 //
 // The Initial Developer of the Original Code is Rodrigo Ruz V.
 //
-// Portions created by Rodrigo Ruz V. are Copyright (C) 2014-2015 Rodrigo Ruz V.
+// Portions created by Rodrigo Ruz V. are Copyright (C) 2014-2021 Rodrigo Ruz V.
 // All Rights Reserved.
 //
 //**************************************************************************************************
@@ -37,7 +37,7 @@ type
   private
     FVclStyle: string;
   public
-    property VclStyle : string read FVclStyle write FVclStyle;
+    property VclStyle: string read FVclStyle write FVclStyle;
   end;
 
 
@@ -47,19 +47,19 @@ type
   function  GetLocalAppDataFolder: string;
   function  GetTempDirectory: string;
   procedure MsgBox(const Msg: string);
-  procedure CreateArrayBitmap(Width,Height:Word;Colors: Array of TColor;var bmp : TBitmap);
-  function  GetSpecialFolder(const CSIDL: integer) : string;
+  procedure CreateArrayBitmap(Width,Height:Word;Colors: Array of TColor;var bmp: TBitmap);
+  function  GetSpecialFolder(const CSIDL: integer): string;
   function  IsUACEnabled: Boolean;
   procedure RunAsAdmin(const FileName, Params: string; hWnd: HWND = 0);
   function  CurrentUserIsAdmin: Boolean;
   function  GetModuleName: string;
-  procedure GetAssocAppByExt(const FileName:string; var ExeName, FriendlyAppName : string);
+  procedure GetAssocAppByExt(const FileName:string; var ExeName, FriendlyAppName: string);
 
-  procedure ReadSettings(Settings: TSettings;const FileName : string);
-  procedure WriteSettings(const Settings: TSettings;const FileName : string);
+  procedure ReadSettings(Settings: TSettings;const FileName: string);
+  procedure WriteSettings(const Settings: TSettings;const FileName: string);
   function GetUNCNameEx(const lpLocalPath: string): string;
   function LocalPathToFileURL(const pszPath: string): string;
-  function IsVistaOrLater : Boolean;
+  function IsVistaOrLater: Boolean;
 
 implementation
 
@@ -105,7 +105,7 @@ type
   ASSOCSTR_DDETOPIC );
 
 const
-  AssocStrDisplaystrings : array [ASSOCSTR_COMMAND..ASSOCSTR_DDETOPIC]
+  AssocStrDisplaystrings: array [ASSOCSTR_COMMAND..ASSOCSTR_DDETOPIC]
   of string = (
   'ASSOCSTR_COMMAND',
   'ASSOCSTR_EXECUTABLE',
@@ -120,7 +120,7 @@ const
 
 
 
-function IsVistaOrLater : Boolean;
+function IsVistaOrLater: Boolean;
 begin
   Result:= (Win32MajorVersion >= 6);
 end;
@@ -162,13 +162,13 @@ end;
 
 
 
-procedure ReadSettings(Settings: TSettings;const FileName : string);
+procedure ReadSettings(Settings: TSettings;const FileName: string);
 var
   iniFile: TIniFile;
-  LCtx   : TRttiContext;
-  LProp  : TRttiProperty;
-  BooleanValue : Boolean;
-  StringValue : string;
+  LCtx: TRttiContext;
+  LProp: TRttiProperty;
+  BooleanValue: Boolean;
+  StringValue: string;
 begin
   iniFile := TIniFile.Create(FileName);
   try
@@ -194,13 +194,13 @@ begin
   end;
 end;
 
-procedure WriteSettings(const Settings: TSettings;const FileName : string);
+procedure WriteSettings(const Settings: TSettings;const FileName: string);
 var
   iniFile: TIniFile;
-  LCtx   : TRttiContext;
-  LProp  : TRttiProperty;
-  BooleanValue : Boolean;
-  StringValue : string;
+  LCtx: TRttiContext;
+  LProp: TRttiProperty;
+  BooleanValue: Boolean;
+  StringValue: string;
 begin
   iniFile := TIniFile.Create(FileName);
   try
@@ -226,7 +226,7 @@ begin
   end;
 end;
 
-procedure GetAssocAppByExt(const FileName:string; var ExeName, FriendlyAppName : string);
+procedure GetAssocAppByExt(const FileName:string; var ExeName, FriendlyAppName: string);
 var
  pszOut: array [0..1024] of Char;
  pcchOut: DWord;
@@ -276,11 +276,11 @@ begin
 end;
 
 
-function  UserInGroup(Group :DWORD) : Boolean;
+function  UserInGroup(Group :DWORD): Boolean;
  var
   pIdentifierAuthority :TSIDIdentifierAuthority;
-  pSid : Winapi.Windows.PSID;
-  IsMember    : BOOL;
+  pSid: Winapi.Windows.PSID;
+  IsMember: BOOL;
  begin
   pIdentifierAuthority := SECURITY_NT_AUTHORITY;
   Result := AllocateAndInitializeSid(pIdentifierAuthority,2, SECURITY_BUILTIN_DOMAIN_RID, Group, 0, 0, 0, 0, 0, 0, pSid);
@@ -317,9 +317,9 @@ begin
 end;
 
 
-function GetSpecialFolder(const CSIDL: integer) : string;
+function GetSpecialFolder(const CSIDL: integer): string;
 var
-  lpszPath : PWideChar;
+  lpszPath: PWideChar;
 begin
   lpszPath := StrAlloc(MAX_PATH);
   try
@@ -390,7 +390,7 @@ end;
 
 function IsAppRunning(const FileName: string): boolean;
 var
-  hSnapshot      : Cardinal;
+  hSnapshot: Cardinal;
   EntryParentProc: TProcessEntry32;
 begin
   Result := False;
@@ -417,13 +417,13 @@ end;
 
 function GetFileVersion(const FileName: string): string;
 var
-  FSO  : OleVariant;
+  FSO: OleVariant;
 begin
-  FSO    := CreateOleObject('Scripting.FileSystemObject');
+  FSO := CreateOleObject('Scripting.FileSystemObject');
   Result := FSO.GetFileVersion(FileName);
 end;
 
-procedure ExtractIconFile(Icon: TIcon; const Filename: string;IconType : Cardinal);
+procedure ExtractIconFile(Icon: TIcon; const Filename: string;IconType: Cardinal);
 var
   FileInfo: TShFileInfo;
 begin
@@ -437,7 +437,7 @@ begin
   end;
 end;
 
-procedure ExtractBitmapFile(Bmp: TBitmap; const Filename: string;IconType : Cardinal);
+procedure ExtractBitmapFile(Bmp: TBitmap; const Filename: string;IconType: Cardinal);
 var
  Icon: TIcon;
 begin
@@ -455,7 +455,7 @@ begin
 end;
 
 
-procedure ExtractBitmapFile32(Bmp: TBitmap; const Filename: string;IconType : Cardinal);
+procedure ExtractBitmapFile32(Bmp: TBitmap; const Filename: string;IconType: Cardinal);
 var
  Icon: TIcon;
 begin
@@ -474,10 +474,10 @@ begin
 
 end;
 
-procedure CreateArrayBitmap(Width,Height:Word;Colors: Array of TColor;var bmp : TBitmap);
+procedure CreateArrayBitmap(Width,Height:Word;Colors: Array of TColor;var bmp: TBitmap);
 Var
- i : integer;
- w : integer;
+ i: integer;
+ w: integer;
 begin
   bmp.PixelFormat:=pf24bit;
   bmp.Width:=Width;
@@ -555,7 +555,7 @@ begin
 
       { pf32bit = 4 bytes per pixel }
       ActualX := DestX*4;
-      DestLine[ActualX]   := Round(DestR / PixelsUsed);
+      DestLine[ActualX] := Round(DestR / PixelsUsed);
       DestLine[ActualX+1] := Round(DestB / PixelsUsed);
       DestLine[ActualX+2] := Round(DestG / PixelsUsed);
       DestLine[ActualX+3] := Round(DestA / PixelsUsed);

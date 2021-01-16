@@ -16,7 +16,7 @@
 //
 // The Initial Developer of the Original Code is Rodrigo Ruz V.
 //
-// Portions created by Rodrigo Ruz V. are Copyright (C) 2014-2015 Rodrigo Ruz V.
+// Portions created by Rodrigo Ruz V. are Copyright (C) 2014-2021 Rodrigo Ruz V.
 // All Rights Reserved.
 //
 //**************************************************************************************************
@@ -59,7 +59,7 @@ uses
 procedure TAboutForm.FormCreate(Sender: TObject);
 begin
   inherited;
-  LabelVersion.Caption    := Format('Version %s', [GetFileVersion(GetModuleName())]);
+  LabelVersion.Caption := Format('Version %s', [GetFileVersion(GetModuleName())]);
 end;
 
 procedure TAboutForm.LinkLabel1LinkClick(Sender: TObject; const Link: string;

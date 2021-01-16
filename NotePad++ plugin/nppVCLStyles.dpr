@@ -14,7 +14,7 @@
 //
 // The Initial Developer of the Original Code is Rodrigo Ruz V.
 //
-// Portions created by Rodrigo Ruz V. are Copyright (C) 2014-2015 Rodrigo Ruz V.
+// Portions created by Rodrigo Ruz V. are Copyright (C) 2014-2021 Rodrigo Ruz V.
 // All Rights Reserved.
 //
 //**************************************************************************************************
@@ -110,7 +110,7 @@ end;
 
 procedure setInfo(NppData: TNppData); cdecl; export;
 var
-  s, VClStyleFile : string;
+  s, VClStyleFile: string;
 begin
   Npp.SetInfo(NppData);
   //The VCL Style must be load here, because on this point the
@@ -178,7 +178,7 @@ begin
 end;
 
 {$IFDEF NPPUNICODE}
-function isUnicode : Boolean; cdecl; export;
+function isUnicode: Boolean; cdecl; export;
 begin
   Exit(True);
 end;
