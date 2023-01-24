@@ -1,4 +1,4 @@
-The VCL Styles Plugins is a collection of plugins for skining third party installers and apps using the VCL Styles.
+The VCL Styles Plugins are a set of tools for customizing the appearance of third-party software and applications using the VCL Styles
 
 ![logo](https://github.com/RRUZ/vcl-styles-plugins/blob/master/images/nsis_inno.png)
 
